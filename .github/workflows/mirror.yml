@@ -1,0 +1,21 @@
+name: 'Mirroring workflow'
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  MIRROR_URL: 'git@github.com:EpitechPromo2027/B-YEP-400-REN-4-1-zappy-louis.langanay.git'
+jobs:
+  mirror:
+    name: Push to mirror
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            ${{ env.MIRROR_URL }}
+          ssh_private_key:
+            ${{ secrets.GIT_SSH_PRIVATE_KEY }}
