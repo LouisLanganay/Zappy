@@ -1,0 +1,8 @@
+# Specify the owner for the /Client folder
+/Client @LouisLanganay
+
+# Specify the owner for the /Server folder
+/Server @Neo-Diamons
+
+# Specify the owner for the /IA folder
+/IA @ValentinPeron
