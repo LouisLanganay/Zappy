@@ -1,0 +1,87 @@
+name: 'Mirroring workflow'
+on:
+  push:
+  workflow_dispatch:
+
+env:
+  EXECUTABLES: 'zappy_server,zappy_ai,zappy_client'
+jobs:
+  check_coding_style:
+    name: Check coding style
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epitech/coding-style-checker:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check coding style
+        run: |
+          check.sh $(pwd)/Server $(pwd)
+          cat coding-style-reports.log > logs.txt
+          cat logs.txt | while read line
+          do
+            echo ::error title=$(echo $line | cut -d':' -f3) coding style error,file=$(echo $line | cut -d':' -f1),line=$(echo $line | cut -d':' -f2 | cut -c 1-):: $(echo $line | cut -d':' -f4)
+          done
+          if [ -s logs.txt ]
+          then
+            exit 1
+          else
+            echo "::notice title=Coding style::No coding style error found"
+          fi
+
+  check_program_compilation:
+    name: Check program compilation
+    runs-on: ubuntu-latest
+    container:
+      image: epitechcontent/epitest-docker
+    steps:
+      - uses: actions/checkout@v3
+      - name: Make
+        run: |
+          make
+          if [ echo $? -ne 0 ]
+          then
+              echo "::error title=Compilation error::Compilation failed"
+              exit 1
+          else
+              echo "::notice title=Compilation::No compilation error found"
+          fi
+        timeout-minutes: 2
+      - name: Check warnings
+        run: |
+          warningspresent=0
+          make re 2> warnings.txt
+          cat warnings.txt | while read line
+          do
+              if [[ $line == *"warning:"* ]]
+              then
+                  my_file=$(echo "$line" | cut -d':' -f1)
+                  my_line=$(echo "$line" | cut -d':' -f2)
+                  my_message=$(echo "$line" | cut -d':' -f5 | cut -c2-)
+                  echo "::warning title=Compilation warning,file=$my_file,line=$my_line::$my_message"
+                  warningspresent=1
+              fi
+          done
+          if [ $warningspresent -eq 0 ]
+          then
+              echo "::notice title=Compilation::No compilation warning found"
+          fi
+      - name: Check executables
+        run: |
+          missing=0
+          IFS=','; read -a array <<< "${{ env.EXECUTABLES }}"
+          for element in "${array[@]}"
+          do
+              if [ -z $(ls | grep -w $element$) ]
+              then
+                  echo "::error title=Missing file,file=$element::This file was not found in your repository"
+                  missing=1
+              fi
+          done
+          if [ $missing -eq 1 ]
+          then
+              exit 1
+          else
+              echo "::notice title=Compilation::All executables were found"
+          fi
+      - name: Make fclean
+        run: make fclean
