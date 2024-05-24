@@ -32,5 +32,7 @@ int main(int ac, char **av)
     if (std::string(av[4]).find_first_not_of("0123456789.") != std::string::npos)
         return displayHelp(84);
     Zappy::Core core(av[4], std::stoi(av[2]));
+    std::cout << "Core created with host: " << av[4] << " and port: " << av[2] << std::endl;
+    core.run();
     return 0;
 }

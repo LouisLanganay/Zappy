@@ -15,7 +15,7 @@ all: zappy_server zappy_gui zappy_ai
 
 zappy_server:
 	@if [ -f Server/Makefile ]; then \
-		$(MAKE) -C Server; \
+		$(MAKE) -s -C Server; \
 		mv Server/zappy_server ./zappy_server; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Server/Makefile not found, skipping..."; \
@@ -23,7 +23,7 @@ zappy_server:
 
 zappy_gui:
 	@if [ -f Client/Makefile ]; then \
-		$(MAKE) -C Client; \
+		$(MAKE) -s -C Client; \
 		mv Client/zappy_gui ./zappy_gui; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Client/Makefile not found, skipping..."; \
@@ -31,7 +31,7 @@ zappy_gui:
 
 zappy_ai:
 	@if [ -f IA/Makefile ]; then \
-		$(MAKE) -C IA; \
+		$(MAKE) -s -C IA; \
 		mv IA/zappy_ai ./zappy_ai; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} IA/Makefile not found, skipping..."; \
@@ -39,54 +39,55 @@ zappy_ai:
 
 debug:
 	@if [ -f Server/Makefile ]; then \
-		$(MAKE) -C Server debug; \
+		$(MAKE) -s -C Server debug; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Server/Makefile not found, skipping..."; \
 	fi
 	@if [ -f Client/Makefile ]; then \
-		$(MAKE) -C Client debug; \
+		$(MAKE) -s -C Client debug; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Client/Makefile not found, skipping..."; \
 	fi
 	@if [ -f IA/Makefile ]; then \
-		$(MAKE) -C IA debug; \
+		$(MAKE) -s -C IA debug; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} IA/Makefile not found, skipping..."; \
 	fi
 
 clean:
 	@if [ -f Server/Makefile ]; then \
-		$(MAKE) -C Server clean; \
+		$(MAKE) -s -C Server clean; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Server/Makefile not found, skipping..."; \
 	fi
 	@if [ -f Client/Makefile ]; then \
-		$(MAKE) -C Client clean; \
+		$(MAKE) -s -C Client clean; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Client/Makefile not found, skipping..."; \
 	fi
 	@if [ -f IA/Makefile ]; then \
-		$(MAKE) -C IA clean; \
+		$(MAKE) -s -C IA clean; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} IA/Makefile not found, skipping..."; \
 	fi
 
 fclean:
 	@if [ -f Server/Makefile ]; then \
-		$(MAKE) -C Server fclean; \
+		$(MAKE) -s -C Server fclean; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Server/Makefile not found, skipping..."; \
 	fi
 	@if [ -f Client/Makefile ]; then \
-		$(MAKE) -C Client fclean; \
+		$(MAKE) -s -C Client fclean; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Client/Makefile not found, skipping..."; \
 	fi
 	@if [ -f IA/Makefile ]; then \
-		$(MAKE) -C IA fclean; \
+		$(MAKE) -s -C IA fclean; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} IA/Makefile not found, skipping..."; \
 	fi
+	@rm -f zappy_server zappy_gui zappy_ai
 
 re: fclean all
 

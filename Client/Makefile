@@ -12,18 +12,26 @@ CC 			= g++
 
 VPATH 		:= ./Source
 VPATH 		+= ./Source/Core
+VPATH 		+= ./Source/API
+VPATH 		+= ./Source/Map
+VPATH 		+= ./Source/SFML
 
 vpath %.cpp $(VPATH)
 
 SRC 		:= Main.cpp
 SRC 		+= Core.cpp
+SRC 		+= Api.cpp
+SRC 		+= Map.cpp
+SRC 		+= SFML.cpp
 
 BUILD_DIR 	= build
 OBJ 		:= $(SRC:%.c=$(BUILD_DIR)/%.o)
 
 VPATH_DIRS  := $(sort $(dir $(wildcard $(addsuffix /, $(VPATH)))))
 CFLAGS      += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
-CFLAGS      += -lsfml-graphics -lsfml-window -lsfml-system
+CFLAGS      += -lsfml-graphics -lsfml-window -lsfml-system -g
+CFLAGS      += -iquote../lib/protocol/include
+LDFLAGS	 	:= -L./lib/protocol -lmyprotocol
 
 BUILD_DIR   = build
 OBJ         := $(SRC:%.cpp=$(BUILD_DIR)/%.o)
@@ -36,7 +44,7 @@ ECHO        = echo -e
 	@ $(ECHO) "${_B_RED}[ERROR]${_END} File ${_B_WHITE}$@${_END} not found."
 	@ $(DIE)
 
-all: $(NAME)
+all: libs $(NAME)
 	@ $(ECHO) "${_B_GREEN}[SUCCES]${_END} project compiled successfully !"
 
 $(BUILD_DIR)/%.o: %.cpp
@@ -51,6 +59,9 @@ $(NAME): $(OBJ)
 	$(_U_WHITE)$(NAME) $(CFLAGS) ${_END}"
 	@ $(ECHO) "$(_B_PURPLE)[STATS]$(_END) -> \
 	$(_U_WHITE)$(shell echo "$?" | wc -w) file(s) compiled${_END}."
+
+libs:
+	@ make -C ./lib/protocol/
 
 debug: CFLAGS += -g
 
@@ -73,11 +84,12 @@ fclean: clean
 	@ $(RM)	$(NAME)
 	@ $(RM)	$(NAME)_tests
 	@ $(RM) -r doc
+	@ make fclean -s -C ./lib/protocol/
 	@ $(ECHO) "${_BLACK}${_BB_WHITE}-> $(RM)    $(BUILD_DIR)${_END}"
 	@ $(ECHO) "${_BLACK}${_BB_WHITE}-> $(RM)    $(NAME)${_END}"
 	@ $(ECHO) "${_BLACK}${_BB_WHITE}-> $(RM)    $(NAME)_tests${_END}"
 	@ $(ECHO) "${_BLACK}${_BB_WHITE}-> $(RM)    doc${_END}"
-	@ $(ECHO) "${_BLACK}${_BB_WHITE}-> make fclean -s -C ./libs/materials/Mirror${_END}"
+	@ $(ECHO) "${_BLACK}${_BB_WHITE}-> make fclean -s -C ./lib/protocol/${_END}"
 
 re: fclean all
 
