@@ -24,7 +24,8 @@ SFML::~SFML()
 {
 }
 
-void SFML::processEvents() {
+void SFML::processEvents()
+{
     sf::Event event;
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed)
@@ -32,18 +33,22 @@ void SFML::processEvents() {
     }
 }
 
-void SFML::clear() {
+void SFML::clear()
+{
     window.clear();
 }
 
-void SFML::draw(const sf::Drawable& drawable) {
+void SFML::draw(const sf::Drawable& drawable)
+{
     window.draw(drawable);
 }
 
-void SFML::display() {
+void SFML::display()
+{
     window.display();
 }
 
-bool SFML::isOpen() const {
+bool SFML::isOpen() const
+{
     return window.isOpen();
 }
