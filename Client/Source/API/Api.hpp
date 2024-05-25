@@ -11,7 +11,9 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
-#include "../../lib/protocol/include/protocol/client.h"
+extern "C" {
+    #include "../../lib/protocol/include/protocol/client.h"
+}
 #include <thread>
 #include <iostream>
 #include <string>

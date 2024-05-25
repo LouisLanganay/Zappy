@@ -21,23 +21,23 @@ Api::Api(
     port(port),
     isRunning(true)
 {
-    //client = protocol_client_create(host.c_str(), port);
-    //if (!client || !protocol_client_is_connected(client))
-    //    throw std::runtime_error("Failed to connect to server");
+    client = protocol_client_create(host.c_str(), port);
+    if (!client || !protocol_client_is_connected(client))
+        throw std::runtime_error("Failed to connect to server");
     fetchDataThread = std::thread(&Api::fetchDataLoop, this);
     sendCommand("GRAPHIC");
 }
 
 Api::~Api()
 {
-    //protocol_client_close(client);
+    protocol_client_close(client);
 }
 
 void Api::sendCommand(const std::string &command)
 {
     std::cout << "Sending command: " << command << std::endl;
-    //if (!protocol_client_send_packet(client, 0, command.c_str(), command.size()))
-    //    std::cerr << "Failed to send command: " << command << std::endl;
+    if (!protocol_client_send_packet(client, 0, command.c_str(), command.size()))
+        std::cerr << "Failed to send command: " << command << std::endl;
 }
 
 std::string Api::getData()
@@ -52,12 +52,12 @@ std::string Api::getData()
 void Api::fetchDataFromServer()
 {
     std::cout << "Fetching data from server" << std::endl;
-    //protocol_payload_t *payload = protocol_client_listen(client);
-    //if (payload) {
-    //    std::lock_guard<std::mutex> lock(dataMutex);
-    //    receivedData.push(std::string(reinterpret_cast<const char*>(payload->packet.data), DATA_SIZE));
-    //    dataCondVar.notify_one();
-    //}
+    protocol_payload_t *payload = protocol_client_listen(client);
+    if (payload) {
+        std::lock_guard<std::mutex> lock(dataMutex);
+        receivedData.push(std::string(reinterpret_cast<const char*>(payload->packet.data), DATA_SIZE));
+        dataCondVar.notify_one();
+    }
 }
 
 void Api::fetchDataLoop()
