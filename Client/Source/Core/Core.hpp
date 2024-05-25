@@ -8,8 +8,10 @@
 #ifndef CORE_HPP_
 #define CORE_HPP_
 
-#include <iostream>
+
 #include <string>
+#include <thread>
+#include <atomic>
 #include <memory>
 
 #include "../API/Api.hpp"
@@ -17,24 +19,29 @@
 #include "../Map/Map.hpp"
 
 namespace Zappy {
+
     class Core {
         public:
             Core(const std::string& host, int port);
             ~Core();
 
             void run();
-
         protected:
+            void handleServerMessages();
+            void updatePlayer(const std::string& message);
+            void addPlayer(const std::string& message);
+            void removePlayer(const std::string& message);
 
-        private:
-            void handleEvents();
-            void update();
-            void render();
+            std::string host;
+            int port;
+            std::atomic<bool> running;
+            std::thread networkThread;
 
             std::unique_ptr<Api> api;
             std::unique_ptr<SFML> sfml;
             std::unique_ptr<Map> map;
     };
+
 }
 
 #endif /* !CORE_HPP_ */
