@@ -15,6 +15,15 @@ VPATH 		+= ./Source/Core
 VPATH 		+= ./Source/API
 VPATH 		+= ./Source/Map
 VPATH 		+= ./Source/SFML
+VPATH 		+= ./Source/Map/Player
+VPATH 		+= ./Source/Map/Resources
+VPATH 		+= ./Source/Map/Resources/Food
+VPATH 		+= ./Source/Map/Resources/Linemate
+VPATH 		+= ./Source/Map/Resources/Deraumere
+VPATH 		+= ./Source/Map/Resources/Sibur
+VPATH 		+= ./Source/Map/Resources/Mendiane
+VPATH 		+= ./Source/Map/Resources/Phiras
+VPATH 		+= ./Source/Map/Resources/Thystame
 
 vpath %.cpp $(VPATH)
 
@@ -23,6 +32,15 @@ SRC 		+= Core.cpp
 SRC 		+= Api.cpp
 SRC 		+= Map.cpp
 SRC 		+= SFML.cpp
+SRC 		+= Player.cpp
+SRC 		+= AResources.cpp
+SRC 		+= Food.cpp
+SRC 		+= Linemate.cpp
+SRC 		+= Deraumere.cpp
+SRC 		+= Sibur.cpp
+SRC 		+= Mendiane.cpp
+SRC 		+= Phiras.cpp
+SRC 		+= Thystame.cpp
 
 BUILD_DIR 	= build
 OBJ 		:= $(SRC:%.c=$(BUILD_DIR)/%.o)
@@ -61,7 +79,7 @@ $(NAME): $(OBJ)
 	$(_U_WHITE)$(shell echo "$?" | wc -w) file(s) compiled${_END}."
 
 libs:
-	@ make -C ./lib/protocol/
+	@ make -s -C ./lib/protocol/
 
 debug: CFLAGS += -g
 
