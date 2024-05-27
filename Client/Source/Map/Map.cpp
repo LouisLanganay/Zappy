@@ -6,6 +6,8 @@
 */
 
 #include "Map.hpp"
+#include <iostream>
+#include "Debug.hpp"
 
 using namespace Zappy;
 
@@ -24,6 +26,7 @@ void Map::setSize(int width, int height)
     this->height = height;
     tiles.resize(height, std::vector<Tile>(width));
     updateDrawable();
+    DEBUG_SUCCESS("Map size set to: " + std::to_string(width) + "x" + std::to_string(height));
 }
 
 void Map::updateTile(int x, int y, const std::vector<int>& resources)

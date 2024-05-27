@@ -47,7 +47,7 @@ OBJ 		:= $(SRC:%.c=$(BUILD_DIR)/%.o)
 
 VPATH_DIRS  := $(sort $(dir $(wildcard $(addsuffix /, $(VPATH)))))
 CFLAGS      += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
-CFLAGS      += -lsfml-graphics -lsfml-window -lsfml-system -g
+CFLAGS      += -lsfml-graphics -lsfml-window -lsfml-system
 CFLAGS      += -iquote../lib/protocol/include
 LDFLAGS	 	:= -L./lib/protocol -lmyprotocol
 
@@ -56,7 +56,6 @@ OBJ         := $(SRC:%.cpp=$(BUILD_DIR)/%.o)
 
 DIE         = exit 1
 ECHO        = echo -e
-
 
 %.cpp:
 	@ $(ECHO) "${_B_RED}[ERROR]${_END} File ${_B_WHITE}$@${_END} not found."
@@ -81,7 +80,8 @@ $(NAME): $(OBJ)
 libs:
 	@ make -s -C ./lib/protocol/
 
-debug: CFLAGS += -g
+debug: CFLAGS += -g -DDEBUG_MODE
+debug: clean all
 
 clean:
 	@ $(RM) *.gcda
@@ -111,4 +111,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re debug

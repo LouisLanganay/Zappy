@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <thread>
+#include "Debug.hpp"
 
 using namespace Zappy;
 
@@ -19,25 +20,33 @@ Api::Api(
     int port
 ) : host(host),
     port(port),
-    isRunning(true)
+    isRunning(true),
+    dataMutex()
 {
+    DEBUG_INFO("Creating API with host: " + host + " and port: " + std::to_string(port));
     client = protocol_client_create(host.c_str(), port);
     if (!client || !protocol_client_is_connected(client))
         throw std::runtime_error("Failed to connect to server");
+    DEBUG_SUCCESS("Connected to server");
     fetchDataThread = std::thread(&Api::fetchDataLoop, this);
     sendCommand("GRAPHIC");
 }
 
 Api::~Api()
 {
+    isRunning = false;
+    if (fetchDataThread.joinable())
+        fetchDataThread.join();
     protocol_client_close(client);
 }
 
 void Api::sendCommand(const std::string &command)
 {
-    std::cout << "Sending command: " << command << std::endl;
-    if (!protocol_client_send_packet(client, 0, command.c_str(), command.size()))
-        std::cerr << "Failed to send command: " << command << std::endl;
+    DEBUG_INFO("Sending command: " + command);
+    if (!protocol_client_send_packet(client, 0, command.c_str(), command.size())) {
+        DEBUG_ERROR("Failed to send command: " + command);
+        throw std::runtime_error("Failed to send command");
+    }
 }
 
 std::string Api::getData()
@@ -51,12 +60,22 @@ std::string Api::getData()
 
 void Api::fetchDataFromServer()
 {
-    std::cout << "Fetching data from server" << std::endl;
-    protocol_payload_t *payload = protocol_client_listen(client);
-    if (payload) {
-        std::lock_guard<std::mutex> lock(dataMutex);
-        receivedData.push(std::string(reinterpret_cast<const char*>(payload->packet.data), DATA_SIZE));
-        dataCondVar.notify_one();
+    DEBUG_INFO("Fetching data from server");
+    protocol_payload_t *payload;
+
+    while (protocol_client_listen(client) && !TAILQ_EMPTY(&client->payloads)) {
+        payload = TAILQ_FIRST(&client->payloads);
+        TAILQ_REMOVE(&client->payloads, payload, entries);
+
+        if (payload) {
+            DEBUG_SUCCESS("Received packet: " + std::string(reinterpret_cast<const char*>(payload->packet.data)));
+            {
+                std::lock_guard<std::mutex> lock(dataMutex);
+                receivedData.push(std::string(reinterpret_cast<const char*>(payload->packet.data), DATA_SIZE));
+                dataCondVar.notify_one();
+            }
+            free(payload);
+        }
     }
 }
 

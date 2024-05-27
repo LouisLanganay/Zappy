@@ -40,20 +40,22 @@ zappy_ai:
 debug:
 	@if [ -f Server/Makefile ]; then \
 		$(MAKE) -s -C Server debug; \
+		mv Server/zappy_server ./zappy_server; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Server/Makefile not found, skipping..."; \
 	fi
 	@if [ -f Client/Makefile ]; then \
 		$(MAKE) -s -C Client debug; \
+		mv Client/zappy_gui ./zappy_gui; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} Client/Makefile not found, skipping..."; \
 	fi
 	@if [ -f IA/Makefile ]; then \
 		$(MAKE) -s -C IA debug; \
+		mv IA/zappy_ai ./zappy_ai; \
 	else \
 		$(ECHO) "${_B_YELLOW}[WARNING]${_END} IA/Makefile not found, skipping..."; \
 	fi
-
 clean:
 	@if [ -f Server/Makefile ]; then \
 		$(MAKE) -s -C Server clean; \

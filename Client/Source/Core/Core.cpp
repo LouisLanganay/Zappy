@@ -6,6 +6,7 @@
 */
 
 #include "Core.hpp"
+#include "Debug.hpp"
 
 using namespace Zappy;
 
@@ -15,9 +16,10 @@ Core::Core(
 ) : api(std::make_unique<Api>(host, port)),
     sfml(std::make_unique<SFML>()),
     map(std::make_unique<Map>()),
-    networkThread(std::thread(&Core::handleServerMessages, this))
+    running(true)
 {
-    std::cout << "Core created with host: " << host << " and port: " << port << std::endl;
+    networkThread = std::thread(&Core::handleServerMessages, this);
+    DEBUG_INFO("Core created with host: " + host + " and port: " + std::to_string(port));
 }
 
 Core::~Core()
@@ -28,31 +30,40 @@ Core::~Core()
 }
 
 void Core::run() {
+    DEBUG_INFO("Core is running");
     while (sfml->isOpen()) {
         sfml->processEvents();
         sfml->clear();
         sfml->draw(map->getDrawable());
         sfml->display();
     }
+    running = false;
 }
 
 void Core::handleServerMessages() {
     while (running) {
         std::string message = api->getData();
+        DEBUG_INFO("Received message: " + message);
         if (message.empty())
             continue;
 
         if (message.find("pnw") == 0)
             addPlayer(message);
-        else if (message.find("ppo") == 0 || message.find("plv") == 0 || message.find("pin") == 0)
+        if (message.find("ppo") == 0 || message.find("plv") == 0 || message.find("pin") == 0)
             updatePlayer(message);
-        else if (message.find("pdi") == 0)
+        if (message.find("pdi") == 0)
             removePlayer(message);
-        else if (message.find("bct") == 0) {
+        if (message.find("bct") == 0) {
             int x, y, q0, q1, q2, q3, q4, q5, q6;
             sscanf(message.c_str(), "bct %d %d %d %d %d %d %d %d %d", &x, &y, &q0, &q1, &q2, &q3, &q4, &q5, &q6);
             map->updateTile(x, y, {q0, q1, q2, q3, q4, q5, q6});
         }
+        if (message.find("msz") == 0) {
+            int x, y;
+            sscanf(message.c_str(), "msz %d %d", &x, &y);
+            map->setSize(x, y);
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
