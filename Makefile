@@ -17,6 +17,7 @@ AI_DIR		=	IA
 LIBS		=	libmyprotocol.a
 LIBS_DIR	=	libs/protocol
 
+OUTS		=	$(SERVER) $(GUI) $(AI) $(LIBS)
 DEPS		=	$(SERVER_DIR) $(GUI_DIR) $(AI_DIR) $(LIBS_DIR)
 
 DIE         = exit 1
@@ -48,7 +49,13 @@ debug: 		$(DEPS)			; $(MAKE_DEPS)
 	@$(ECHO) "${_B_GREEN}[SUCCESS]${_END} project compiled successfully in debug mode !"
 clean: 		$(DEPS)			; $(MAKE_DEPS)
 	@$(ECHO) "${_B_GREEN}[SUCCESS]${_END} project cleaned successfully !"
-fclean: 	$(DEPS)			; $(MAKE_DEPS)
+fclean:		$(DEPS)			; $(MAKE_DEPS)
+	@for out in $(realpath $(join $(addsuffix /../, $(DEPS)), $(OUTS))); do \
+		if [ -f $$out ]; then \
+			$(ECHO) "${_B_YELLOW}[INFO]${_END} Removing $${out##*/}..."; \
+			rm -f $$out; \
+		fi \
+	done
 
 re: fclean all
 
