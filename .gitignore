@@ -60,6 +60,12 @@ build/
 .vscode/
 
 # Binary files
+zappy_server
 zappy_gui
+zappy_ai
 client
 server
+
+# Execptions
+!client/
+!server/
