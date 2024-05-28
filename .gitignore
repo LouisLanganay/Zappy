@@ -61,3 +61,7 @@ build/
 
 
 zappy_ref-2-0-2/
+# Binary files
+zappy_gui
+client
+server
