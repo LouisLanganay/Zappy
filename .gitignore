@@ -58,3 +58,8 @@ build/
 # IDE files/directories
 .idea/
 .vscode/
+
+# Binary files
+zappy_gui
+client
+server

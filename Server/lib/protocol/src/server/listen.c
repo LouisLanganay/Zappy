@@ -14,8 +14,8 @@
 #include "protocol/server.h"
 
 static protocol_payload_t *receive_packet(
-    const int fd,
-    const protocol_server_t *server)
+    const protocol_server_t *server,
+    const int fd)
 {
     protocol_client_t *current_client;
     protocol_payload_t *payload = calloc(1, sizeof(protocol_payload_t));
@@ -40,7 +40,7 @@ static void handle_payload(
     protocol_server_t *server)
 {
     protocol_client_t *client;
-    protocol_payload_t *payload = receive_packet(fd, server);
+    protocol_payload_t *payload = receive_packet(server, fd);
 
     if (payload) {
         payload->fd = fd;
@@ -72,7 +72,7 @@ static bool server_select(
 }
 
 static int accept_client(
-    protocol_server_t *server,
+    const protocol_server_t *server,
     protocol_client_t *client)
 {
     int socket;
