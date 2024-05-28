@@ -58,7 +58,6 @@ fclean:		$(DEPS)			; $(MAKE_DEPS)
 			rm -f $$out; 													\
 		fi 																	\
 	done
->>>>>>> 9a3e387 (fix(Makefile): fclean not working.)
 
 re: fclean all
 
