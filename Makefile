@@ -24,16 +24,17 @@ DIE         = exit 1
 ECHO        = echo -e
 
 define MAKE_DEPS
-	@for dep in $^; do \
-		if [ -f $$dep/Makefile ]; then \
-			$(ECHO) "${_B_YELLOW}[INFO]${_END} Making $@ in $$dep..."; \
-			$(MAKE) -sC $$dep $@; \
-			if [ -f $$dep/$@ ]; then \
-				mv $$dep/$@ $$dep/../; \
-			fi \
-		else \
-			$(ECHO) "${_B_YELLOW}[WARNING]${_END} $$dep/Makefile not found, skipping..."; \
-		fi \
+	@for dep in $^; do														\
+		if [ -f $$dep/Makefile ]; then 										\
+			$(ECHO) "${_B_YELLOW}[INFO]${_END} Making $@ in $$dep..."; 		\
+			$(MAKE) -sC $$dep $@; 											\
+			if [ -f $$dep/$@ ]; then 										\
+				mv $$dep/$@ $$dep/../; 										\
+			fi 																\
+		else 																\
+			$(ECHO) "${_B_YELLOW}[WARNING]${_END}" 	 						\
+				"$$dep/Makefile not found, skipping...";					\
+		fi 																	\
 	done
 endef
 
@@ -46,15 +47,16 @@ $(AI): 		$(AI_DIR)		; $(MAKE_DEPS)
 $(LIBS):  	$(LIBS_DIR)		; $(MAKE_DEPS)
 
 debug: 		$(DEPS)			; $(MAKE_DEPS)
-	@$(ECHO) "${_B_GREEN}[SUCCESS]${_END} project compiled successfully in debug mode !"
+	@$(ECHO) "${_B_GREEN}[SUCCESS]${_END}"									\
+		"project compiled successfully in debug mode !"
 clean: 		$(DEPS)			; $(MAKE_DEPS)
 	@$(ECHO) "${_B_GREEN}[SUCCESS]${_END} project cleaned successfully !"
 fclean:		$(DEPS)			; $(MAKE_DEPS)
 	@for out in $(realpath $(join $(addsuffix /../, $(DEPS)), $(OUTS))); do \
-		if [ -f $$out ]; then \
-			$(ECHO) "${_B_YELLOW}[INFO]${_END} Removing $${out##*/}..."; \
-			rm -f $$out; \
-		fi \
+		if [ -f $$out ]; then 												\
+			$(ECHO) "${_B_YELLOW}[INFO]${_END} Removing $${out##*/}..."; 	\
+			rm -f $$out; 													\
+		fi 																	\
 	done
 >>>>>>> 9a3e387 (fix(Makefile): fclean not working.)
 
