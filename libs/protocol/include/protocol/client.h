@@ -8,10 +8,9 @@
 #ifndef PROTOCOL_CLIENT_H
     #define PROTOCOL_CLIENT_H
 
-    #include <sys/queue.h>
     #include <stdbool.h>
 
-    #include "./data.h"
+    #include "global.h"
 
 typedef struct protocol_client_s {
     fd_set master_read_fds;
@@ -31,6 +30,8 @@ typedef struct protocol_client_s {
  * @param ip The ip to connect to
  * @param port The port to connect to
  * @return protocol_client_t* The created client
+ *
+ * @note The client must be closed after use with protocol_client_close
  */
 protocol_client_t *protocol_client_create(
     const char *ip,
@@ -59,6 +60,8 @@ bool protocol_client_is_connected(
  *
  * @param client The client to listen with
  * @return protocol_payload_t* The received payload
+ *
+ * @note The payload must be freed after use
  */
 protocol_payload_t *protocol_client_listen(
     protocol_client_t *client);
@@ -78,5 +81,17 @@ bool protocol_client_send_packet(
     uint16_t type,
     const void *data,
     int size);
+
+/**
+ * @brief Send a message to the server
+ *
+ * @param client The client to send the message with
+ * @param message The message to send
+ * @return true If the message was sent
+ * @return false If the message was not sent
+ */
+bool protocol_client_send_message(
+    const protocol_client_t *client,
+    const char *message);
 
 #endif //PROTOCOL_CLIENT_H

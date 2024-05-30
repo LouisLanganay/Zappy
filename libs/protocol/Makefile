@@ -8,8 +8,13 @@
 NAME		:=	libmyprotocol.a
 EXT			:=	.c
 
-DIR			:=	src/client
+DIR			:=	src
 SRC			:=	$(addprefix $(DIR)/,								\
+					receive_message.c								\
+				)
+
+DIR			+=	src/client
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					create.c										\
 					close.c											\
 					listen.c										\

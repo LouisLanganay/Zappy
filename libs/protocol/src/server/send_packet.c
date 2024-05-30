@@ -13,9 +13,9 @@
 #include "protocol/server.h"
 
 bool protocol_server_send_packet(
-    const protocol_packet_t *packet,
+    protocol_server_t *server,
     const int client_fd,
-    protocol_server_t *server)
+    const protocol_packet_t *packet)
 {
     protocol_client_t *client;
 
@@ -36,11 +36,36 @@ bool protocol_server_send_packet(
 }
 
 bool protocol_server_send_packet_type(
-    const uint16_t type,
+    protocol_server_t *server,
     const int client_fd,
-    protocol_server_t *server)
+    const uint16_t type)
 {
     const protocol_packet_t packet = {type, {0}};
 
-    return protocol_server_send_packet(&packet, client_fd, server);
+    return protocol_server_send_packet(server, client_fd, &packet);
+}
+
+bool protocol_server_send_message(
+    protocol_server_t *server,
+    const int client_fd,
+    const char *message)
+{
+    const int len = strlen(message);
+    const int size = len > DATA_SIZE ? DATA_SIZE : len;
+    protocol_client_t *client;
+
+    TAILQ_FOREACH(client, &server->clients, entries)
+        if (client->network_data.sockfd == client_fd) {
+            FD_SET(client->network_data.sockfd, &server->write_fds);
+            break;
+        }
+    if (!client) {
+        fprintf(stderr, "\033[31m[ERROR]\033[0m client not found\n");
+        return false;
+    }
+    if (write(client_fd, message, size) == -1) {
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
+        return false;
+    }
+    return true;
 }
