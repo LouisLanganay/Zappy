@@ -62,12 +62,10 @@ static void *handle_payload(
 protocol_payload_t *protocol_client_listen(
     protocol_client_t *client)
 {
-    struct timeval tv = {0, 0};
-
     memcpy(&client->readfds, &client->master_read_fds, sizeof(fd_set));
     memcpy(&client->writefds, &client->master_write_fds, sizeof(fd_set));
     if (select(FD_SETSIZE, &client->readfds, &client->writefds, NULL,
-        &tv) == -1) {
+        NULL) == -1) {
         fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
         return NULL;
     }
