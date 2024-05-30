@@ -49,7 +49,7 @@ VPATH_DIRS  := $(sort $(dir $(wildcard $(addsuffix /, $(VPATH)))))
 CFLAGS      += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
 CFLAGS      += -lsfml-graphics -lsfml-window -lsfml-system
 CFLAGS      += -iquote../lib/protocol/include
-LDFLAGS	 	:= -L./lib/protocol -lmyprotocol
+LDFLAGS	 	:= -L../libs/ -lmyprotocol
 
 BUILD_DIR   = build
 OBJ         := $(SRC:%.cpp=$(BUILD_DIR)/%.o)
