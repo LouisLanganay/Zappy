@@ -12,6 +12,7 @@
 #include <iostream>
 #include <thread>
 #include "Debug.hpp"
+#include "../Exceptions.hpp"
 
 using namespace Zappy;
 
@@ -23,13 +24,17 @@ Api::Api(
     isRunning(true),
     dataMutex()
 {
-    DEBUG_INFO("Creating API with host: " + host + " and port: " + std::to_string(port));
-    client = protocol_client_create(host.c_str(), port);
-    if (!client || !protocol_client_is_connected(client))
-        throw std::runtime_error("Failed to connect to server");
-    DEBUG_SUCCESS("Connected to server");
-    fetchDataThread = std::thread(&Api::fetchDataLoop, this);
-    sendCommand("GRAPHIC");
+    try {
+        DEBUG_INFO("Creating API with host: " + host + " and port: " + std::to_string(port));
+        client = protocol_client_create(host.c_str(), port);
+        if (!client || !protocol_client_is_connected(client))
+            throw std::runtime_error("Failed to connect to server");
+        DEBUG_SUCCESS("Connected to server");
+        fetchDataThread = std::thread(&Api::fetchDataLoop, this);
+        sendCommand("GRAPHIC");
+    } catch (const std::exception &e) {
+        throw ApiException(e.what());
+    }
 }
 
 Api::~Api()
@@ -45,7 +50,7 @@ void Api::sendCommand(const std::string &command)
     DEBUG_INFO("Sending command: " + command);
     if (!protocol_client_send_packet(client, 0, command.c_str(), command.size())) {
         DEBUG_ERROR("Failed to send command: " + command);
-        throw std::runtime_error("Failed to send command");
+        throw ApiException("Failed to send command");
     }
 }
 

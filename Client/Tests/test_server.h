@@ -8,7 +8,7 @@
 #ifndef TEST_SERVER_H
 #define TEST_SERVER_H
 
-#include "../lib/protocol/include/protocol/server.h"
+#include "../../libs/protocol/include/protocol/server.h"
 #include <stdlib.h>
 #include <stdio.h>
 

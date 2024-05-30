@@ -35,13 +35,14 @@ void test_server_run(test_server_t *test_server) {
     int a = 0;
 
     while (protocol_server_is_open()) {
+        printf("test\n");
         protocol_payload_t *payload = protocol_server_listen(test_server->server);
         if (payload) {
             printf("Received packet: %s - Type: %i\n", payload->packet.data, payload->packet.type);
             if (a == 0) {
                 protocol_packet_t packet = {1, "msz 10 10\n"};
                 printf("Sending packet: %s\n", packet.data);
-                int r = protocol_server_send_packet(&packet, payload->fd, test_server->server);
+                int r = protocol_server_send_packet(test_server->server, payload->fd, &packet);
                 printf("Result: %i\n", r);
                 a++;
             }

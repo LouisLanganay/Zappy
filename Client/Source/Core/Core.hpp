@@ -26,20 +26,18 @@ namespace Zappy {
             ~Core();
 
             void run();
-        protected:
             void handleServerMessages();
-            void updatePlayer(const std::string& message);
+
+        protected:
             void addPlayer(const std::string& message);
+            void updatePlayer(const std::string& message);
             void removePlayer(const std::string& message);
 
-            std::string host;
-            int port;
-            std::atomic<bool> running;
-            std::thread networkThread;
-
             std::unique_ptr<Api> api;
-            std::unique_ptr<SFML> sfml;
             std::unique_ptr<Map> map;
+            std::thread networkThread;
+            bool running;
+            bool debug;
     };
 
 }

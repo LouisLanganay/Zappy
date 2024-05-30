@@ -22,36 +22,26 @@
 #include "Resources/Phiras/Phiras.hpp"
 #include "Resources/Thystame/Thystame.hpp"
 #include "Resources/Food/Food.hpp"
+#include "Tile/Tile.hpp"
 
 namespace Zappy {
     class Map {
         public:
             Map();
-            ~Map();
-            void setSize(int width, int height);
             void updateTile(int x, int y, const std::vector<int>& resources);
             void addPlayer(std::unique_ptr<Player> player);
             void removePlayer(int playerNumber);
+            void draw();
+            void setSize(int width, int height);
+
             Player* getPlayer(int playerNumber);
-            sf::Drawable& getDrawable();
 
         private:
-            int width;
-            int height;
-            struct Tile {
-                Resources::Linemate linemate;
-                Resources::Deraumere deraumere;
-                Resources::Sibur sibur;
-                Resources::Mendiane mendiane;
-                Resources::Phiras phiras;
-                Resources::Thystame thystame;
-                Resources::Food food;
-            };
-            std::vector<std::vector<Tile>> tiles;
-            std::unordered_map<int, std::unique_ptr<Player>> players;
-            sf::VertexArray mapDrawable;
-            void updateDrawable();
-        };
+            std::vector<std::vector<Tile>> _tiles;
+            std::unordered_map<int, std::unique_ptr<Player>> _players;
+            int _height;
+            int _width;
+    };
 };
 
 #endif /* !MAP_HPP_ */

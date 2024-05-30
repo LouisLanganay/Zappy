@@ -7,6 +7,12 @@
 
 #include "Core.hpp"
 #include "Debug.hpp"
+#include "raylib.h"
+#include <iostream>
+#include <sstream>
+#include <ctime>
+#include <iomanip>
+#include "../Exceptions.hpp"
 
 using namespace Zappy;
 
@@ -14,7 +20,6 @@ Core::Core(
     const std::string& host,
     int port
 ) : api(std::make_unique<Api>(host, port)),
-    sfml(std::make_unique<SFML>()),
     map(std::make_unique<Map>()),
     running(true)
 {
@@ -27,17 +32,29 @@ Core::~Core()
     running = false;
     if (networkThread.joinable())
         networkThread.join();
+    CloseWindow();
 }
 
 void Core::run() {
-    DEBUG_INFO("Core is running");
-    while (sfml->isOpen()) {
-        sfml->processEvents();
-        sfml->clear();
-        sfml->draw(map->getDrawable());
-        sfml->display();
+    try {
+        DEBUG_INFO("Core is running");
+        InitWindow(800, 600, "Zappy Game");
+        SetTargetFPS(60);
+
+        while (!WindowShouldClose() && running) {
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+
+            map->draw();
+
+            EndDrawing();
+        }
+
+        CloseWindow();
+        running = false;
+    } catch (const std::exception &e) {
+        throw MainException(e.what());
     }
-    running = false;
 }
 
 void Core::handleServerMessages() {

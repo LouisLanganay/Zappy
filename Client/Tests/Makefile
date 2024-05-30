@@ -7,7 +7,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -I.
-LIBS = -L../lib/protocol -lmyprotocol
+LIBS = -L../../libs -lmyprotocol
 
 SRCS = main.c test_server.c
 OBJS = $(SRCS:.c=.o)

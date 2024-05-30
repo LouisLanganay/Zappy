@@ -12,7 +12,7 @@
 #include <mutex>
 #include <condition_variable>
 extern "C" {
-    #include "../../lib/protocol/include/protocol/client.h"
+    #include "../../../libs/protocol/include/protocol/client.h"
 }
 #include <thread>
 #include <iostream>
