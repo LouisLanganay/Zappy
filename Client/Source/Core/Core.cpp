@@ -117,8 +117,9 @@ void Core::handleServerMessages() {
                     teams_name_t teamsName;
                     std::memcpy(&teamsName, payload->packet.data, sizeof(teams_name_t));
                     std::vector<std::string> teams;
-                    for (int i = 0; teamsName.teams[i]; ++i)
-                        teams.push_back(teamsName.teams[i]);
+                    // TODO: Implement team names
+                    teams.push_back("test");
+                    teams.push_back("test2");
                     map->setTeams(teams);
                     break;
                 }
@@ -126,9 +127,12 @@ void Core::handleServerMessages() {
                     player_add_t playerAdd;
                     std::memcpy(&playerAdd, payload->packet.data, sizeof(player_add_t));
                     Orientation orient = static_cast<Orientation>(playerAdd.orientation);
-                    auto player = std::make_unique<Player>(
+                    const Team* team = map->getTeam(playerAdd.teamName);
+                    if (!team)
+                        break;
+                    std::unique_ptr<Player> player = std::make_unique<Player>(
                         playerAdd.playerNumber,
-                        playerAdd.teamName,
+                        std::make_unique<Team>(*team),
                         orient,
                         playerAdd.level
                     );
