@@ -50,10 +50,30 @@ void test_server_run(test_server_t *test_server) {
 
                 sleep(1);
 
+                char* team_names[] = {"test", "test2", NULL};
+                teams_name_t my_teams;
+                my_teams.teams = team_names;
+                packet.type = EVT_TEAMS_NAME;
+                memcpy(packet.data, &my_teams, sizeof(teams_name_t));
+                printf("Sending packet: %i\n", EVT_TEAMS_NAME);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet);
+                printf("Result: %i\n", r);
+
+                sleep(1);
+
                 protocol_packet_t packet2;
                 player_add_t player_add = {1, 1, 1, 1, 1, "test"};
                 packet2.type = EVT_PLAYER_ADD;
                 memcpy(packet2.data, &player_add, sizeof(player_add_t));
+                printf("Sending packet: %i\n", EVT_PLAYER_ADD);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet2);
+                printf("Result: %i\n", r);
+
+                sleep(1);
+
+                player_add_t player_add2 = {2, 2, 2, 2, 2, "test2"};
+                packet2.type = EVT_PLAYER_ADD;
+                memcpy(packet2.data, &player_add2, sizeof(player_add_t));
                 printf("Sending packet: %i\n", EVT_PLAYER_ADD);
                 r = protocol_server_send_packet(test_server->server, payload->fd, &packet2);
                 printf("Result: %i\n", r);
