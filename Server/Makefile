@@ -11,6 +11,25 @@ EXT			:=	.c
 DIR			:=	src
 SRC			:=	$(addprefix $(DIR)/,								\
 					main.c											\
+					get_ai_by_id.c									\
+					gui_send_to_all.c								\
+				)
+
+DIR			+=	src/gui
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					msz.c											\
+					bct.c											\
+					mct.c											\
+					tna.c											\
+					pnw.c											\
+					ppo.c											\
+					plv.c											\
+					pin.c											\
+					pex.c											\
+					pbc.c											\
+					smg.c											\
+					suc.c											\
+					sbp.c											\
 				)
 
 DIR_BUILD	:=	build
