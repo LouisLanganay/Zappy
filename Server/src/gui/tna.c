@@ -12,7 +12,7 @@
 void tna(const zappy_server_t *server, const protocol_payload_t *payload)
 {
     protocol_packet_t packet = { EVT_TNA, {0} };
-    const team_t *team = NULL;
+    const team_t *team;
 
     TAILQ_FOREACH(team, &server->teams, entries) {
         memset(&packet.data, 0, DATA_SIZE);

@@ -56,7 +56,15 @@ typedef struct {
     TAILQ_HEAD(, gui_s) guis;
 } zappy_server_t;
 
-ai_t *get_ai_by_id(const zappy_server_t *server, uint16_t id);
-void gui_send_to_all(const zappy_server_t *server, const protocol_packet_t *packet);
+bool zappy_server(
+    zappy_server_t *server);
+void server_init(
+    zappy_server_t *server);
+ai_t *get_ai_by_id(
+    const zappy_server_t *server,
+    uint16_t id);
+void gui_send_to_all(
+    const zappy_server_t *server,
+    const protocol_packet_t *packet);
 
 #endif //SERVER_H

@@ -14,11 +14,11 @@ void ppo(const zappy_server_t *server, const protocol_payload_t *payload)
     protocol_packet_t packet = { EVT_PPO, {0} };
     uint16_t id = 0;
     ai_pos_t ai_pos = {0};
-    const ai_t *ai = NULL;
+    const ai_t *ai;
 
     memcpy(&id, &payload->packet.data, sizeof(uint16_t));
     ai = get_ai_by_id(server, id);
-    if (ai == NULL) {
+    if (!ai) {
         sbp(server, payload);
         return;
     }

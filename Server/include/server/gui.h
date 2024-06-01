@@ -128,7 +128,9 @@ void sbp(const zappy_server_t *server, const protocol_payload_t *payload);
 
 static const struct {
     gui_event_t event;
-    void (*func)(const zappy_server_t *server, const protocol_payload_t *payload);
+    void (*func)(
+        const zappy_server_t *server,
+        const protocol_payload_t *payload);
 } gui_cmds[] = {
     {EVT_MSZ, msz},
     {EVT_BCT, bct},
