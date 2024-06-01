@@ -82,7 +82,6 @@ void Api::fetchDataFromServer()
                 receivedData.push(payload);
                 dataCondVar.notify_one();
             }
-            free(payload);
         }
     }
 }
