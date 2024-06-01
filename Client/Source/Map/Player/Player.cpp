@@ -13,12 +13,12 @@ using namespace Zappy;
 
 Player::Player(
     int playerNumber,
-    const std::string& team,
+    std::unique_ptr<Team> team,
     Orientation orientation,
     int level
 ) : playerNumber(playerNumber),
-    team(team),
     orientation(orientation),
+    _team(std::move(team)),
     level(level)
 {
     x = 0;
@@ -38,9 +38,9 @@ int Player::getPlayerNumber() const
     return playerNumber;
 }
 
-std::string Player::getTeam() const
+const Team* Player::getTeam() const
 {
-    return team;
+    return _team.get();
 }
 
 Orientation Player::getOrientation() const
@@ -120,11 +120,9 @@ void Player::draw()
 {
     Vector3 position = {(float)x, 0.5f, (float)y};
 
-    // Draw smaller cube for the player
-    DrawCube(position, 0.5f, 0.5f, 0.5f, RED);
+    DrawCube(position, 0.5f, 0.5f, 0.5f, _team->getColor());
     DrawCubeWires(position, 0.5f, 0.5f, 0.5f, BLACK);
 
-    // Calculate position for sphere indicating orientation
     Vector3 spherePosition = position;
     if (orientation == Orientation::NORTH)
         spherePosition.z -= 0.2f;
@@ -137,6 +135,5 @@ void Player::draw()
 
     spherePosition.y += 0.2f;
 
-    // Draw sphere indicating orientation
-    DrawSphere(spherePosition, 0.2f, GREEN);
+    DrawSphere(spherePosition, 0.2f, BLACK);
 }

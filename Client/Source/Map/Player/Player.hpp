@@ -14,6 +14,8 @@
 #include <mutex>
 #include "IResources.hpp"
 #include "raylib.h"
+#include "../Team/Team.hpp"
+#include <memory>
 
 namespace Zappy {
     enum class Orientation {
@@ -27,13 +29,13 @@ namespace Zappy {
         public:
             Player(
                 int playerNumber,
-                const std::string& team,
+                std::unique_ptr<Team> team,
                 Orientation orientation,
                 int level
             );
 
             int getPlayerNumber() const;
-            std::string getTeam() const;
+            const Team* getTeam() const;
             Orientation getOrientation() const;
             int getLevel() const;
 
@@ -56,7 +58,7 @@ namespace Zappy {
         protected:
         private:
             int playerNumber;
-            std::string team;
+            std::unique_ptr<Team> _team;
             Orientation orientation;
             int level;
             std::unordered_map<Zappy::Resources::Type, int> inventory;
