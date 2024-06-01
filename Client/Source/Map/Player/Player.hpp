@@ -10,7 +10,10 @@
 
 #include <string>
 #include <unordered_map>
+#include <queue>
+#include <mutex>
 #include "IResources.hpp"
+#include "raylib.h"
 
 namespace Zappy {
     enum class Orientation {
@@ -22,7 +25,12 @@ namespace Zappy {
 
     class Player {
         public:
-            Player(int playerNumber, const std::string& team, Orientation orientation, int level);
+            Player(
+                int playerNumber,
+                const std::string& team,
+                Orientation orientation,
+                int level
+            );
 
             int getPlayerNumber() const;
             std::string getTeam() const;
@@ -32,9 +40,18 @@ namespace Zappy {
             void setOrientation(Orientation orientation);
             void setLevel(int level);
 
-            void addResource(Zappy::Resources::IResources* resource, int quantity);
-            void removeResource(Zappy::Resources::IResources* resource, int quantity);
+            void addResource(Zappy::Resources::Type type, int quantity);
+            void setResource(Zappy::Resources::Type type, int quantity);
+            void removeResource(Zappy::Resources::Type type, int quantity);
             int getResourceQuantity(const Zappy::Resources::IResources* resource) const;
+
+            void setPosition(int x, int y);
+            std::pair<int, int> getPosition() const;
+
+            void addBroadcast(const std::string& message);
+            std::string getBroadcast();
+
+            void draw();
 
         protected:
         private:
@@ -43,6 +60,10 @@ namespace Zappy {
             Orientation orientation;
             int level;
             std::unordered_map<Zappy::Resources::Type, int> inventory;
+            std::queue<std::string> broadcast;
+            std::mutex messageMutex;
+            int x;
+            int y;
     };
 
 }

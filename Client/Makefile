@@ -48,7 +48,7 @@ OBJ 		:= $(SRC:%.c=$(BUILD_DIR)/%.o)
 VPATH_DIRS  := $(sort $(dir $(wildcard $(addsuffix /, $(VPATH)))))
 CFLAGS      += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
 CFLAGS      +=-L/usr/local/lib -L/usr/lib -lraylib
-CFLAGS      += -iquote../../libs/protocol/include
+CFLAGS      += -iquote../../libs/protocol/include -g -DDEBUG_MODE
 LDFLAGS	 	:= -L../libs/ -lmyprotocol
 
 BUILD_DIR   = build

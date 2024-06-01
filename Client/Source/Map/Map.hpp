@@ -11,6 +11,8 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <queue>
+#include <mutex>
 #include <SFML/Graphics.hpp>
 #include "IResources.hpp"
 #include "Player/Player.hpp"
@@ -36,9 +38,20 @@ namespace Zappy {
 
             Player* getPlayer(int playerNumber);
 
+            void setTeams(const std::vector<std::string>& teams);
+            const std::vector<std::string>& getTeams() const;
+
+            Tile* getTile(int x, int y);
+
+            void addServerMessage(const std::string& message);
+            std::string getServerMessage();
+
         private:
             std::vector<std::vector<Tile>> _tiles;
+            std::vector<std::string> _teams;
             std::unordered_map<int, std::unique_ptr<Player>> _players;
+            std::queue<std::string> _serverMessages;
+            std::mutex _messageMutex;
             int _height;
             int _width;
     };

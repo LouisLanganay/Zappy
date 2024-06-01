@@ -24,8 +24,10 @@ namespace Zappy {
         public:
             Api(const std::string& host, int port);
             ~Api();
-            void sendCommand(const std::string& command);
-            std::string getData();
+
+            template <typename T>
+            void sendCommand(uint16_t type, const T& data);
+            protocol_payload_t* getData();
             void fetchDataFromServer();
 
             void requestMapSize();
@@ -42,7 +44,7 @@ namespace Zappy {
             void commandParameter();
 
         private:
-            std::queue<std::string> receivedData;
+            std::queue<protocol_payload_t*> receivedData;
             std::mutex dataMutex;
             std::condition_variable dataCondVar;
             std::string host;

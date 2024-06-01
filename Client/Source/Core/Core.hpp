@@ -17,6 +17,7 @@
 #include "../API/Api.hpp"
 #include "../SFML/SFML.hpp"
 #include "../Map/Map.hpp"
+#include "../API/Events.h"
 
 namespace Zappy {
 
@@ -29,10 +30,6 @@ namespace Zappy {
             void handleServerMessages();
 
         protected:
-            void addPlayer(const std::string& message);
-            void updatePlayer(const std::string& message);
-            void removePlayer(const std::string& message);
-
             std::unique_ptr<Api> api;
             std::unique_ptr<Map> map;
             std::thread networkThread;
