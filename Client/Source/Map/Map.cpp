@@ -14,6 +14,7 @@ using namespace Zappy;
 Map::Map()
 {
     setSize(0, 0);
+    _teams.clear();
 }
 
 void Map::setSize(int width, int height)
@@ -33,23 +34,21 @@ void Map::setSize(int width, int height)
 
 void Map::updateTile(int x, int y, const std::vector<int>& resources)
 {
-    DEBUG_INFO("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with resources: " + std::to_string(resources.size()));
-    if (x >= 0 && x < _width && y >= 0 && y < _height && resources.size() == 7) {
-        DEBUG_INFO("FOOD: " + std::to_string(resources[0]));
-        DEBUG_INFO("LINEMATE: " + std::to_string(resources[1]));
-        DEBUG_INFO("DERAUMERE: " + std::to_string(resources[2]));
-        DEBUG_INFO("SIBUR: " + std::to_string(resources[3]));
-        DEBUG_INFO("MENDIANE: " + std::to_string(resources[4]));
-        DEBUG_INFO("PHIRAS: " + std::to_string(resources[5]));
-        DEBUG_INFO("THYSTAME: " + std::to_string(resources[6]));
+    DEBUG_INFO("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with resources: " +
+    std::to_string(resources.size()) + " - " + std::to_string(resources[0]) +
+    " - " + std::to_string(resources[1]) + " - " + std::to_string(resources[2]) +
+    " - " + std::to_string(resources[3]) + " - " + std::to_string(resources[4]) +
+    " - " + std::to_string(resources[5]) + " - " + std::to_string(resources[6]) +
+    " - " + std::to_string(resources[7]));
+    if (x >= 0 && x < _width && y >= 0 && y < _height && resources.size() == 7)
         _tiles[y][x].setResources(resources);
-    }
 }
 
 void Map::addPlayer(std::unique_ptr<Player> player)
 {
     int playerNumber = player->getPlayerNumber();
     _players[playerNumber] = std::move(player);
+    DEBUG_SUCCESS("Player added - ID: " + std::to_string(playerNumber) + " - Team: " + _players[playerNumber]->getTeam()->getName());
 }
 
 void Map::removePlayer(int playerNumber)
@@ -77,12 +76,26 @@ void Map::draw()
 
 void Map::setTeams(const std::vector<std::string>& teams)
 {
-    _teams = teams;
+    Color colors[] = {
+        RED,
+        GREEN,
+        BLUE,
+        YELLOW,
+        ORANGE,
+        PINK,
+        PURPLE,
+        BROWN
+    };
+
+    for (size_t i = 0; i < teams.size(); ++i)
+        _teams[teams[i]] = std::make_unique<Team>(teams[i], colors[i]);
 }
 
-const std::vector<std::string>& Map::getTeams() const
-{
-    return _teams;
+Team* Map::getTeam(const std::string& name) const {
+    auto it = _teams.find(name);
+    if (it != _teams.end())
+        return it->second.get();
+    return nullptr;
 }
 
 Tile* Map::getTile(int x, int y)
