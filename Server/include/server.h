@@ -11,9 +11,30 @@
     #include <stdbool.h>
 
     #include "protocol/server.h"
-    #include "server/event.h"
 
     #define UNUSED __attribute__((unused))
+
+typedef enum {
+    NORTH = 1,
+    EAST = 2,
+    SOUTH = 3,
+    WEST = 4,
+} orientation_t;
+
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+} vector2_t;
+
+typedef struct {
+    uint16_t food;
+    uint16_t linemate;
+    uint16_t deraumere;
+    uint16_t sibur;
+    uint16_t mendiane;
+    uint16_t phiras;
+    uint16_t thystame;
+} inventory_t;
 
 typedef struct team_s {
     uint16_t id;
@@ -67,6 +88,6 @@ ai_t *get_ai_by_id(
     uint16_t id);
 void gui_send_to_all(
     const zappy_server_t *server,
-    const protocol_packet_t *packet);
+    const char *message);
 
 #endif //SERVER_H

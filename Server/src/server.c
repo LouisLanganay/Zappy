@@ -11,7 +11,10 @@
 #include "server/gui.h"
 #include "server.h"
 
-void server_init(zappy_server_t *server)
+#include <string.h>
+
+void server_init(
+    zappy_server_t *server)
 {
     *server = (zappy_server_t){ .port = 4242, .width = 10, .height = 10 };
     TAILQ_INIT(&server->ais);
@@ -19,7 +22,8 @@ void server_init(zappy_server_t *server)
     TAILQ_INIT(&server->guis);
 }
 
-static bool display_server(const zappy_server_t *server)
+static bool display_server(
+    const zappy_server_t *server)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
     if (printf(
@@ -34,38 +38,53 @@ static bool display_server(const zappy_server_t *server)
         team = team->entries.tqe_next)
         if (printf("\n\t%d: %s", team->id, team->name) < 0)
             return false;
-    if (printf("\nverbose = %d"
+    if (printf("\nverbose = %s"
         "\n==================================================\n",
-        server->verbose) < 0)
+        server->verbose ? "true" : "false") < 0)
         return false;
     fflush(stdout);
     setvbuf(stdout, NULL, _IOLBF, 0);
     return true;
 }
 
-static void handle_payload(const zappy_server_t *server,
-    const protocol_payload_t *payload)
+static void handle_gui_event(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message)
 {
-    switch (payload->packet.type) {
-    case EVT_MSZ:
-    case EVT_BCT:
-    case EVT_MCT:
-    case EVT_TNA:
-    case EVT_PPO:
-    case EVT_PLV:
-    case EVT_PIN:
-        gui_cmds[payload->packet.type].func(server, payload);
-        break;
-    default:
-        suc(server, payload);
-        break;
+    uint8_t cmd_lenght;
+
+    for (uint8_t i = 0; gui_cmds[i].func; ++i) {
+        cmd_lenght = strlen(gui_cmds[i].cmd);
+        if (!strncmp(message, gui_cmds[i].cmd, cmd_lenght)) {
+            gui_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
+            return;
+        }
     }
+    suc(server, interlocutor);
+}
+
+static bool handle_payload(
+    const zappy_server_t *server)
+{
+    protocol_payload_t *payload;
+    char *message;
+
+    while (!TAILQ_EMPTY(&server->socket->payloads)) {
+        payload = TAILQ_FIRST(&server->socket->payloads);
+        TAILQ_REMOVE(&server->socket->payloads, payload, entries);
+        message = protocol_receive_message(payload);
+        if (!message)
+            return false;
+        handle_gui_event(server, payload->fd, message);
+        free(message);
+        free(payload);
+    }
+    return true;
 }
 
 bool zappy_server(zappy_server_t *server)
 {
-    protocol_payload_t *payload;
-
     if (!server || server->port < 1024
         || server->width <= 0 || server->height <= 0)
         return false;
@@ -75,12 +94,8 @@ bool zappy_server(zappy_server_t *server)
         return false;
     while (protocol_server_is_open()) {
         protocol_server_listen(server->socket);
-        while (!TAILQ_EMPTY(&server->socket->payloads)) {
-            payload = TAILQ_FIRST(&server->socket->payloads);
-            TAILQ_REMOVE(&server->socket->payloads, payload, entries);
-            handle_payload(server, payload);
-            free(payload);
-        }
+        if (!handle_payload(server))
+            return false;
     }
     return true;
 }

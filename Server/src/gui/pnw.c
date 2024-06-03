@@ -5,16 +5,18 @@
 ** pnw
 */
 
-#include <string.h>
+#include <stdio.h>
 
 #include "server.h"
 
-void pnw(const zappy_server_t *server, const ai_t *ai)
+void pnw(
+    const zappy_server_t *server,
+    const ai_t *ai)
 {
-    protocol_packet_t packet = { EVT_PNW, {0} };
-    const ai_info_t ai_info = { ai->id, { ai->pos.x, ai->pos.y },
-        ai->orientation, ai->level, ai->team->name };
+    char formatted_message[DATA_SIZE];
 
-    memcpy(&packet.data, &ai_info, sizeof(ai_info));
-    gui_send_to_all(server, &packet);
+    snprintf(formatted_message, DATA_SIZE, "pnw %d %d %d %d %d %s\n",
+        ai->id, ai->pos.x, ai->pos.y, ai->orientation, ai->level,
+        ai->team->name);
+    gui_send_to_all(server, formatted_message);
 }

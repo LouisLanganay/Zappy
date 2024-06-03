@@ -5,14 +5,14 @@
 ** smg
 */
 
-#include <string.h>
+#include <stdio.h>
 
 #include "server.h"
 
-void smg(const zappy_server_t *server, const char *msg)
+void smg(const zappy_server_t *server, const char *message)
 {
-    protocol_packet_t packet = { EVT_SMG, {0} };
+    char formatted_message[DATA_SIZE];
 
-    memcpy(&packet.data, msg, strlen(msg));
-    gui_send_to_all(server, &packet);
+    snprintf(formatted_message, DATA_SIZE, "smg %s\n", message);
+    gui_send_to_all(server, formatted_message);
 }

@@ -5,16 +5,17 @@
 ** pbc
 */
 
-#include <string.h>
+#include <stdio.h>
 
 #include "server.h"
 
-void pbc(const zappy_server_t *server, const ai_t *ai, const char *msg)
+void pbc(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    const char *message)
 {
-    protocol_packet_t packet = { EVT_PBC, {0} };
-    broadcast_t broadcast = { ai->id, "" };
+    char formatted_message[DATA_SIZE];
 
-    memcpy(&broadcast.msg, msg, strlen(msg));
-    memcpy(&packet.data, &broadcast, sizeof(broadcast_t));
-    gui_send_to_all(server, &packet);
+    snprintf(formatted_message, DATA_SIZE, "pbc %d %s\n", ai->id, message);
+    gui_send_to_all(server, formatted_message);
 }

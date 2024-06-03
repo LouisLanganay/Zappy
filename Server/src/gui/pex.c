@@ -5,14 +5,16 @@
 ** pex
 */
 
-#include <string.h>
+#include <stdio.h>
 
 #include "server/gui.h"
 
-void pex(const zappy_server_t *server, const ai_t *ai)
+void pex(
+    const zappy_server_t *server,
+    const int interlocutor)
 {
-    protocol_packet_t packet = { EVT_PEX, {0} };
+    char formatted_message[DATA_SIZE];
 
-    memcpy(&packet.data, &ai->id, sizeof(uint16_t));
-    gui_send_to_all(server, &packet);
+    snprintf(formatted_message, DATA_SIZE, "pex %d\n", interlocutor);
+    gui_send_to_all(server, formatted_message);
 }

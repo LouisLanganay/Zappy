@@ -5,22 +5,27 @@
 ** bct
 */
 
-#include <string.h>
+#include <stdio.h>
 
 #include "server/gui.h"
 
-void bct(const zappy_server_t *server, const protocol_payload_t *payload)
+void bct(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message)
 {
-    protocol_packet_t packet = { EVT_BCT, {0} };
-    tile_t tile = {0};
+    vector2_t pos;
 
-    memcpy(&tile.pos, &payload->packet.data, sizeof(vector2_t));
-    if (tile.pos.x >= server->width || tile.pos.y >= server->height) {
-        sbp(server, payload);
+    scanf(message, "%d %d", &pos.x, &pos.y);
+    if (pos.x >= server->width || pos.y >= server->height) {
+        sbp(server, interlocutor);
         return;
     }
-    memcpy(&tile.inventory, &server->map[tile.pos.y][tile.pos.x],
-        sizeof(inventory_t));
-    memcpy(&packet.data, &tile, sizeof(tile_t));
-    protocol_server_send_packet(server->socket, payload->fd, &packet);
+    protocol_server_send_message(server->socket, interlocutor,
+        "bct %d %d %d %d %d %d %d %d %d\n",
+        pos.x, pos.y, server->map[pos.y][pos.x].food,
+        server->map[pos.y][pos.x].linemate,
+        server->map[pos.y][pos.x].deraumere, server->map[pos.y][pos.x].sibur,
+        server->map[pos.y][pos.x].mendiane, server->map[pos.y][pos.x].phiras,
+        server->map[pos.y][pos.x].thystame);
 }

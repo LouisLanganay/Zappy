@@ -5,24 +5,23 @@
 ** pin
 */
 
-#include <string.h>
-
 #include "server/gui.h"
 
-void pin(const zappy_server_t *server, const protocol_payload_t *payload)
+void pin(
+    const zappy_server_t *server,
+    const int interlocutor,
+    UNUSED const char *message)
 {
-    protocol_packet_t packet = { EVT_PIN, {0} };
-    uint16_t id = 0;
-    ai_inventory_t ai_inventory = {0};
-    const ai_t *ai;
+    const ai_t *ai = get_ai_by_id(server, interlocutor);
 
-    memcpy(&id, &payload->packet.data, sizeof(uint16_t));
-    ai = get_ai_by_id(server, id);
     if (!ai) {
-        sbp(server, payload);
+        sbp(server, interlocutor);
         return;
     }
-    ai_inventory = (ai_inventory_t){ ai->id, ai->pos, ai->inventory };
-    memcpy(&packet.data, &ai_inventory, sizeof(ai_inventory_t));
-    protocol_server_send_packet(server->socket, payload->fd, &packet);
+    protocol_server_send_message(server->socket, interlocutor,
+        "pin %d %d %d %d %d %d %d %d %d %d\n",
+        ai->id, ai->pos.x, ai->pos.y, ai->inventory.food,
+        ai->inventory.linemate, ai->inventory.deraumere,
+        ai->inventory.sibur, ai->inventory.mendiane,
+        ai->inventory.phiras, ai->inventory.thystame);
 }

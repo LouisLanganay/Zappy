@@ -5,15 +5,13 @@
 ** msz
 */
 
-#include <string.h>
-
 #include "server.h"
 
-void msz(const zappy_server_t *server, const protocol_payload_t *payload)
+void msz(
+    const zappy_server_t *server,
+    const int interlocutor,
+    UNUSED const char *message)
 {
-    protocol_packet_t packet = { EVT_MSZ, {0} };
-    const vector2_t size = { server->width, server->height };
-
-    memcpy(&packet.data, &size, sizeof(vector2_t));
-    protocol_server_send_packet(server->socket, payload->fd, &packet);
+    protocol_server_send_message(server->socket, interlocutor, "msz %d %d\n",
+        server->width, server->height);
 }

@@ -9,10 +9,10 @@
 
 void gui_send_to_all(
     const zappy_server_t *server,
-    const protocol_packet_t *packet)
+    const char *message)
 {
     const gui_t *gui;
 
     TAILQ_FOREACH(gui, &server->guis, entries)
-        protocol_server_send_packet(server->socket, gui->fd, packet);
+        protocol_server_send_message(server->socket, gui->fd, message);
 }

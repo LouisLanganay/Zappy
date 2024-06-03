@@ -5,18 +5,22 @@
 ** mct
 */
 
-#include <string.h>
+#include <stdio.h>
 
 #include "server/gui.h"
 
-void mct(const zappy_server_t *server, const protocol_payload_t *payload)
+void mct(
+    const zappy_server_t *server,
+    const int interlocutor,
+    UNUSED const char *message)
 {
-    protocol_payload_t _payload = { .fd = 0, .packet = {0} };
-    vector2_t pos = {0};
+    char formatted_message[DATA_SIZE];
+    vector2_t pos;
 
     for (pos.y = 0; pos.y < server->height; pos.y++)
         for (pos.x = 0; pos.x < server->width; pos.x++) {
-            memcpy(&_payload.packet.data, &pos, sizeof(vector2_t));
-            bct(server, payload);
+            snprintf(formatted_message, DATA_SIZE,
+                "bct %d %d\n", pos.x, pos.y);
+            bct(server, interlocutor, formatted_message);
         }
 }
