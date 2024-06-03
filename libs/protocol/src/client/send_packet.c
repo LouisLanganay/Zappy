@@ -40,7 +40,7 @@ bool protocol_client_send_message(
     const char *format,
     ...)
 {
-    const char message[DATA_SIZE];
+    char message[DATA_SIZE];
     va_list args;
 
     if (FD_ISSET(client->network_data.sockfd,
