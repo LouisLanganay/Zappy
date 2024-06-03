@@ -15,6 +15,13 @@
     #define UNUSED __attribute__((unused))
 
 typedef enum {
+    CONNECTION_SELF,
+    CONNECTION_AI,
+    CONNECTION_GUI,
+    CONNECTION_UNKNOWN,
+} connection_t;
+
+typedef enum {
     NORTH = 1,
     EAST = 2,
     SOUTH = 3,
