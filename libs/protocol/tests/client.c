@@ -5,10 +5,10 @@
 ** protocol/test/client
 */
 
-#include <errno.h>
+#include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <unistd.h>
 
 #include "protocol/client.h"
 
@@ -26,6 +26,7 @@ static void handle_signal(const int sig)
 {
     if (sig != SIGINT)
         return;
+    write(1, "\r", 1);
     is_open(true);
 }
 
@@ -36,6 +37,15 @@ static void setup_signal(void)
     signal(SIGPIPE, SIG_IGN);
     sig.sa_handler = handle_signal;
     sigaction(SIGINT, &sig, NULL);
+}
+
+static void handle_payload(const protocol_payload_t *payload)
+{
+    char *message = protocol_receive_message(payload);
+
+    if (!message)
+        return;
+    printf("Received packet: %s\n", message);
 }
 
 int main(void)
@@ -53,7 +63,7 @@ int main(void)
         while (!TAILQ_EMPTY(&client->payloads)) {
             payload = TAILQ_FIRST(&client->payloads);
             TAILQ_REMOVE(&client->payloads, payload, entries);
-            printf("Received packet: %s\n", (char *)payload->packet.data);
+            handle_payload(payload);
             free(payload);
         }
     }

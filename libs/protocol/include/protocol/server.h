@@ -91,13 +91,15 @@ bool protocol_server_send_packet_type(
  *
  * @param server The server to send the message with
  * @param client_fd The client to send the message to
- * @param message The message to send
+ * @param format The format of the message to send
+ * @param ... The arguments to format the message with
  * @return true If the message was sent
  * @return false If the message was not sent
  */
 bool protocol_server_send_message(
     protocol_server_t *server,
     int client_fd,
-    const char *message);
+    const char *format,
+    ...);
 
 #endif //PROTOCOL_SERVER_H

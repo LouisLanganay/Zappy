@@ -85,13 +85,15 @@ bool protocol_client_send_packet(
 /**
  * @brief Send a message to the server
  *
- * @param client The client to send the message with
- * @param message The message to send
+* @param client The client to send the message with
+ * @param format The format of the message to send
+ * @param ... The arguments to format the message with
  * @return true If the message was sent
  * @return false If the message was not sent
  */
 bool protocol_client_send_message(
     const protocol_client_t *client,
-    const char *message);
+    const char *format,
+    ...);
 
 #endif //PROTOCOL_CLIENT_H

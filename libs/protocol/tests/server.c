@@ -12,12 +12,15 @@
 
 static void handle_payload(
     protocol_server_t *server,
-    protocol_payload_t *payload)
+    const protocol_payload_t *payload)
 {
     char *message = protocol_receive_message(payload);
 
+    if (!message)
+        return;
     printf("Received packet: %s\n", message);
-    protocol_server_send_message(server, payload->fd, "Hello from server!");
+    protocol_server_send_message(server, payload->fd,
+        "Hello from %s!", "server");
     free(message);
 }
 

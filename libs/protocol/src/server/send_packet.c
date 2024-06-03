@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include "protocol/server.h"
 
@@ -48,11 +49,12 @@ bool protocol_server_send_packet_type(
 bool protocol_server_send_message(
     protocol_server_t *server,
     const int client_fd,
-    const char *message)
+    const char *format,
+    ...)
 {
-    const int len = strlen(message);
-    const int size = len > DATA_SIZE ? DATA_SIZE : len;
     protocol_client_t *client;
+    char message[DATA_SIZE];
+    va_list args;
 
     TAILQ_FOREACH(client, &server->clients, entries)
         if (client->network_data.sockfd == client_fd) {
@@ -63,9 +65,11 @@ bool protocol_server_send_message(
         fprintf(stderr, "\033[31m[ERROR]\033[0m client not found\n");
         return false;
     }
-    if (write(client_fd, message, size) == -1) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
-        return false;
-    }
-    return true;
+    va_start(args, format);
+    vsnprintf(message, sizeof(message), format, args);
+    va_end(args);
+    if (write(client_fd, message, strlen(message)) > 0)
+        return true;
+    fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
+    return false;
 }
