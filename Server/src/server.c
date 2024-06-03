@@ -27,8 +27,8 @@ static bool display_server(const zappy_server_t *server)
         "\nport = %hu\nwidth = %hu\nheight = %hu\nclients_nb = %hu\nfreq = %hu"
         "\nTeams [%hu]:",
         server->port, server->width, server->height, server->clients_nb,
-        server->freq, server->teams.tqh_last
-        ? ((team_t *)server->teams.tqh_last)->id + 1 : 0) < 0)
+        server->freq, TAILQ_EMPTY(&server->teams) ? 0
+        : TAILQ_LAST(&server->teams, teamhead)->id) < 0)
         return false;
     for (team_t *team = server->teams.tqh_first; team;
         team = team->entries.tqe_next)

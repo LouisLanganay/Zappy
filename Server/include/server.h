@@ -53,7 +53,7 @@ typedef struct {
     protocol_server_t *socket;
 
     TAILQ_HEAD(, ai_s) ais;
-    TAILQ_HEAD(, team_s) teams;
+    TAILQ_HEAD(teamhead, team_s) teams;
     inventory_t **map;
     TAILQ_HEAD(, gui_s) guis;
 } zappy_server_t;

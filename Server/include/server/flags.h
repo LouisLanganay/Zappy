@@ -52,8 +52,8 @@ static inline void set_teams(
         team = calloc(1, sizeof(team_t));
         if (!team)
             return;
-        team->id = server->teams.tqh_last
-            ? ((team_t *)server->teams.tqh_last)->id + 1 : 0;
+        team->id = TAILQ_EMPTY(&server->teams) ? 1 :
+            TAILQ_LAST(&server->teams, teamhead)->id + 1;
         strncpy(team->name, optargs->av[i], 64);
         TAILQ_INSERT_TAIL(&server->teams, team, entries);
     }
