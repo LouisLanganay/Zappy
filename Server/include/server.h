@@ -13,6 +13,8 @@
     #include "protocol/server.h"
     #include "server/event.h"
 
+    #define UNUSED __attribute__((unused))
+
 typedef struct team_s {
     uint16_t id;
     char name[64];

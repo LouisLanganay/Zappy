@@ -19,8 +19,6 @@ void server_init(zappy_server_t *server)
     TAILQ_INIT(&server->guis);
 }
 
-void
-
 static bool display_server(const zappy_server_t *server)
 {
     setvbuf(stdout, NULL, _IONBF, 0);

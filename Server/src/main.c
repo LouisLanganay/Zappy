@@ -6,16 +6,14 @@
 */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
-#include "server.h"
+#include "server/flags.h"
 
 static int usage(void)
 {
     return puts("USAGE: ./zappy_server -p port -x width -y height"
-        "-n name1 name2 ... -c clientsNb -f freq [-v | --verbose]"
+        " -n name1 name2 ... -c clientsNb -f freq [-v | --verbose]"
         "\n\tport\t\tis the port number"
         "\n\twidth\t\tis the width of the world"
         "\n\theight\t\tis the height of the world"
@@ -25,6 +23,18 @@ static int usage(void)
         ) > 0 ? true : false;
 }
 
+static bool handle_opt(
+    zappy_server_t *server,
+    const optargs_t *optargs)
+{
+    for (size_t i = 0; i < sizeof(opt_cmds) / sizeof(opt_cmds[0]); ++i)
+        if (opt_cmds[i].flag == optargs->opt) {
+            opt_cmds[i].func(server, optargs);
+            return true;
+        }
+    return false;
+}
+
 int main(const int ac, char **av)
 {
     zappy_server_t server = {0};
@@ -32,36 +42,7 @@ int main(const int ac, char **av)
     server_init(&server);
     for (int opt = getopt(ac, av, "p:x:y:n:c:f:v"); opt != -1;
         opt = getopt(ac, av, "p:x:y:n:c:f:v"))
-        switch (opt) {
-        case 'p':
-            server.port = atoi(optarg);
-            break;
-        case 'x':
-            server.width = atoi(optarg);
-            break;
-        case 'y':
-            server.height = atoi(optarg);
-            break;
-        case 'n':
-            for (int i = optind - 1; i < ac && av[i][0] != '-'; ++i) {
-                team_t *team = calloc(1, sizeof(team_t));
-                if (!team)
-                    return 84;
-                team->id = server.teams.tqh_last ? ((team_t *)server.teams.tqh_last)->id + 1 : 0;
-                strncpy(team->name, av[i], 64);
-                TAILQ_INSERT_TAIL(&server.teams, team, entries);
-            }
-            break;
-        case 'c':
-            server.clients_nb = atoi(optarg);
-            break;
-        case 'f':
-            server.freq = atoi(optarg);
-            break;
-        case 'v':
-            server.verbose = true;
-            break;
-        default:
+        if (!handle_opt(&server, &(optargs_t){ac, av, opt, optarg})) {
             usage();
             return 84;
         }
