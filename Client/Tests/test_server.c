@@ -38,66 +38,57 @@ void test_server_run(test_server_t *test_server) {
     while (protocol_server_is_open()) {
         protocol_payload_t *payload = protocol_server_listen(test_server->server);
         if (payload) {
-            protocol_packet_t packet;
-            printf("Type: %i\n", payload->packet.type);
-            if (payload->packet.type == 26) {
-                map_size_t map_size = {10, 10};
-                printf("Sending packet: %i\n", EVT_MAP_SIZE);
-                packet.type = EVT_MAP_SIZE;
-                memcpy(packet.data, &map_size, sizeof(map_size_t));
+            printf("Received packet: %s - Type: %i\n", payload->packet.data, payload->packet.type);
+            if (a == 0) {
+                protocol_packet_t packet = {1, "msz 10 10\n"};
+                printf("Sending packet: %s\n", packet.data);
                 int r = protocol_server_send_packet(test_server->server, payload->fd, &packet);
                 printf("Result: %i\n", r);
-
+                a++;
                 sleep(1);
-
-                char* team_names[] = {"test", "test2", NULL};
-                teams_name_t my_teams;
-                my_teams.teams = team_names;
-                packet.type = EVT_TEAMS_NAME;
-                memcpy(packet.data, &my_teams, sizeof(teams_name_t));
-                printf("Sending packet: %i\n", EVT_TEAMS_NAME);
-                r = protocol_server_send_packet(test_server->server, payload->fd, &packet);
-                printf("Result: %i\n", r);
-
-                sleep(1);
-
-                protocol_packet_t packet2;
-                player_add_t player_add = {1, 1, 1, 1, 1, "test"};
-                packet2.type = EVT_PLAYER_ADD;
-                memcpy(packet2.data, &player_add, sizeof(player_add_t));
-                printf("Sending packet: %i\n", EVT_PLAYER_ADD);
+                protocol_packet_t packet2 = {1, "tna team1\n"};
+                printf("Sending packet: %s\n", packet2.data);
                 r = protocol_server_send_packet(test_server->server, payload->fd, &packet2);
                 printf("Result: %i\n", r);
-
                 sleep(1);
-
-                player_add_t player_add2 = {2, 2, 2, 2, 2, "test2"};
-                packet2.type = EVT_PLAYER_ADD;
-                memcpy(packet2.data, &player_add2, sizeof(player_add_t));
-                printf("Sending packet: %i\n", EVT_PLAYER_ADD);
-                r = protocol_server_send_packet(test_server->server, payload->fd, &packet2);
-                printf("Result: %i\n", r);
-
-                sleep(1);
-
-                protocol_packet_t packet3;
-                player_inventory_t player_inventory = {1, {1, 1, 1, 1, 1, 1, 1}};
-                packet3.type = EVT_PLAYER_INVENTORY;
-                memcpy(packet3.data, &player_inventory, sizeof(player_inventory_t));
-                printf("Sending packet: %i\n", EVT_PLAYER_INVENTORY);
+                protocol_packet_t packet3 = {1, "tna team2\n"};
+                printf("Sending packet: %s\n", packet3.data);
                 r = protocol_server_send_packet(test_server->server, payload->fd, &packet3);
                 printf("Result: %i\n", r);
-
                 sleep(1);
-
-                protocol_packet_t packet4;
-                tile_content_t tile_content = {5, 2, {5, 1, 2, 1, 3, 1, 1}};
-                packet4.type = EVT_TILE_CONTENT;
-                memcpy(packet4.data, &tile_content, sizeof(tile_content_t));
-                printf("Sending packet: %i\n", EVT_TILE_CONTENT);
+                protocol_packet_t packet4 = {1, "pnw 1 2 2 1 1 team1\n"};
+                printf("Sending packet: %s\n", packet4.data);
                 r = protocol_server_send_packet(test_server->server, payload->fd, &packet4);
                 printf("Result: %i\n", r);
-                a++;
+                sleep(1);
+                protocol_packet_t packet5 = {1, "pnw 2 3 3 4 1 team2\n"};
+                printf("Sending packet: %s\n", packet5.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet5);
+                printf("Result: %i\n", r);
+                sleep(1);
+                protocol_packet_t packet8 = {1, "pin 1 2 2 5 5 5 5 5 5 5\n"};
+                printf("Sending packet: %s\n", packet8.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet8);
+                printf("Result: %i\n", r);
+                sleep(1);
+                protocol_packet_t packet9 = {1, "pdr 1 1\n"};
+                printf("Sending packet: %s\n", packet9.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet9);
+                printf("Result: %i\n", r);
+                sleep(1);
+                while (a < 5) {
+                    protocol_packet_t packet6 = {1, "ppo 1 3 2 1\n"};
+                    printf("Sending packet: %s\n", packet6.data);
+                    r = protocol_server_send_packet(test_server->server, payload->fd, &packet6);
+                    printf("Result: %i\n", r);
+                    sleep(5);
+                    protocol_packet_t packet7 = {1, "ppo 1 2 2 2\n"};
+                    printf("Sending packet: %s\n", packet7.data);
+                    r = protocol_server_send_packet(test_server->server, payload->fd, &packet7);
+                    printf("Result: %i\n", r);
+                    sleep(1);
+                    a++;
+                }
             }
         }
     }
