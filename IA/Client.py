@@ -7,7 +7,6 @@ class Client:
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
-
     def send(self, data):
         self.socket.send(data.encode())
 
@@ -27,11 +26,11 @@ if __name__ == '__main__':
         while True:
             print("Received:", client.receive())
             message = input("Enter message to send (type 'exit' to close): ")
-            message[:-1]
-            message += "\r\n"
+            print(message)
+            message += "\n"
+            client.send(message)
             if message.lower() == 'exit':
                 break
-            client.send(message)
     except ConnectionError:
         print("\Message not received")
     except KeyboardInterrupt:
