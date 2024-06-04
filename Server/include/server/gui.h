@@ -166,6 +166,18 @@ void sbp(
     const zappy_server_t *server,
     int interlocutor);
 
+/**
+ * @brief Start an incantation
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ *
+ * @note Send pic with the position of the tile and the player number
+ */
+void pic(
+    const zappy_server_t *server,
+    int interlocutor);
+
 static const struct {
     const char *cmd;
     void (*func)(
@@ -180,6 +192,7 @@ static const struct {
     {"ppo", ppo},
     {"plv", plv},
     {"pin", pin},
+    {"pic", pic},
     {NULL, NULL}
 };
 
