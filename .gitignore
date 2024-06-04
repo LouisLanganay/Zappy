@@ -69,3 +69,6 @@ server
 # Execptions
 !client/
 !server/
+
+# Logs
+vgcore.*

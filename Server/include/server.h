@@ -15,7 +15,6 @@
     #define UNUSED __attribute__((unused))
 
 typedef enum {
-    CONNECTION_SELF,
     CONNECTION_AI,
     CONNECTION_GUI,
     CONNECTION_UNKNOWN,

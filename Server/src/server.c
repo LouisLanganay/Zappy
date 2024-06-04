@@ -79,10 +79,6 @@ static connection_t get_connection_by_fd(
     ai_t *ai;
     gui_t *gui;
 
-    if (fd == server->socket->network_data.sockfd) {
-        printf("\033[33mNot implemented yet\033[0m\n");
-        return CONNECTION_SELF;
-    }
     TAILQ_FOREACH(ai, &server->ais, entries)
         if (ai->fd == fd)
             return CONNECTION_AI;
@@ -104,6 +100,8 @@ static void handle_first_connection(
 
         gui->fd = interlocutor;
         TAILQ_INSERT_TAIL(&server->guis, gui, entries);
+        printf("New GUI connected\n");
+        mct(server, interlocutor, NULL);
         return;
     }
     team_t *team = calloc(1, sizeof(team_t));
@@ -122,29 +120,44 @@ static void handle_first_connection(
     ai->fd = interlocutor;
     ai->team = team;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
+    printf("New AI connected\n");
+    protocol_server_send_message(server->socket, interlocutor,
+        "%i\n", server->clients_nb);
+    protocol_server_send_message(server->socket, interlocutor,
+        " %i %i\n", server->width, server->height);
 }
 
 static bool handle_payload(
     zappy_server_t *server)
 {
     protocol_payload_t *payload;
+    protocol_connection_t *connection;
     char *message;
-    connection_t connection;
+
+    while (!TAILQ_EMPTY(&server->socket->new_connections)) {
+        connection = TAILQ_FIRST(&server->socket->new_connections);
+        TAILQ_REMOVE(&server->socket->new_connections, connection, entries);
+        printf("New connection from %d\n", connection->fd);
+        protocol_server_send_message(server->socket, connection->fd,
+            "WELCOME\n");
+        free(connection);
+    }
+
+    while (!TAILQ_EMPTY(&server->socket->lost_connections)) {
+        connection = TAILQ_FIRST(&server->socket->lost_connections);
+        TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
+        printf("Lost connection from %d\n", connection->fd);
+        free(connection);
+    }
 
     while (!TAILQ_EMPTY(&server->socket->payloads)) {
         payload = TAILQ_FIRST(&server->socket->payloads);
         TAILQ_REMOVE(&server->socket->payloads, payload, entries);
-        connection = get_connection_by_fd(server, payload->fd);
-        if (connection == CONNECTION_SELF) {
-            protocol_server_send_message(server->socket, payload->fd,
-                "WELCOME\n");
-            free(payload);
-            return false;
-        }
+        printf("Received message from %d\n", payload->fd);
         message = protocol_receive_message(payload);
         if (!message)
             return false;
-        switch (connection) {
+        switch (get_connection_by_fd(server, payload->fd)) {
             case CONNECTION_AI:
                 handle_ai_event(server, payload->fd, message);
                 break;
@@ -153,6 +166,8 @@ static bool handle_payload(
                 break;
             case CONNECTION_UNKNOWN:
                 handle_first_connection(server, payload->fd, message);
+                break;
+            default:
                 break;
         }
         free(message);
@@ -170,6 +185,21 @@ bool zappy_server(zappy_server_t *server)
     server->socket = protocol_server_create(server->port);
     if (!server->socket)
         return false;
+
+    server->map = calloc(server->height, sizeof(inventory_t *));
+    if (!server->map)
+        return false;
+    for (uint16_t y = 0; y < server->height; ++y) {
+        server->map[y] = calloc(server->width, sizeof(inventory_t));
+        if (!server->map[y])
+            return false;
+        for (uint16_t x = 0; x < server->width; ++x) {
+            server->map[y][x] = (inventory_t){ .food = 0, .linemate = 0,
+                .deraumere = 0, .sibur = 0, .mendiane = 0, .phiras = 0,
+                .thystame = 0 };
+        }
+    }
+
     while (protocol_server_is_open()) {
         protocol_server_listen(server->socket);
         if (!handle_payload(server))

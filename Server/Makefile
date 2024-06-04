@@ -44,6 +44,8 @@ DG_DIR_OBJ	:=	$(DIR_BUILD)/debug
 DG_OBJ		:=	$(patsubst %$(EXT),$(DG_DIR_OBJ)/%.o,$(SRC))
 DG_DEP		:=	$(DG_OBJ:.o=.d)
 
+DEBUG		:=	$(DIR_BIN)/$(NAME)_debug
+
 RM			:=	rm -rf
 
 CC			:=	gcc
