@@ -69,6 +69,7 @@ jobs:
         run: |
           missing=0
           IFS=','; read -a array <<< "${{ env.EXECUTABLES }}"
+          ls -l
           for element in "${array[@]}"
           do
               if [ -z $(ls | grep -w $element$) ]
