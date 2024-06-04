@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "server/gui.h"
+#include "server/ai.h"
 #include "server.h"
 
 #include <string.h>
@@ -52,7 +53,16 @@ static void handle_ai_event(
     UNUSED const int interlocutor,
     UNUSED const char *message)
 {
-    printf("\033[33mNot implemented yet\033[0m\n");
+    uint8_t cmd_lenght;
+
+    for (uint8_t i = 0; ai_cmds[i].func; ++i) {
+        cmd_lenght = strlen(ai_cmds[i].cmd);
+        if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
+            ai_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
+            return;
+        }
+    }
+    suc(server, interlocutor);
 }
 
 static void handle_gui_event(
