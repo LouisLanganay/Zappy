@@ -25,8 +25,7 @@ namespace Zappy {
             Api(const std::string& host, int port);
             ~Api();
 
-            template <typename T>
-            void sendCommand(uint16_t type, const T& data);
+            void sendCommand(std::string command);
             protocol_payload_t* getData();
             void fetchDataFromServer();
 

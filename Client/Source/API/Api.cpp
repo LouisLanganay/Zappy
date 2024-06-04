@@ -33,7 +33,7 @@ Api::Api(
             throw std::runtime_error("Failed to connect to server");
         DEBUG_SUCCESS("Connected to server");
         fetchDataThread = std::thread(&Api::fetchDataLoop, this);
-        sendCommand(EVT_START, start_t{});
+        sendCommand("GRAPHIC\n");
     } catch (const std::exception &e) {
         throw ApiException(e.what());
     }
@@ -47,16 +47,10 @@ Api::~Api()
     protocol_client_close(client);
 }
 
-template <typename T>
-void Api::sendCommand(uint16_t type, const T& data)
+void Api::sendCommand(std::string command)
 {
-    DEBUG_INFO("Sending command of type: " + std::to_string(type));
-    protocol_packet_t packet;
-    packet.type = type;
-    memcpy(packet.data, &data, sizeof(T));
-
-    if (!protocol_client_send_packet(client, type, &packet.data, sizeof(T)))
-        throw ApiException("Failed to send packet");
+    if (!protocol_client_send_packet(client, 1, command.c_str(), strlen(command.c_str())))
+        throw ApiException("Failed to send command to server");
 }
 
 protocol_payload_t* Api::getData()
