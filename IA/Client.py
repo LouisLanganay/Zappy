@@ -25,11 +25,13 @@ if __name__ == '__main__':
     client = Client('localhost', int(port))
     try:
         while True:
+            print("Received:", client.receive())
             message = input("Enter message to send (type 'exit' to close): ")
+            message[:-1]
+            message += "\r\n"
             if message.lower() == 'exit':
                 break
             client.send(message)
-            print("Received:", client.receive())
     except ConnectionError:
         print("\Message not received")
     except KeyboardInterrupt:
