@@ -41,8 +41,9 @@ namespace Zappy {
 
             Player* getPlayer(int playerNumber);
 
+            void addTeam(std::string name);
             void setTeams(const std::vector<std::string>& teams);
-            Team* getTeam(const std::string& name) const;
+            Team* getTeam(std::string name) const;
 
 
             Tile* getTile(int x, int y);

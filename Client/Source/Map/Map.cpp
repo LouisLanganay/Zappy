@@ -91,7 +91,27 @@ void Map::setTeams(const std::vector<std::string>& teams)
         _teams[teams[i]] = std::make_unique<Team>(teams[i], colors[i]);
 }
 
-Team* Map::getTeam(const std::string& name) const {
+void Map::addTeam(std::string name)
+{
+    Color colors[] = {
+        RED,
+        GREEN,
+        BLUE,
+        YELLOW,
+        ORANGE,
+        PINK,
+        PURPLE,
+        BROWN
+    };
+
+    Color teamColor = colors[_teams.size() % 8];
+
+    _teams[name] = std::make_unique<Team>(name, teamColor);
+    DEBUG_SUCCESS("Team added: " + name + " with color: " + std::to_string(teamColor.r) + ", " + std::to_string(teamColor.g) + ", " + std::to_string(teamColor.b));
+}
+
+Team* Map::getTeam(std::string name) const
+{
     auto it = _teams.find(name);
     if (it != _teams.end())
         return it->second.get();
