@@ -75,9 +75,14 @@ void Tile::draw(int x, int y) const
     }
 }
 
-
-
 void Tile::addResource(Zappy::Resources::Type type, int quantity)
 {
     _resources[type] += quantity;
+}
+
+void Tile::removeResource(Zappy::Resources::Type type, int quantity)
+{
+    _resources[type] -= quantity;
+    if (_resources[type] < 0)
+        _resources[type] = 0;
 }
