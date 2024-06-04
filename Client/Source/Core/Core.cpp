@@ -85,223 +85,433 @@ void Core::handleServerMessages() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
             }
-
-            DEBUG_INFO("Core received packet of type: " + std::to_string(payload->packet.type));
-
-            switch (payload->packet.type) {
-                case EVT_MAP_SIZE: {
-                    map_size_t mapSize;
-                    std::memcpy(&mapSize, payload->packet.data, sizeof(map_size_t));
-                    map->setSize(mapSize.width, mapSize.height);
-                    break;
-                }
-                case EVT_TILE_CONTENT: {
-                    DEBUG_INFO("Received tile content");
-                    tile_content_t tileContent;
-                    std::memcpy(&tileContent, payload->packet.data, sizeof(tile_content_t));
-                    std::vector<int> resources(tileContent.resources, tileContent.resources + 7);
-                    map->updateTile(tileContent.x, tileContent.y, resources);
-                    break;
-                }
-                case EVT_MAP_CONTENT: {
-                    map_content_t mapContent;
-                    std::memcpy(&mapContent, payload->packet.data, sizeof(map_content_t));
-                    for (int i = 0; i < mapContent.width * mapContent.height; ++i) {
-                        tile_content_t tileContent = mapContent.tiles[i];
-                        std::vector<int> resources(tileContent.resources, tileContent.resources + 7);
-                        map->updateTile(tileContent.x, tileContent.y, resources);
-                    }
-                    break;
-                }
-                case EVT_TEAMS_NAME: {
-                    teams_name_t teamsName;
-                    std::memcpy(&teamsName, payload->packet.data, sizeof(teams_name_t));
-                    std::vector<std::string> teams;
-                    // TODO: Implement team names
-                    teams.push_back("test");
-                    teams.push_back("test2");
-                    map->setTeams(teams);
-                    break;
-                }
-                case EVT_PLAYER_ADD: {
-                    player_add_t playerAdd;
-                    std::memcpy(&playerAdd, payload->packet.data, sizeof(player_add_t));
-                    Orientation orient = static_cast<Orientation>(playerAdd.orientation);
-                    const Team* team = map->getTeam(playerAdd.teamName);
-                    if (!team)
-                        break;
-                    std::unique_ptr<Player> player = std::make_unique<Player>(
-                        playerAdd.playerNumber,
-                        std::make_unique<Team>(*team),
-                        orient,
-                        playerAdd.level
-                    );
-                    player->setPosition(playerAdd.x, playerAdd.y);
-                    map->addPlayer(std::move(player));
-                    break;
-                }
-                case EVT_PLAYER_POSITION: {
-                    player_position_t playerPos;
-                    std::memcpy(&playerPos, payload->packet.data, sizeof(player_position_t));
-                    Player* player = map->getPlayer(playerPos.playerNumber);
-                    if (player)
-                        player->setPosition(playerPos.x, playerPos.y);
-                    break;
-                }
-                case EVT_PLAYER_LEVEL: {
-                    player_level_t playerLevel;
-                    std::memcpy(&playerLevel, payload->packet.data, sizeof(player_level_t));
-                    Player* player = map->getPlayer(playerLevel.playerNumber);
-                    if (player)
-                        player->setLevel(playerLevel.level);
-                    break;
-                }
-                case EVT_PLAYER_INVENTORY: {
-                    player_inventory_t playerAdd;
-                    std::memcpy(&playerAdd, payload->packet.data, sizeof(player_inventory_t));
-                    Player* player = map->getPlayer(playerAdd.playerNumber);
-                    if (!player)
-                        break;
-                    std::vector<int> resources(playerAdd.resources, playerAdd.resources + 7);
-                    for (int i = 0; i < 7; ++i)
-                        player->setResource(
-                            static_cast<Zappy::Resources::Type>(i),
-                            resources[i]
-                        );
-                    break;
-                }
-                case EVT_EXPULSION: {
-                    expulsion_t expulsion;
-                    std::memcpy(&expulsion, payload->packet.data, sizeof(expulsion_t));
-                    // TODO: Implement player expulsion
-                    break;
-                }
-                case EVT_BROADCAST: {
-                    broadcast_t broadcast;
-                    std::memcpy(&broadcast, payload->packet.data, sizeof(broadcast_t));
-                    Player* player = map->getPlayer(broadcast.playerNumber);
-                    if (player)
-                        player->addBroadcast(broadcast.message);
-                    break;
-                }
-                case EVT_INCANTATION_START: {
-                    incantation_start_t incantationStart;
-                    std::memcpy(&incantationStart, payload->packet.data, sizeof(incantation_start_t));
-                    // TODO: Implement incantation start
-                    break;
-                }
-                case EVT_INCANTATION_END: {
-                    incantation_end_t incantationEnd;
-                    std::memcpy(&incantationEnd, payload->packet.data, sizeof(incantation_end_t));
-                    // TODO: Implement incantation end
-                    break;
-                }
-                case EVT_PLAYER_EGG_LAYING: {
-                    player_egg_laying_t eggLaying;
-                    std::memcpy(&eggLaying, payload->packet.data, sizeof(player_egg_laying_t));
-                    // TODO: Implement player egg laying
-                    break;
-                }
-                case EVT_RESOURCE_DROP: {
-                    resource_drop_t resourceDrop;
-                    std::memcpy(&resourceDrop, payload->packet.data, sizeof(resource_drop_t));
-                    Player* player = map->getPlayer(resourceDrop.playerNumber);
-                    if (!player)
-                        break;
-                    Tile* tile = map->getTile(player->getPosition().first, player->getPosition().second);
-                    if (!tile)
-                        break;
-                    player->removeResource(
-                        static_cast<Zappy::Resources::Type>(resourceDrop.resourceType),
-                        1
-                    );
-                    tile->addResource(
-                        static_cast<Zappy::Resources::Type>(resourceDrop.resourceType),
-                        1
-                    );
-                    break;
-                }
-                case EVT_RESOURCE_COLLECT: {
-                    resource_drop_t resourceDrop;
-                    std::memcpy(&resourceDrop, payload->packet.data, sizeof(resource_drop_t));
-                    Player* player = map->getPlayer(resourceDrop.playerNumber);
-                    if (!player)
-                        break;
-                    Tile* tile = map->getTile(player->getPosition().first, player->getPosition().second);
-                    if (!tile)
-                        break;
-                    player->addResource(
-                        static_cast<Zappy::Resources::Type>(resourceDrop.resourceType),
-                        1
-                    );
-                    tile->addResource(
-                        static_cast<Zappy::Resources::Type>(resourceDrop.resourceType),
-                        -1
-                    );
-                    break;
-                }
-                case EVT_PLAYER_DEATH: {
-                    player_death_t playerDeath;
-                    std::memcpy(&playerDeath, payload->packet.data, sizeof(player_death_t));
-                    map->removePlayer(playerDeath.playerNumber);
-                    break;
-                }
-                case EVT_EGG_LAID: {
-                    egg_laid_t eggLaid;
-                    std::memcpy(&eggLaid, payload->packet.data, sizeof(egg_laid_t));
-                    // TODO: Implement egg laid
-                    break;
-                }
-                case EVT_EGG_CONNECT: {
-                    egg_connect_t eggConnect;
-                    std::memcpy(&eggConnect, payload->packet.data, sizeof(egg_connect_t));
-                    // TODO: Implement egg connect
-                    break;
-                }
-                case EVT_EGG_DEATH: {
-                    egg_death_t eggDeath;
-                    std::memcpy(&eggDeath, payload->packet.data, sizeof(egg_death_t));
-                    // TODO: Implement egg death
-                    break;
-                }
-                case EVT_TIME_UNIT_REQUEST: {
-                    time_unit_request_t timeUnitRequest;
-                    std::memcpy(&timeUnitRequest, payload->packet.data, sizeof(time_unit_request_t));
-                    // TODO: Implement time unit request
-                    break;
-                }
-                case EVT_TIME_UNIT_CHANGE: {
-                    time_unit_change_t timeUnitChange;
-                    std::memcpy(&timeUnitChange, payload->packet.data, sizeof(time_unit_change_t));
-                    // TODO: Implement time unit change
-                    break;
-                }
-                case EVT_GAME_END: {
-                    game_end_t gameEnd;
-                    std::memcpy(&gameEnd, payload->packet.data, sizeof(game_end_t));
-                    // TODO: Implement game end
-                    break;
-                }
-                case EVT_SERVER_MESSAGE: {
-                    server_message_t serverMessage;
-                    std::memcpy(&serverMessage, payload->packet.data, sizeof(server_message_t));
-                    map->addServerMessage(serverMessage.message);
-                    break;
-                }
-                case EVT_UNKNOWN_COMMAND: {
-                    DEBUG_ERROR("Unknown command received from server");
-                    break;
-                }
-                case EVT_BAD_PARAMETER: {
-                    DEBUG_ERROR("Bad parameter received from server");
-                    break;
-                }
-                default:
-                    DEBUG_ERROR("Unknown event type: " + payload->packet.type);
-                    break;
+            std::string message(reinterpret_cast<const char*>(payload->packet.data));
+            DEBUG_SUCCESS("Core received packet: " + message);
+            if (message.empty()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                continue;
             }
+
+            if (message.find("msz") == 0) {
+                msz(message);
+                continue;
+            }
+            if (message.find("bct") == 0) {
+                bct(message);
+                continue;
+            }
+            if (message.find("tna") == 0) {
+                tna(message);
+                continue;
+            }
+            if (message.find("pnw") == 0) {
+                pnw(message);
+                continue;
+            }
+            if (message.find("ppo") == 0) {
+                ppo(message);
+                continue;
+            }
+            if (message.find("plv") == 0) {
+                plv(message);
+                continue;
+            }
+            if (message.find("pin") == 0) {
+                pin(message);
+                continue;
+            }
+            if (message.find("pex") == 0) {
+                pex(message);
+                continue;
+            }
+            if (message.find("pbc") == 0) {
+                pbc(message);
+                continue;
+            }
+            if (message.find("pic") == 0) {
+                pic(message);
+                continue;
+            }
+            if (message.find("pie") == 0) {
+                pie(message);
+                continue;
+            }
+            if (message.find("pfk") == 0) {
+                pfk(message);
+                continue;
+            }
+            if (message.find("pdr") == 0) {
+                pdr(message);
+                continue;
+            }
+            if (message.find("pgt") == 0) {
+                pgt(message);
+                continue;
+            }
+            if (message.find("pdi") == 0) {
+                pdi(message);
+                continue;
+            }
+            if (message.find("enw") == 0) {
+                enw(message);
+                continue;
+            }
+            if (message.find("ebo") == 0) {
+                ebo(message);
+                continue;
+            }
+            if (message.find("edi") == 0) {
+                edi(message);
+                continue;
+            }
+            if (message.find("sgt") == 0) {
+                sgt(message);
+                continue;
+            }
+            if (message.find("sst") == 0) {
+                sst(message);
+                continue;
+            }
+            if (message.find("seg") == 0) {
+                seg(message);
+                continue;
+            }
+            if (message.find("smg") == 0) {
+                smg(message);
+                continue;
+            }
+            if (message.find("suc") == 0) {
+                suc();
+                continue;
+            }
+            if (message.find("sbp") == 0) {
+                sbp();
+                continue;
+            }
+
+            DEBUG_ERROR("Unknown command: " + message);
         }
     } catch (const std::exception& e) {
         throw MainException(e.what());
     }
+}
+
+void Core::msz(std::string message)
+{
+    int x, y;
+    sscanf(message.c_str(), "msz %d %d", &x, &y);
+    map->setSize(x, y);
+}
+
+void Core::bct(std::string message) {
+    int x, y, q0, q1, q2, q3, q4, q5, q6;
+    sscanf(message.c_str(), "bct %d %d %d %d %d %d %d %d %d", &x, &y, &q0, &q1, &q2, &q3, &q4, &q5, &q6);
+    map->updateTile(x, y, {q0, q1, q2, q3, q4, q5, q6});
+}
+
+void Core::tna(std::string message)
+{
+    std::string teamName = message.substr(4);
+
+    teamName.erase(0, teamName.find_first_not_of(" \t\n\r"));
+    teamName.erase(teamName.find_last_not_of(" \t\n\r") + 1);
+
+    map->addTeam(teamName);
+}
+
+void Core::pnw(std::string message)
+{
+    std::istringstream iss(message);
+    std::string command;
+    int playerNumber, x, y, orientation, level;
+    std::string teamName;
+
+    iss >> command;
+
+    if (!(iss >> playerNumber >> x >> y >> orientation >> level >> teamName)) {
+        DEBUG_ERROR("Malformed pnw message: " + message);
+        return;
+    }
+    if (orientation < 1 || orientation > 4) {
+        DEBUG_ERROR("Invalid orientation value: " + std::to_string(orientation));
+        return;
+    }
+
+    Orientation orient = static_cast<Orientation>(orientation);
+    const Team* team = map->getTeam(teamName);
+    if (!team) {
+        DEBUG_ERROR("Team not found: " + teamName);
+        return;
+    }
+
+    std::unique_ptr<Player> player = std::make_unique<Player>(
+        playerNumber,
+        std::make_unique<Team>(*team),
+        orient,
+        level
+    );
+    player->setPosition(x, y);
+    map->addPlayer(std::move(player));
+}
+
+void Core::ppo(std::string message)
+{
+    std::istringstream iss(message);
+    std::string command;
+    int playerNumber, x, y, orientation;
+
+    iss >> command;
+
+    if (!(iss >> playerNumber >> x >> y >> orientation)) {
+        DEBUG_ERROR("Malformed ppo message: " + message);
+        return;
+    }
+    if (orientation < 1 || orientation > 4) {
+        DEBUG_ERROR("Invalid orientation value: " + std::to_string(orientation));
+        return;
+    }
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+
+    player->setPosition(x, y);
+    player->setOrientation(static_cast<Orientation>(orientation));
+}
+
+void Core::plv(std::string message)
+{
+    int playerNumber, level;
+    sscanf(message.c_str(), "plv %d %d", &playerNumber, &level);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+
+    player->setLevel(level);
+}
+
+void Core::pin(std::string message)
+{
+    int playerNumber, x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
+    sscanf(message.c_str(), "pin %d %d %d %d %d %d %d %d %d %d %d", &playerNumber, &x, &y, &food, &linemate, &deraumere, &sibur, &mendiane, &phiras, &thystame);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    player->setResource(Zappy::Resources::Type::FOOD, food);
+    player->setResource(Zappy::Resources::Type::LINEMATE, linemate);
+    player->setResource(Zappy::Resources::Type::DERAUMERE, deraumere);
+    player->setResource(Zappy::Resources::Type::SIBUR, sibur);
+    player->setResource(Zappy::Resources::Type::MENDIANE, mendiane);
+    player->setResource(Zappy::Resources::Type::PHIRAS, phiras);
+    player->setResource(Zappy::Resources::Type::THYSTAME, thystame);
+    DEBUG_INFO("Player " + std::to_string(playerNumber) + " inventory updated {" +
+    std::to_string(food) + ", " + std::to_string(linemate) + ", " +
+    std::to_string(deraumere) + ", " + std::to_string(sibur) + ", " +
+    std::to_string(mendiane) + ", " + std::to_string(phiras) + ", " +
+    std::to_string(thystame) + "}");
+}
+
+void Core::pex(std::string message)
+{
+    int playerNumber;
+    sscanf(message.c_str(), "pex %d", &playerNumber);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    // TODO: Implement pex
+}
+
+void Core::pbc(std::string message)
+{
+    std::istringstream iss(message);
+    std::string command;
+    int playerNumber;
+    std::string msg;
+    iss >> command >> playerNumber;
+    std::getline(iss, msg);
+
+    DEBUG_INFO("Player " + std::to_string(playerNumber) + " broadcasted: " + msg);
+}
+
+void Core::pic(std::string message)
+{
+    std::istringstream iss(message);
+    std::string command;
+    int x, y, level, playerNumber;
+    iss >> command >> x >> y >> level;
+    std::vector<int> players;
+    while (iss >> playerNumber) {
+        players.push_back(playerNumber);
+    }
+    DEBUG_INFO("Incantation started at " + std::to_string(x) + " " + std::to_string(y) + " with level " + std::to_string(level) + " and players: " + std::to_string(players.size()));
+    // TODO: Implement pic
+}
+
+void Core::pie(std::string message)
+{
+    int x, y, result;
+    sscanf(message.c_str(), "pie %d %d %d", &x, &y, &result);
+
+    DEBUG_INFO("Incantation ended at " + std::to_string(x) + " " + std::to_string(y) + " with result: " + std::to_string(result));
+    // TODO: Implement pie
+}
+
+void Core::pfk(std::string message)
+{
+    int playerNumber;
+    sscanf(message.c_str(), "pfk %d", &playerNumber);
+
+    DEBUG_INFO("Player " + std::to_string(playerNumber) + " started forking");
+    // TODO: Implement pfk
+}
+
+void Core::pdr(std::string message)
+{
+    int playerNumber, resource;
+    sscanf(message.c_str(), "pdr %d %d", &playerNumber, &resource);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    player->removeResource(static_cast<Zappy::Resources::Type>(resource), 1);
+    std::pair<int, int> pos = player->getPosition();
+    Tile* tile = map->getTile(pos.first, pos.second);
+    if (!tile) {
+        DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
+        return;
+    }
+    tile->addResource(static_cast<Zappy::Resources::Type>(resource), 1);
+}
+
+void Core::pgt(std::string message)
+{
+    int playerNumber, resource;
+    sscanf(message.c_str(), "pgt %d %d", &playerNumber, &resource);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    player->addResource(static_cast<Zappy::Resources::Type>(resource), 1);
+    std::pair<int, int> pos = player->getPosition();
+    Tile* tile = map->getTile(pos.first, pos.second);
+    if (!tile) {
+        DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
+        return;
+    }
+    tile->removeResource(static_cast<Zappy::Resources::Type>(resource), 1);
+}
+
+void Core::pdi(std::string message)
+{
+    int playerNumber;
+    sscanf(message.c_str(), "pdi %d", &playerNumber);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    std::pair<int, int> pos = player->getPosition();
+    Tile* tile = map->getTile(pos.first, pos.second);
+    if (!tile) {
+        DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
+        return;
+    }
+    tile->addResource(Zappy::Resources::Type::FOOD, 1);
+    map->removePlayer(playerNumber);
+}
+
+void Core::enw(std::string message)
+{
+    int eggNumber, playerNumber, x, y;
+    sscanf(message.c_str(), "enw %d %d %d %d", &eggNumber, &playerNumber, &x, &y);
+
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    DEBUG_INFO("Player " + std::to_string(playerNumber) + " laid egg " + std::to_string(eggNumber) + " at " + std::to_string(x) + " " + std::to_string(y));
+    // TODO: Implement enw
+}
+
+void Core::ebo(std::string message)
+{
+    int eggNumber;
+    sscanf(message.c_str(), "ebo %d", &eggNumber);
+
+    DEBUG_INFO("Egg " + std::to_string(eggNumber) + " hatched");
+    // TODO: Implement ebo
+}
+
+void Core::edi(std::string message)
+{
+    int eggNumber;
+    sscanf(message.c_str(), "edi %d", &eggNumber);
+
+    DEBUG_INFO("Egg " + std::to_string(eggNumber) + " died");
+    // TODO: Implement edi
+}
+
+void Core::sgt(std::string message)
+{
+    int frequency;
+    sscanf(message.c_str(), "sgt %d", &frequency);
+
+    DEBUG_INFO("Server tick frequency: " + std::to_string(frequency));
+    // TODO: Implement sgt
+}
+
+void Core::sst(std::string message)
+{
+    int frequency;
+    sscanf(message.c_str(), "sst %d", &frequency);
+
+    DEBUG_INFO("Server tick frequency set to: " + std::to_string(frequency));
+    // TODO: Implement sst
+}
+
+void Core::seg(std::string message)
+{
+    std::string teamName;
+    sscanf(message.c_str(), "seg %s", teamName.c_str());
+
+    DEBUG_INFO("Team " + teamName + " won the game");
+    // TODO: Implement seg
+}
+
+void Core::smg(std::string message)
+{
+    std::string msg = message.substr(4);
+
+    msg.erase(0, msg.find_first_not_of(" \t\n\r"));
+    msg.erase(msg.find_last_not_of(" \t\n\r") + 1);
+
+    DEBUG_INFO("Server message: " + msg);
+    // TODO: Implement smg
+}
+
+void Core::suc()
+{
+    DEBUG_ERROR("Unknown command");
+}
+
+void Core::sbp()
+{
+    DEBUG_ERROR("Command parameter");
 }
