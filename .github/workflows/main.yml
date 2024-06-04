@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  EXECUTABLES: 'zappy_server,zappy_ai,zappy_client'
+  EXECUTABLES: 'zappy_server,zappy_ai,zappy_gui'
 jobs:
   check_coding_style:
     name: Check coding style
@@ -12,7 +12,7 @@ jobs:
     container:
       image: ghcr.io/epitech/coding-style-checker:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check coding style
         run: |
           check.sh $(pwd)/Server $(pwd)
@@ -34,7 +34,7 @@ jobs:
     container:
       image: epitechcontent/epitest-docker
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Make
         run: |
           make
