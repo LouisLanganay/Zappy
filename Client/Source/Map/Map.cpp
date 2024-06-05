@@ -44,6 +44,11 @@ void Map::updateTile(int x, int y, const std::vector<int>& resources)
         _tiles[y][x].setResources(resources);
 }
 
+std::vector<std::vector<Tile>> Map::getTiles() const
+{
+    return _tiles;
+}
+
 void Map::addPlayer(std::unique_ptr<Player> player)
 {
     int playerNumber = player->getPlayerNumber();
@@ -120,6 +125,14 @@ Team* Map::getTeam(std::string name) const
     return nullptr;
 }
 
+std::vector<Team*> Map::getTeams() const
+{
+    std::vector<Team*> teams;
+    for (auto& team : _teams)
+        teams.push_back(team.second.get());
+    return teams;
+}
+
 Tile* Map::getTile(int x, int y)
 {
     if (x >= 0 && x < _width && y >= 0 && y < _height)
@@ -176,4 +189,25 @@ Egg* Map::getEgg(int eggNumber)
     if (it != _eggs.end())
         return it->second.get();
     return nullptr;
+}
+
+int Map::getWidth() const
+{
+    return _width;
+}
+
+int Map::getHeight() const
+{
+    return _height;
+}
+
+void Map::setWiner(const std::string& winer)
+{
+    _winer = winer;
+    DEBUG_SUCCESS("Winer set to: " + winer);
+}
+
+std::string Map::getWiner() const
+{
+    return _winer;
 }

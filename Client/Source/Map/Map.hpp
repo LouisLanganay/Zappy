@@ -45,9 +45,11 @@ namespace Zappy {
             void addTeam(std::string name);
             void setTeams(const std::vector<std::string>& teams);
             Team* getTeam(std::string name) const;
+            std::vector<Team*> getTeams() const;
 
 
             Tile* getTile(int x, int y);
+            std::vector<std::vector<Tile>> getTiles() const;
 
             void addServerMessage(const std::string& message);
             std::string getServerMessage();
@@ -58,6 +60,12 @@ namespace Zappy {
             void addEgg(std::unique_ptr<Egg> egg);
             void removeEgg(int eggNumber);
             Egg* getEgg(int eggNumber);
+
+            int getWidth() const;
+            int getHeight() const;
+
+            void setWiner(const std::string& winer);
+            std::string getWiner() const;
         private:
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
@@ -65,6 +73,7 @@ namespace Zappy {
             std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
             std::queue<std::string> _serverMessages;
             std::mutex _messageMutex;
+            std::string _winer;
             int _height;
             int _width;
             int _timeUnit;
