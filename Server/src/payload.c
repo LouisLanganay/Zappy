@@ -99,7 +99,8 @@ static void handle_ai_event(
     for (uint8_t i = 0; ai_cmds[i].func; ++i) {
         cmd_lenght = strlen(ai_cmds[i].cmd);
         if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
-            ai_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
+            ai_cmds[i].func(server, get_ai_by_id(server, interlocutor),
+                message + cmd_lenght + 1);
             return;
         }
     }

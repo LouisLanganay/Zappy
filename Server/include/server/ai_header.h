@@ -16,7 +16,7 @@
  * @brief Move player up one tile
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call forward
@@ -24,14 +24,14 @@
  */
 void forward(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Turn player 90° right
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call right
@@ -39,14 +39,14 @@ void forward(
  */
 void right(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Turn player 90° left
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call left
@@ -54,14 +54,14 @@ void right(
  */
 void left(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Look tiles arround player
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call look
@@ -69,14 +69,14 @@ void left(
  */
 void look(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Display player inventory
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call inventory
@@ -84,14 +84,14 @@ void look(
  */
 void inventory(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Broadcast player text
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call Broadcast text
@@ -99,14 +99,14 @@ void inventory(
  */
 void broadcast_text(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Display number of team with unused slot
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call Connect_nbr
@@ -114,14 +114,14 @@ void broadcast_text(
  */
 void connect_nbr(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Fork a player
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call Fork
@@ -129,14 +129,14 @@ void connect_nbr(
  */
 void exec_fork(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Eject a players from a tile
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  * @note Call Eject
@@ -144,66 +144,66 @@ void exec_fork(
  */
 void eject(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Alert on a player death
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  */
 void death(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Take an object
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  */
 void take_object(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Set an object down
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  */
 void set_object(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 /**
  * @brief Start incantation
  *
  * @param server The server_t struct
- * @param interlocutor The fd of the AI
+ * @param ai The associated ai struct
  * @param message The message of the command
  *
  */
 void incantation(
     const zappy_server_t *server,
-    int interlocutor,
+    ai_t *ai,
     const char *message);
 
 static const struct {
     const char *cmd;
     void (*func)(
         const zappy_server_t *server,
-        int interlocutor,
+        ai_t *ai,
         const char *message);
 } ai_cmds[] = {
     {"Forward", forward},

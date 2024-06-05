@@ -11,7 +11,7 @@
 
 void connect_nbr(
     UNUSED const zappy_server_t *server,
-    UNUSED const int interlocutor,
+    UNUSED ai_t *ai,
     UNUSED const char *message)
 {
 }
