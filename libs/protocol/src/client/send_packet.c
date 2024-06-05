@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include "protocol/client.h"
 
@@ -36,17 +37,21 @@ bool protocol_client_send_packet(
 
 bool protocol_client_send_message(
     const protocol_client_t *client,
-    const char *message)
+    const char *format,
+    ...)
 {
-    const int len = strlen(message);
-    const int size = len > DATA_SIZE ? DATA_SIZE : len;
+    char message[DATA_SIZE];
+    va_list args;
 
     if (FD_ISSET(client->network_data.sockfd,
         &client->master_write_fds) == 0) {
         fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return false;
     }
-    if (write(client->network_data.sockfd, message, size) == -1) {
+    va_start(args, format);
+    vsnprintf(message, sizeof(message), format, args);
+    va_end(args);
+    if (write(client->network_data.sockfd, message, strlen(message)) == -1) {
         fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return false;
     }

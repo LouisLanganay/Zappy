@@ -13,6 +13,36 @@
 
 #include "protocol/server.h"
 
+static void add_new_connection(
+    protocol_server_t *server,
+    const int fd)
+{
+    protocol_connection_t *connection = calloc(1,
+        sizeof(protocol_connection_t));
+
+    if (!connection) {
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
+        return;
+    }
+    connection->fd = fd;
+    TAILQ_INSERT_TAIL(&server->new_connections, connection, entries);
+}
+
+static void add_lost_connection(
+    protocol_server_t *server,
+    const int fd)
+{
+    protocol_connection_t *connection = calloc(1,
+        sizeof(protocol_connection_t));
+
+    if (!connection) {
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
+        return;
+    }
+    connection->fd = fd;
+    TAILQ_INSERT_TAIL(&server->lost_connections, connection, entries);
+}
+
 static protocol_payload_t *receive_packet(
     const protocol_server_t *server,
     const int fd)
@@ -54,6 +84,7 @@ static void handle_payload(
             TAILQ_REMOVE(&server->clients, client, entries);
             break;
         }
+    add_lost_connection(server, fd);
     free(client);
     close(fd);
 }
@@ -107,6 +138,7 @@ static bool new_client(
     TAILQ_INSERT_TAIL(&server->clients, client, entries);
     FD_SET(socket, &server->master_read_fds);
     FD_SET(socket, &server->master_write_fds);
+    add_new_connection(server, socket);
     return true;
 }
 

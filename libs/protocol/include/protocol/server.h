@@ -10,6 +10,12 @@
 
     #include "./client.h"
 
+
+typedef struct protocol_connection_s {
+    int fd;
+    TAILQ_ENTRY(protocol_connection_s) entries;
+} protocol_connection_t;
+
 typedef struct {
     protocol_network_data_t network_data;
     fd_set master_read_fds;
@@ -18,6 +24,8 @@ typedef struct {
     fd_set write_fds;
     TAILQ_HEAD(, protocol_client_s) clients;
     TAILQ_HEAD(, protocol_payload_s) payloads;
+    TAILQ_HEAD(, protocol_connection_s) new_connections;
+    TAILQ_HEAD(, protocol_connection_s) lost_connections;
 } protocol_server_t;
 
 /**
@@ -91,13 +99,15 @@ bool protocol_server_send_packet_type(
  *
  * @param server The server to send the message with
  * @param client_fd The client to send the message to
- * @param message The message to send
+ * @param format The format of the message to send
+ * @param ... The arguments to format the message with
  * @return true If the message was sent
  * @return false If the message was not sent
  */
 bool protocol_server_send_message(
     protocol_server_t *server,
     int client_fd,
-    const char *message);
+    const char *format,
+    ...);
 
 #endif //PROTOCOL_SERVER_H
