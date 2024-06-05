@@ -96,6 +96,10 @@ void Core::handleServerMessages() {
                 continue;
             }
 
+            if (message.find("WELCOME") == 0) {
+                api->sendCommand("GRAPHIC");
+                continue;
+            }
             if (message.find("msz") == 0) {
                 msz(message);
                 continue;

@@ -50,8 +50,10 @@ Api::~Api()
 
 void Api::sendCommand(std::string command)
 {
+    DEBUG_INFO("Sending command: " + command);
     if (!protocol_client_send_packet(client, 1, command.c_str(), strlen(command.c_str())))
         throw ApiException("Failed to send command to server");
+    DEBUG_SUCCESS("Command sent");
 }
 
 protocol_payload_t* Api::getData()
