@@ -51,9 +51,8 @@ bool Egg::isHatched() const
 
 void Egg::draw()
 {
-    Vector3 position = {(float)this->position.first, 0.0f, (float)this->position.second};
-
-    DrawCube(position, 1.0f, 1.0f, 1.0f, _team->getColor());
+    Vector3 position = {(float)this->position.first, 0.5f, (float)this->position.second};
+    DrawSphere(position, 0.35f, BROWN);
 }
 
 const Team* Egg::getTeam() const
