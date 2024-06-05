@@ -20,7 +20,6 @@ namespace Zappy::Resources {
         PHIRAS,
         THYSTAME
     };
-
     class IResources {
         public:
             virtual ~IResources() = default;
