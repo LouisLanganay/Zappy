@@ -41,6 +41,7 @@ Api::Api(
 
 Api::~Api()
 {
+    std::cout << "Api destructor" << std::endl;
     isRunning = false;
     if (fetchDataThread.joinable())
         fetchDataThread.join();
@@ -66,7 +67,11 @@ void Api::fetchDataFromServer()
 {
     protocol_payload_t *payload;
 
-    while (protocol_client_listen(client) && !TAILQ_EMPTY(&client->payloads)) {
+    while (
+        protocol_client_listen(client) &&
+        !TAILQ_EMPTY(&client->payloads) &&
+        isRunning
+    ) {
         payload = TAILQ_FIRST(&client->payloads);
         TAILQ_REMOVE(&client->payloads, payload, entries);
 
