@@ -139,12 +139,6 @@ static bool new_client(
     FD_SET(socket, &server->master_read_fds);
     FD_SET(socket, &server->master_write_fds);
     add_new_connection(server, socket);
-    // protocol_payload_t *payload = calloc(1, sizeof(protocol_payload_t));
-    // *payload = (protocol_payload_t){
-    //     .fd = socket,
-    //     .packet = (protocol_packet_t){0}
-    // };
-    // TAILQ_INSERT_TAIL(&server->payloads, payload, entries);
     return true;
 }
 
