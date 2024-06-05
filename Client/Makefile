@@ -26,6 +26,7 @@ VPATH 		+= ./Source/Map/Resources/Thystame
 VPATH 		+= ./Source/Map/Tile
 VPATH 		+= ./Source/Map/Team
 VPATH 		+= ./Source/Map/Egg
+VPATH 		+= ./Source/Hud
 
 vpath %.cpp $(VPATH)
 
@@ -45,6 +46,7 @@ SRC 		+= Thystame.cpp
 SRC 		+= Tile.cpp
 SRC 		+= Team.cpp
 SRC 		+= Egg.cpp
+SRC 		+= Hud.cpp
 
 BUILD_DIR 	= build
 OBJ 		:= $(SRC:%.c=$(BUILD_DIR)/%.o)
