@@ -93,7 +93,9 @@ typedef struct {
 
 bool zappy_server(
     zappy_server_t *server);
-void server_init(
+void server_create(
+    zappy_server_t *server);
+bool handle_payload(
     zappy_server_t *server);
 ai_t *get_ai_by_id(
     const zappy_server_t *server,

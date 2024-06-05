@@ -39,7 +39,7 @@ int main(const int ac, char **av)
 {
     zappy_server_t server = {0};
 
-    server_init(&server);
+    server_create(&server);
     for (int opt = getopt(ac, av, "p:x:y:n:c:f:v"); opt != -1;
         opt = getopt(ac, av, "p:x:y:n:c:f:v"))
         if (!handle_opt(&server, &(optargs_t){ac, av, opt, optarg})) {
