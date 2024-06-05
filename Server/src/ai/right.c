@@ -10,8 +10,23 @@
 #include "server/ai_header.h"
 
 void right(
-    UNUSED const zappy_server_t *server,
-    UNUSED ai_t *ai,
+    const zappy_server_t *server,
+    ai_t *ai,
     UNUSED const char *message)
 {
+    switch (ai->orientation) {
+        case (NORTH):
+            ai->orientation = EAST;
+            break;
+        case (WEST):
+            ai->orientation = NORTH;
+            break;
+        case (EAST):
+            ai->orientation = SOUTH;
+            break;
+        case (SOUTH):
+            ai->orientation = WEST;
+            break;
+    }
+    protocol_server_send_message(server->socket, ai->fd, "ok\n");
 }
