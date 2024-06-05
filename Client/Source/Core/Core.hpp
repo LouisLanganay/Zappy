@@ -15,7 +15,6 @@
 #include <memory>
 
 #include "../API/Api.hpp"
-#include "../SFML/SFML.hpp"
 #include "../Map/Map.hpp"
 #include "../API/Events.h"
 #include "../Hud/Hud.hpp"
