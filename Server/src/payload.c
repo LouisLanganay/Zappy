@@ -62,6 +62,8 @@ static void add_graphic(
     gui->fd = interlocutor;
     TAILQ_INSERT_TAIL(&server->guis, gui, entries);
     verbose(server, "New GUI connected\n");
+    msz(server, interlocutor, NULL);
+    sgt(server, interlocutor, NULL);
     mct(server, interlocutor, NULL);
 }
 
