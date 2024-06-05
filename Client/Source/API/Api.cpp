@@ -51,45 +51,46 @@ Api::~Api()
 void Api::sendCommand(std::string command)
 {
     DEBUG_INFO("Sending command: " + command);
-    if (!protocol_client_send_packet(client, 1, command.c_str(), strlen(command.c_str())))
+    if (!protocol_client_send_message(client, "%s", command.c_str()))
         throw ApiException("Failed to send command to server");
     DEBUG_SUCCESS("Command sent");
 }
 
-protocol_payload_t* Api::getData()
+std::string Api::getData()
 {
     std::unique_lock<std::mutex> lock(dataMutex);
     dataCondVar.wait(lock, [this] { return !receivedData.empty(); });
-    protocol_payload_t* payload = receivedData.front();
+    std::string message = receivedData.front();
     receivedData.pop();
-    return payload;
+    return message;
 }
 
 void Api::fetchDataFromServer()
 {
     protocol_payload_t *payload;
 
-    while (
-        protocol_client_listen(client) &&
-        !TAILQ_EMPTY(&client->payloads) &&
-        isRunning
-    ) {
+    protocol_client_listen(client);
+    while (!TAILQ_EMPTY(&client->payloads)) {
         payload = TAILQ_FIRST(&client->payloads);
         TAILQ_REMOVE(&client->payloads, payload, entries);
+        char *message = protocol_receive_message(payload);
 
-        if (payload) {
+        if (message) {
+            std::string messageStr(message);
             {
                 std::lock_guard<std::mutex> lock(dataMutex);
-                receivedData.push(payload);
+                receivedData.push(messageStr);
                 dataCondVar.notify_one();
             }
+            free(message);
         }
+        free(payload);
     }
 }
 
 void Api::fetchDataLoop()
 {
-    while (isRunning) {
+    while (isRunning && protocol_client_is_connected(client)) {
         fetchDataFromServer();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
