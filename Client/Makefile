@@ -48,17 +48,14 @@ SRC 		+= Team.cpp
 SRC 		+= Egg.cpp
 SRC 		+= Hud.cpp
 
-BUILD_DIR 	= build
-OBJ 		:= $(SRC:%.c=$(BUILD_DIR)/%.o)
+BUILD_DIR 	= Build
+OBJ 		:= $(SRC:%.cpp=$(BUILD_DIR)/%.o)
 
 VPATH_DIRS  := $(sort $(dir $(wildcard $(addsuffix /, $(VPATH)))))
 CFLAGS      += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
 CFLAGS      +=-L/usr/local/lib -L/usr/lib -lraylib
 CFLAGS      += -iquote../../libs/protocol/include -g -DDEBUG_MODE
 LDFLAGS	 	:= -L../libs/ -lmyprotocol
-
-BUILD_DIR   = build
-OBJ         := $(SRC:%.cpp=$(BUILD_DIR)/%.o)
 
 DIE         = exit 1
 ECHO        = echo -e
@@ -68,7 +65,7 @@ ECHO        = echo -e
 	@ $(DIE)
 
 all: $(NAME)
-	@ $(ECHO) "${_B_GREEN}[SUCCES]${_END} project compiled successfully !"
+	@ $(ECHO) "${_B_GREEN}[SUCCESS]${_END} project compiled successfully !"
 
 $(BUILD_DIR)/%.o: %.cpp
 	@ mkdir -p $(@D)
