@@ -14,17 +14,17 @@ void forward(
     ai_t *ai,
     UNUSED const char *message)
 {
-    switch(ai->orientation) {
-        case(NORTH):
+    switch (ai->orientation) {
+        case (NORTH):
             ai->pos.y = (ai->pos.y + server->height - 1) % server->height;
             break;
-        case(WEST):
+        case (WEST):
             ai->pos.x = (ai->pos.x + server->width - 1) % server->width;
             break;
-        case(EAST):
+        case (EAST):
             ai->pos.x = (ai->pos.x + 1) % server->width;
             break;
-        case(SOUTH):
+        case (SOUTH):
             ai->pos.y = (ai->pos.y + 1) % server->height;
             break;
     }
