@@ -17,7 +17,7 @@ void pin(
     uint16_t id;
     ai_t *ai;
 
-    if (sscanf(message, "%d", &id) != 1) {
+    if (sscanf(message, " %hd", &id) != 1) {
         sbp(server, interlocutor);
         return;
     }
