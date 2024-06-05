@@ -34,7 +34,7 @@ void Map::setSize(int width, int height)
 
 void Map::updateTile(int x, int y, const std::vector<int>& resources)
 {
-    DEBUG_INFO("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with resources: " +
+    DEBUG_SUCCESS("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with resources: " +
     std::to_string(resources.size()) + " - " + std::to_string(resources[0]) +
     " - " + std::to_string(resources[1]) + " - " + std::to_string(resources[2]) +
     " - " + std::to_string(resources[3]) + " - " + std::to_string(resources[4]) +
@@ -64,14 +64,16 @@ Player* Map::getPlayer(int playerNumber)
     return nullptr;
 }
 
-void Map::draw()
+void Map::draw(Camera camera)
 {
     for (int y = 0; y < _height; ++y) {
         for (int x = 0; x < _width; ++x)
             _tiles[y][x].draw(x, y);
     }
     for (auto& player : _players)
-        player.second->draw();
+        player.second->draw(camera);
+    for (auto& egg : _eggs)
+        egg.second->draw();
 }
 
 void Map::setTeams(const std::vector<std::string>& teams)
@@ -129,6 +131,7 @@ void Map::addServerMessage(const std::string& message)
 {
     std::lock_guard<std::mutex> lock(_messageMutex);
     _serverMessages.push(message);
+    DEBUG_SUCCESS("Server message added: " + message);
 }
 
 std::string Map::getServerMessage()
@@ -139,4 +142,38 @@ std::string Map::getServerMessage()
     std::string message = _serverMessages.front();
     _serverMessages.pop();
     return message;
+}
+
+void Map::setTimeUnit(int timeUnit)
+{
+    _timeUnit = timeUnit;
+    DEBUG_SUCCESS("Time unit set to: " + std::to_string(timeUnit));
+}
+
+int Map::getTimeUnit() const
+{
+    return _timeUnit;
+}
+
+void Map::addEgg(std::unique_ptr<Egg> egg)
+{
+    int eggNumber = egg->getEggNumber();
+    _eggs[eggNumber] = std::move(egg);
+    DEBUG_SUCCESS("Egg added - ID: " + std::to_string(eggNumber) + " - Pos: " +
+    std::to_string(_eggs[eggNumber]->getPosition().first) + ", " +
+    std::to_string(_eggs[eggNumber]->getPosition().second));
+}
+
+void Map::removeEgg(int eggNumber)
+{
+    _eggs.erase(eggNumber);
+    DEBUG_SUCCESS("Egg removed - ID: " + std::to_string(eggNumber));
+}
+
+Egg* Map::getEgg(int eggNumber)
+{
+    auto it = _eggs.find(eggNumber);
+    if (it != _eggs.end())
+        return it->second.get();
+    return nullptr;
 }

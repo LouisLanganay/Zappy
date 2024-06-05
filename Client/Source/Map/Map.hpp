@@ -27,6 +27,7 @@
 #include "Resources/Food/Food.hpp"
 #include "Tile/Tile.hpp"
 #include "Team/Team.hpp"
+#include "Egg/Egg.hpp"
 
 namespace Zappy {
 
@@ -36,7 +37,7 @@ namespace Zappy {
             void updateTile(int x, int y, const std::vector<int>& resources);
             void addPlayer(std::unique_ptr<Player> player);
             void removePlayer(int playerNumber);
-            void draw();
+            void draw(Camera camera);
             void setSize(int width, int height);
 
             Player* getPlayer(int playerNumber);
@@ -51,14 +52,22 @@ namespace Zappy {
             void addServerMessage(const std::string& message);
             std::string getServerMessage();
 
+            void setTimeUnit(int timeUnit);
+            int getTimeUnit() const;
+
+            void addEgg(std::unique_ptr<Egg> egg);
+            void removeEgg(int eggNumber);
+            Egg* getEgg(int eggNumber);
         private:
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
             std::unordered_map<int, std::unique_ptr<Player>> _players;
+            std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
             std::queue<std::string> _serverMessages;
             std::mutex _messageMutex;
             int _height;
             int _width;
+            int _timeUnit;
     };
 };
 
