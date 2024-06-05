@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #include "server/gui.h"
-#include "server/ai.h"
+#include "server/ai_header.h"
 #include "server.h"
 
 #include <string.h>
@@ -46,23 +46,6 @@ static bool display_server(
     fflush(stdout);
     setvbuf(stdout, NULL, _IOLBF, 0);
     return true;
-}
-
-static void handle_ai_event(
-    UNUSED const zappy_server_t *server,
-    UNUSED const int interlocutor,
-    UNUSED const char *message)
-{
-    uint8_t cmd_lenght;
-
-    for (uint8_t i = 0; ai_cmds[i].func; ++i) {
-        cmd_lenght = strlen(ai_cmds[i].cmd);
-        if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
-            ai_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
-            return;
-        }
-    }
-    suc(server, interlocutor);
 }
 
 static void handle_gui_event(
@@ -132,6 +115,23 @@ static void handle_first_connection(
     ai->fd = interlocutor;
     ai->team = team;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
+}
+
+static void handle_ai_event(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message)
+{
+    uint8_t cmd_lenght;
+
+    for (uint8_t i = 0; ai_cmds[i].func; ++i) {
+        cmd_lenght = strlen(ai_cmds[i].cmd);
+        if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
+            ai_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
+            return;
+        }
+    }
+    suc(server, interlocutor);
 }
 
 static bool handle_payload(
