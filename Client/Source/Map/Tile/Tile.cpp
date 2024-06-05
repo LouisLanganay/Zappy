@@ -86,3 +86,8 @@ void Tile::removeResource(Zappy::Resources::Type type, int quantity)
     if (_resources[type] < 0)
         _resources[type] = 0;
 }
+
+std::unordered_map<Zappy::Resources::Type, int> Tile::getResources() const
+{
+    return _resources;
+}

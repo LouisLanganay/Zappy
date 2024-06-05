@@ -26,6 +26,7 @@ namespace Zappy {
 
             void addResource(Zappy::Resources::Type type, int quantity);
             void removeResource(Zappy::Resources::Type type, int quantity);
+            std::unordered_map<Zappy::Resources::Type, int> getResources() const;
 
         private:
             std::unordered_map<Zappy::Resources::Type, int> _resources;
