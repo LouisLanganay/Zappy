@@ -14,9 +14,12 @@ void bct(
     const int interlocutor,
     const char *message)
 {
-    vector2_t pos;
+    vector2_t pos = {0};
 
-    scanf(message, "%d %d", &pos.x, &pos.y);
+    if (sscanf(message, "bct %hd %hd\n", &pos.x, &pos.y) != 2) {
+        sbp(server, interlocutor);
+        return;
+    }
     if (pos.x >= server->width || pos.y >= server->height) {
         sbp(server, interlocutor);
         return;

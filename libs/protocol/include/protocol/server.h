@@ -10,6 +10,12 @@
 
     #include "./client.h"
 
+
+typedef struct protocol_connection_s {
+    int fd;
+    TAILQ_ENTRY(protocol_connection_s) entries;
+} protocol_connection_t;
+
 typedef struct {
     protocol_network_data_t network_data;
     fd_set master_read_fds;
@@ -18,6 +24,8 @@ typedef struct {
     fd_set write_fds;
     TAILQ_HEAD(, protocol_client_s) clients;
     TAILQ_HEAD(, protocol_payload_s) payloads;
+    TAILQ_HEAD(, protocol_connection_s) new_connections;
+    TAILQ_HEAD(, protocol_connection_s) lost_connections;
 } protocol_server_t;
 
 /**

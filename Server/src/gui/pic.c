@@ -9,8 +9,7 @@
 
 void pic(
     const zappy_server_t *server,
-    const int interlocutor,
-    UNUSED const char *message)
+    const int interlocutor)
 {
 
 }

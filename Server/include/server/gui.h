@@ -192,7 +192,6 @@ static const struct {
     {"ppo", ppo},
     {"plv", plv},
     {"pin", pin},
-    {"pic", pic},
     {NULL, NULL}
 };
 
