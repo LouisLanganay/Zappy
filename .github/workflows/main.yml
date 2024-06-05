@@ -1,4 +1,4 @@
-name: 'Mirroring workflow'
+name: 'CI'
 on:
   push:
   workflow_dispatch:
