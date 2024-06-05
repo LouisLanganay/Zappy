@@ -26,7 +26,8 @@ Core::Core(
     int port
 ) : api(std::make_unique<Api>(host, port)),
     map(std::make_unique<Map>()),
-    running(true)
+    running(true),
+    _hud(Hud())
 {
     networkThread = std::thread(&Core::handleServerMessages, this);
     DEBUG_INFO("Core created with host: " + host + " and port: " + std::to_string(port));
@@ -38,6 +39,7 @@ Core::~Core()
     if (networkThread.joinable())
         networkThread.join();
     CloseWindow();
+    api.reset();
 }
 
 void Core::run() {
@@ -66,6 +68,7 @@ void Core::run() {
             BeginMode3D(camera);
             map->draw(camera);
             EndMode3D();
+            _hud.draw(map.get());
             DrawFPS(10, 10);
             EndDrawing();
         }
@@ -75,6 +78,7 @@ void Core::run() {
     } catch (const std::exception &e) {
         throw MainException(e.what());
     }
+    DEBUG_ERROR("Core stopped");
 }
 
 void Core::handleServerMessages() {
@@ -441,7 +445,7 @@ void Core::pdi(std::string message)
         DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
         return;
     }
-    tile->addResource(Zappy::Resources::Type::FOOD, 1);
+    //tile->addResource(Zappy::Resources::Type::FOOD, 1);
     map->removePlayer(playerNumber);
 }
 
@@ -515,10 +519,7 @@ void Core::seg(std::string message)
     std::string teamName;
     iss >> command >> teamName;
 
-    std::string winMessage = "Team " + teamName + " won the game!";
-
-    DEBUG_SUCCESS(winMessage);
-    // TODO: Implement seg
+    map->setWiner(teamName);
 }
 
 void Core::smg(std::string message)

@@ -18,9 +18,9 @@
 #include "../SFML/SFML.hpp"
 #include "../Map/Map.hpp"
 #include "../API/Events.h"
+#include "../Hud/Hud.hpp"
 
 namespace Zappy {
-
     class Core {
         public:
             Core(const std::string& host, int port);
@@ -35,6 +35,7 @@ namespace Zappy {
             std::thread networkThread;
             bool running;
             bool debug;
+            Hud _hud;
 
             void msz(std::string message);
             void bct(std::string message);
