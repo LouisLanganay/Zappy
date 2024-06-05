@@ -50,6 +50,11 @@ typedef struct team_s {
     TAILQ_ENTRY(team_s) entries;
 } team_t;
 
+typedef struct ai_cmd_s {
+    char *cmd;
+    TAILQ_ENTRY(ai_cmd_s) entries;
+} ai_cmd_t;
+
 typedef struct ai_s {
     int fd;
 
@@ -62,6 +67,7 @@ typedef struct ai_s {
     inventory_t inventory;
 
     TAILQ_ENTRY(ai_s) entries;
+    TAILQ_HEAD(, ai_cmd_t) commands;
 } ai_t;
 
 typedef struct gui_s {
