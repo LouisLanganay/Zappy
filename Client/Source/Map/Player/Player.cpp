@@ -140,11 +140,7 @@ void Player::draw(Camera camera)
 
     DrawSphere(spherePosition, 0.2f, BLACK);
 
-    std::lock_guard<std::mutex> lock(_messageMutex);
-    if (!_broadcast.empty()) {
-        std::string message = _broadcast.front();
-        DrawTextEx(_font, message.c_str(), {position.x, position.z}, 0.2f, 0.1f, BLACK);
-    }
+    // TODO: Draw player level and broadcast messages
 }
 
 void Player::layEgg()
