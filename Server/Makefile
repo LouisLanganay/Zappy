@@ -33,6 +33,12 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					sbp.c											\
 				)
 
+DIR         +=	src/ai
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					forward.c										\
+					right.c											\
+				)
+
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
 

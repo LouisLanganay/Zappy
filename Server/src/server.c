@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "server/gui.h"
+#include "server/ai_header.h"
 #include "server.h"
 
 #include <string.h>
@@ -45,14 +46,6 @@ static bool display_server(
     fflush(stdout);
     setvbuf(stdout, NULL, _IOLBF, 0);
     return true;
-}
-
-static void handle_ai_event(
-    UNUSED const zappy_server_t *server,
-    UNUSED const int interlocutor,
-    UNUSED const char *message)
-{
-    printf("\033[33mNot implemented yet\033[0m\n");
 }
 
 static void handle_gui_event(
@@ -125,6 +118,23 @@ static void handle_first_connection(
         "%i\n", server->clients_nb);
     protocol_server_send_message(server->socket, interlocutor,
         " %i %i\n", server->width, server->height);
+}
+
+static void handle_ai_event(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message)
+{
+    uint8_t cmd_lenght;
+
+    for (uint8_t i = 0; ai_cmds[i].func; ++i) {
+        cmd_lenght = strlen(ai_cmds[i].cmd);
+        if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
+            ai_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
+            return;
+        }
+    }
+    suc(server, interlocutor);
 }
 
 static bool handle_payload(
