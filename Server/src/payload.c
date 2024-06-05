@@ -21,7 +21,7 @@ static void handle_connection(
     while (!TAILQ_EMPTY(&server->socket->new_connections)) {
         connection = TAILQ_FIRST(&server->socket->new_connections);
         TAILQ_REMOVE(&server->socket->new_connections, connection, entries);
-        printf("New connection from %d\n", connection->fd);
+        verbose(server, "New connection from %d\n", connection->fd);
         protocol_server_send_message(server->socket, connection->fd,
             "WELCOME\n");
         free(connection);
@@ -29,7 +29,7 @@ static void handle_connection(
     while (!TAILQ_EMPTY(&server->socket->lost_connections)) {
         connection = TAILQ_FIRST(&server->socket->lost_connections);
         TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
-        printf("Lost connection from %d\n", connection->fd);
+        verbose(server, "Lost connection from %d\n", connection->fd);
         free(connection);
     }
 }
@@ -61,7 +61,7 @@ static void add_graphic(
         return;
     gui->fd = interlocutor;
     TAILQ_INSERT_TAIL(&server->guis, gui, entries);
-    printf("New GUI connected\n");
+    verbose(server, "New GUI connected\n");
     mct(server, interlocutor, NULL);
 }
 
@@ -82,7 +82,7 @@ static void add_client(
     ai->fd = interlocutor;
     ai->team = team;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
-    printf("New AI connected\n");
+    verbose(server, "New AI connected\n");
     protocol_server_send_message(server->socket, interlocutor,
         "%i\n", server->clients_nb);
     protocol_server_send_message(server->socket, interlocutor,
@@ -129,17 +129,19 @@ static void handle_event(
 {
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
+            verbose(server, "AI %d: %s", payload->fd, message);
             handle_ai_event(server, payload->fd, message);
-        break;
+            break;
         case CONNECTION_GUI:
+            verbose(server, "GUI %d: %s", payload->fd, message);
             handle_gui_event(server, payload->fd, message);
-        break;
+            break;
         case CONNECTION_UNKNOWN:
             if (!strcmp(message, "GRAPHIC\n"))
                 add_graphic(server, payload->fd);
             else
                 add_client(server, payload->fd, message);
-        break;
+            break;
         default:
             break;
     }
@@ -155,7 +157,6 @@ bool handle_payload(
     while (!TAILQ_EMPTY(&server->socket->payloads)) {
         payload = TAILQ_FIRST(&server->socket->payloads);
         TAILQ_REMOVE(&server->socket->payloads, payload, entries);
-        printf("Received message from %d\n", payload->fd);
         message = protocol_receive_message(payload);
         if (!message)
             return false;

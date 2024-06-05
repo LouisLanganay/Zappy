@@ -13,6 +13,7 @@ SRC			:=	$(addprefix $(DIR)/,								\
 					main.c											\
 					server.c										\
 					payload.c										\
+					verbose.c										\
 					get_ai_by_id.c									\
 					gui_send_to_all.c								\
 				)

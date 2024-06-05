@@ -97,6 +97,10 @@ void server_create(
     zappy_server_t *server);
 bool handle_payload(
     zappy_server_t *server);
+void verbose(
+    const zappy_server_t *server,
+    const char *format,
+    ...);
 ai_t *get_ai_by_id(
     const zappy_server_t *server,
     uint16_t id);
