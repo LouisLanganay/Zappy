@@ -23,7 +23,7 @@
  * @note Send msz with the width and height of the map
  */
 void msz(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -37,7 +37,7 @@ void msz(
  * @note Send bct with the position and content of the tile
  */
 void bct(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -51,7 +51,7 @@ void bct(
  * @note Send for each tile bct with the position and content of the tile
  */
 void mct(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -65,7 +65,7 @@ void mct(
  * @note Send for each team tna with the name of the team
  */
 void tna(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -77,7 +77,7 @@ void tna(
  * @note Send pnw with the id, position, orientation, level and team of the ai
  */
 void pnw(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief Send the position of a ai when ppo is received from a GUI
@@ -90,7 +90,7 @@ void pnw(
  * @note Send ppo with the id of the ai and the position and orientation
  */
 void ppo(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -104,7 +104,7 @@ void ppo(
  * @note Send plv with the id of the ai and the level
  */
 void plv(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -118,7 +118,7 @@ void plv(
  * @note Send pin with the id of the ai and the inventory
  */
 void pin(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor,
     const char *message);
 /**
@@ -130,8 +130,37 @@ void pin(
  * @note Send pex with the id of the ai
  */
 void pex(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor);
+/**
+ * @brief Send the frequency of the server when sgt is received from a GUI
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param message The message of the command
+ *
+ * @note Call sgt
+ * @note Send sgt with the frequency of the server
+ */
+void sgt(
+    zappy_server_t *server,
+    int interlocutor,
+    const char *message);
+/**
+ * @brief Send and set the frequency of the server when sst is
+ * received from a GUI
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param message The message of the command
+ *
+ * @note Call sst with the frequency to set
+ * @note Send sst with the frequency of the server
+ */
+void sst(
+    zappy_server_t *server,
+    int interlocutor,
+    const char *message);
 /**
  * @brief Send a message to all GUI
  *
@@ -141,7 +170,7 @@ void pex(
  * @note Send for each GUI smg with the message
  */
 void smg(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const char *message);
 /**
  * @brief Send when a unknown command is received
@@ -152,7 +181,7 @@ void smg(
  * @note Send suc
  */
 void suc(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor);
 /**
  * @brief Send when a invalid command parameter is received
@@ -163,7 +192,7 @@ void suc(
  * @note Send sbp
  */
 void sbp(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor);
 
 /**
@@ -175,13 +204,13 @@ void sbp(
  * @note Send pic with the position of the tile and the player number
  */
 void pic(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor);
 
 static const struct {
     const char *cmd;
     void (*func)(
-        const zappy_server_t *server,
+        zappy_server_t *server,
         int interlocutor,
         const char *message);
 } gui_cmds[] = {

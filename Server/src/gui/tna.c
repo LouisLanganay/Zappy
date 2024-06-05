@@ -8,7 +8,7 @@
 #include "server.h"
 
 void tna(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     UNUSED const char *message)
 {

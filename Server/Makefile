@@ -30,6 +30,8 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					pin.c											\
 					pex.c											\
 					pbc.c											\
+					sgt.c											\
+					sst.c											\
 					smg.c											\
 					suc.c											\
 					sbp.c											\

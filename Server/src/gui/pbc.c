@@ -10,7 +10,7 @@
 #include "server.h"
 
 void pbc(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     const char *message)
 {

@@ -35,7 +35,7 @@ static void handle_connection(
 }
 
 static void handle_gui_event(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     const char *message)
 {
@@ -103,7 +103,7 @@ static void handle_ai_event(
             return;
         }
     }
-    suc(server, interlocutor);
+    protocol_server_send_message(server->socket, interlocutor, "ko\n");
 }
 
 static connection_t get_connection_by_fd(

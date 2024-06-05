@@ -8,7 +8,7 @@
 #include "server/gui.h"
 
 void pic(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor)
 {
 }

@@ -10,7 +10,7 @@
 #include "server/gui.h"
 
 void plv(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     const char *message)
 {
