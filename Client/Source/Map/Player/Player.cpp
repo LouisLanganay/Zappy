@@ -8,6 +8,7 @@
 #include "Player.hpp"
 #include <queue>
 #include <mutex>
+#include "Debug.hpp"
 
 using namespace Zappy;
 
@@ -16,26 +17,30 @@ Player::Player(
     std::unique_ptr<Team> team,
     Orientation orientation,
     int level
-) : playerNumber(playerNumber),
-    orientation(orientation),
+) : _playerNumber(playerNumber),
+    _orientation(orientation),
     _team(std::move(team)),
-    level(level)
+    _level(level)
 {
-    x = 0;
-    y = 0;
+    _x = 0;
+    _y = 0;
 
-    inventory[Zappy::Resources::Type::FOOD] = 0;
-    inventory[Zappy::Resources::Type::LINEMATE] = 0;
-    inventory[Zappy::Resources::Type::DERAUMERE] = 0;
-    inventory[Zappy::Resources::Type::SIBUR] = 0;
-    inventory[Zappy::Resources::Type::MENDIANE] = 0;
-    inventory[Zappy::Resources::Type::PHIRAS] = 0;
-    inventory[Zappy::Resources::Type::THYSTAME] = 0;
+    _inventory[Zappy::Resources::Type::FOOD] = 0;
+    _inventory[Zappy::Resources::Type::LINEMATE] = 0;
+    _inventory[Zappy::Resources::Type::DERAUMERE] = 0;
+    _inventory[Zappy::Resources::Type::SIBUR] = 0;
+    _inventory[Zappy::Resources::Type::MENDIANE] = 0;
+    _inventory[Zappy::Resources::Type::PHIRAS] = 0;
+    _inventory[Zappy::Resources::Type::THYSTAME] = 0;
+
+    _font = LoadFont("Minecraft.ttf");
+    if (!_font.texture.id)
+        throw std::runtime_error("Failed to load font");
 }
 
 int Player::getPlayerNumber() const
 {
-    return playerNumber;
+    return _playerNumber;
 }
 
 const Team* Player::getTeam() const
@@ -45,95 +50,108 @@ const Team* Player::getTeam() const
 
 Orientation Player::getOrientation() const
 {
-    return orientation;
+    return _orientation;
 }
 
 int Player::getLevel() const
 {
-    return level;
+    return _level;
 }
 
 void Player::setOrientation(Orientation orientation)
 {
-    this->orientation = orientation;
+    _orientation = orientation;
 }
 
 void Player::setLevel(int level)
 {
-    this->level = level;
+    _level = level;
 }
 
 void Player::addResource(Zappy::Resources::Type type, int quantity)
 {
-    inventory[type] += quantity;
+    _inventory[type] += quantity;
 }
 
 void Player::setResource(Zappy::Resources::Type type, int quantity)
 {
-    inventory[type] = quantity;
+    _inventory[type] = quantity;
 }
 
 void Player::removeResource(Zappy::Resources::Type type, int quantity)
 {
-    if (inventory[type] >= quantity)
-        inventory[type] -= quantity;
+    if (_inventory[type] >= quantity)
+        _inventory[type] -= quantity;
     else
-        inventory[type] = 0;
+        _inventory[type] = 0;
 }
 
 int Player::getResourceQuantity(const Zappy::Resources::IResources* resource) const
 {
-    auto it = inventory.find(resource->getType());
-    if (it != inventory.end())
+    auto it = _inventory.find(resource->getType());
+    if (it != _inventory.end())
         return it->second;
     return 0;
 }
 
 void Player::setPosition(int x, int y)
 {
-    this->x = x;
-    this->y = y;
+    _x = x;
+    _y = y;
 }
 
 std::pair<int, int> Player::getPosition() const
 {
-    return {x, y};
+    return {_x, _y};
 }
 
 void Player::addBroadcast(const std::string& message)
 {
-    std::lock_guard<std::mutex> lock(messageMutex);
-    broadcast.push(message);
+    std::lock_guard<std::mutex> lock(_messageMutex);
+    _broadcast.push(message);
+    DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " broadcasted: " + message);
 }
 
 std::string Player::getBroadcast()
 {
-    std::lock_guard<std::mutex> lock(messageMutex);
-    if (broadcast.empty())
+    std::lock_guard<std::mutex> lock(_messageMutex);
+    if (_broadcast.empty())
         return "";
-    std::string message = broadcast.front();
-    broadcast.pop();
+    std::string message = _broadcast.front();
+    _broadcast.pop();
     return message;
 }
 
-void Player::draw()
+void Player::draw(Camera camera)
 {
-    Vector3 position = {(float)x, 0.5f, (float)y};
+    Vector3 position = {(float)_x, 0.5f, (float)_y};
 
     DrawCube(position, 0.5f, 0.5f, 0.5f, _team->getColor());
     DrawCubeWires(position, 0.5f, 0.5f, 0.5f, BLACK);
 
     Vector3 spherePosition = position;
-    if (orientation == Orientation::NORTH)
+    if (_orientation == Orientation::NORTH)
         spherePosition.z -= 0.2f;
-    else if (orientation == Orientation::SOUTH)
+    else if (_orientation == Orientation::SOUTH)
         spherePosition.z += 0.2f;
-    else if (orientation == Orientation::EAST)
+    else if (_orientation == Orientation::EAST)
         spherePosition.x += 0.2f;
-    else if (orientation == Orientation::WEST)
+    else if (_orientation == Orientation::WEST)
         spherePosition.x -= 0.2f;
 
     spherePosition.y += 0.2f;
 
     DrawSphere(spherePosition, 0.2f, BLACK);
+
+    std::lock_guard<std::mutex> lock(_messageMutex);
+    if (!_broadcast.empty()) {
+        std::string message = _broadcast.front();
+        DrawTextEx(_font, message.c_str(), {position.x, position.z}, 0.2f, 0.1f, BLACK);
+    }
+}
+
+void Player::layEgg()
+{
+    DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " laid an egg");
+    // TODO: Implement laying egg animation
 }

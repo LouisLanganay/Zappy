@@ -16,6 +16,7 @@
 #include "raylib.h"
 #include "../Team/Team.hpp"
 #include <memory>
+#include "../Egg/Egg.hpp"
 
 namespace Zappy {
     enum class Orientation {
@@ -53,19 +54,24 @@ namespace Zappy {
             void addBroadcast(const std::string& message);
             std::string getBroadcast();
 
-            void draw();
+            void draw(Camera camera);
+
+            void layEgg();
+            void hatchEgg(int eggNumber);
 
         protected:
         private:
-            int playerNumber;
+            int _playerNumber;
             std::unique_ptr<Team> _team;
-            Orientation orientation;
-            int level;
-            std::unordered_map<Zappy::Resources::Type, int> inventory;
-            std::queue<std::string> broadcast;
-            std::mutex messageMutex;
-            int x;
-            int y;
+            Orientation _orientation;
+            int _level;
+            std::unordered_map<Zappy::Resources::Type, int> _inventory;
+            std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
+            std::queue<std::string> _broadcast;
+            std::mutex _messageMutex;
+            int _x;
+            int _y;
+            Font _font;
     };
 
 }
