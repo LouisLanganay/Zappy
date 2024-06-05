@@ -76,6 +76,26 @@ void test_server_run(test_server_t *test_server) {
                 r = protocol_server_send_packet(test_server->server, payload->fd, &packet9);
                 printf("Result: %i\n", r);
                 sleep(1);
+                protocol_packet_t packet10 = {1, "sgt 100\n"};
+                printf("Sending packet: %s\n", packet10.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet10);
+                printf("Result: %i\n", r);
+                sleep(1);
+                protocol_packet_t packet11 = {1, "bct 1 1 2 5 5 5 5 5 5 5\n"};
+                printf("Sending packet: %s\n", packet11.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet11);
+                printf("Result: %i\n", r);
+                sleep(1);
+                protocol_packet_t packet12 = {1, "pbc 1 MON message\n"};
+                printf("Sending packet: %s\n", packet12.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet12);
+                printf("Result: %i\n", r);
+                sleep(1);
+                protocol_packet_t packet13 = {1, "enw 1 1 3 2\n"};
+                printf("Sending packet: %s\n", packet13.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet13);
+                printf("Result: %i\n", r);
+                sleep(1);
                 while (a < 5) {
                     protocol_packet_t packet6 = {1, "ppo 1 3 2 1\n"};
                     printf("Sending packet: %s\n", packet6.data);
@@ -89,6 +109,11 @@ void test_server_run(test_server_t *test_server) {
                     sleep(1);
                     a++;
                 }
+                protocol_packet_t packet14 = {1, "seg team1\n"};
+                printf("Sending packet: %s\n", packet14.data);
+                r = protocol_server_send_packet(test_server->server, payload->fd, &packet14);
+                printf("Result: %i\n", r);
+                sleep(1);
             }
         }
     }
