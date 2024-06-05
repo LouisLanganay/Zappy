@@ -64,7 +64,7 @@ void Core::run() {
             BeginDrawing();
             ClearBackground(RAYWHITE);
             BeginMode3D(camera);
-            map->draw();
+            map->draw(camera);
             EndMode3D();
             DrawFPS(10, 10);
             EndDrawing();
@@ -86,7 +86,7 @@ void Core::handleServerMessages() {
                 continue;
             }
             std::string message(reinterpret_cast<const char*>(payload->packet.data));
-            DEBUG_SUCCESS("Core received packet: " + message);
+            DEBUG_INFO("Core received packet: " + message);
             if (message.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
@@ -312,7 +312,7 @@ void Core::pin(std::string message)
     player->setResource(Zappy::Resources::Type::MENDIANE, mendiane);
     player->setResource(Zappy::Resources::Type::PHIRAS, phiras);
     player->setResource(Zappy::Resources::Type::THYSTAME, thystame);
-    DEBUG_INFO("Player " + std::to_string(playerNumber) + " inventory updated {" +
+    DEBUG_SUCCESS("Player " + std::to_string(playerNumber) + " inventory updated {" +
     std::to_string(food) + ", " + std::to_string(linemate) + ", " +
     std::to_string(deraumere) + ", " + std::to_string(sibur) + ", " +
     std::to_string(mendiane) + ", " + std::to_string(phiras) + ", " +
@@ -341,7 +341,12 @@ void Core::pbc(std::string message)
     iss >> command >> playerNumber;
     std::getline(iss, msg);
 
-    DEBUG_INFO("Player " + std::to_string(playerNumber) + " broadcasted: " + msg);
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    player->addBroadcast(msg);
 }
 
 void Core::pic(std::string message)
@@ -372,8 +377,12 @@ void Core::pfk(std::string message)
     int playerNumber;
     sscanf(message.c_str(), "pfk %d", &playerNumber);
 
-    DEBUG_INFO("Player " + std::to_string(playerNumber) + " started forking");
-    // TODO: Implement pfk
+    Player* player = map->getPlayer(playerNumber);
+    if (!player) {
+        DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
+        return;
+    }
+    player->layEgg();
 }
 
 void Core::pdr(std::string message)
@@ -446,8 +455,18 @@ void Core::enw(std::string message)
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
     }
-    DEBUG_INFO("Player " + std::to_string(playerNumber) + " laid egg " + std::to_string(eggNumber) + " at " + std::to_string(x) + " " + std::to_string(y));
-    // TODO: Implement enw
+    const Team* team = player->getTeam();
+    if (!team) {
+        DEBUG_ERROR("Team not found for player: " + std::to_string(playerNumber));
+        return;
+    }
+
+    map->addEgg(std::make_unique<Egg>(
+        eggNumber,
+        playerNumber,
+        x, y,
+        std::make_unique<Team>(*team)
+    ));
 }
 
 void Core::ebo(std::string message)
@@ -455,7 +474,13 @@ void Core::ebo(std::string message)
     int eggNumber;
     sscanf(message.c_str(), "ebo %d", &eggNumber);
 
-    DEBUG_INFO("Egg " + std::to_string(eggNumber) + " hatched");
+    Egg* egg = map->getEgg(eggNumber);
+    if (!egg) {
+        DEBUG_ERROR("Egg not found: " + std::to_string(eggNumber));
+        return;
+    }
+
+    map->removeEgg(eggNumber);
     // TODO: Implement ebo
 }
 
@@ -464,8 +489,7 @@ void Core::edi(std::string message)
     int eggNumber;
     sscanf(message.c_str(), "edi %d", &eggNumber);
 
-    DEBUG_INFO("Egg " + std::to_string(eggNumber) + " died");
-    // TODO: Implement edi
+    map->removeEgg(eggNumber);
 }
 
 void Core::sgt(std::string message)
@@ -473,8 +497,7 @@ void Core::sgt(std::string message)
     int frequency;
     sscanf(message.c_str(), "sgt %d", &frequency);
 
-    DEBUG_INFO("Server tick frequency: " + std::to_string(frequency));
-    // TODO: Implement sgt
+    map->setTimeUnit(frequency);
 }
 
 void Core::sst(std::string message)
@@ -482,16 +505,19 @@ void Core::sst(std::string message)
     int frequency;
     sscanf(message.c_str(), "sst %d", &frequency);
 
-    DEBUG_INFO("Server tick frequency set to: " + std::to_string(frequency));
-    // TODO: Implement sst
+    map->setTimeUnit(frequency);
 }
 
 void Core::seg(std::string message)
 {
+    std::istringstream iss(message);
+    std::string command;
     std::string teamName;
-    sscanf(message.c_str(), "seg %s", teamName.c_str());
+    iss >> command >> teamName;
 
-    DEBUG_INFO("Team " + teamName + " won the game");
+    std::string winMessage = "Team " + teamName + " won the game!";
+
+    DEBUG_SUCCESS(winMessage);
     // TODO: Implement seg
 }
 
@@ -502,8 +528,7 @@ void Core::smg(std::string message)
     msg.erase(0, msg.find_first_not_of(" \t\n\r"));
     msg.erase(msg.find_last_not_of(" \t\n\r") + 1);
 
-    DEBUG_INFO("Server message: " + msg);
-    // TODO: Implement smg
+    map->addServerMessage(msg);
 }
 
 void Core::suc()
