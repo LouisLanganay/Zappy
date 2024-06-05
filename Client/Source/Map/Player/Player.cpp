@@ -33,9 +33,6 @@ Player::Player(
     _inventory[Zappy::Resources::Type::PHIRAS] = 0;
     _inventory[Zappy::Resources::Type::THYSTAME] = 0;
 
-    _font = LoadFont("Minecraft.ttf");
-    if (!_font.texture.id)
-        throw std::runtime_error("Failed to load font");
 }
 
 int Player::getPlayerNumber() const

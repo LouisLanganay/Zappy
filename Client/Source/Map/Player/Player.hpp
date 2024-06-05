@@ -57,7 +57,6 @@ namespace Zappy {
             void draw(Camera camera);
 
             void layEgg();
-            void hatchEgg(int eggNumber);
 
         protected:
         private:
@@ -71,7 +70,6 @@ namespace Zappy {
             std::mutex _messageMutex;
             int _x;
             int _y;
-            Font _font;
     };
 
 }
