@@ -84,12 +84,11 @@ void Core::run() {
 void Core::handleServerMessages() {
     try {
         while (running) {
-            protocol_payload_t* payload = api->getData();
-            if (!payload) {
+            std::string message = api->getData();
+            if (message.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
             }
-            std::string message(reinterpret_cast<const char*>(payload->packet.data));
             DEBUG_INFO("Core received packet: " + message);
             if (message.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
