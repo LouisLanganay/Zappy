@@ -16,7 +16,7 @@ void bct(
 {
     vector2_t pos = {0};
 
-    if (sscanf(message, "bct %hd %hd\n", &pos.x, &pos.y) != 2) {
+    if (sscanf(message, " %hd %hd", &pos.x, &pos.y) != 2) {
         sbp(server, interlocutor);
         return;
     }
