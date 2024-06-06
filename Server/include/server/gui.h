@@ -178,6 +178,153 @@ void pic(
     const zappy_server_t *server,
     int interlocutor);
 
+/**
+ * @brief End an incantation
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ *
+ * @note Send pie with the position of the tile and the result of the incantation
+ */
+void pie(
+    const zappy_server_t *server,
+    int interlocutor);
+
+/**
+ * @brief egg laying by the player
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ *
+ * @note Send pfk with the player number
+*/
+void pfk(
+    const zappy_server_t *server,
+    int interlocutor);
+/**
+ * @brief ressource dropping
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param message The message of the command
+ *
+ * @note Send pdr with the player number and the actual ressource in the inventory
+*/
+void pdr(
+    zappy_server_t *server,
+    const int interlocutor,
+    const char *message);
+
+/**
+ * @brief ressource taking
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param message The message of the command
+ *
+ * @note Send pgt with the player number and the actual ressource in the inventory
+*/
+void pgt(
+    zappy_server_t *server,
+    const int interlocutor,
+    const char *message);
+
+/**
+ * @brief Send the death of a player
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ *
+ * @note Send pdi with the player number
+*/
+void pdi(
+    const zappy_server_t *server,
+    const int interlocutor);
+
+/**
+ * @brief An egg is laid by a player
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param egg_id The id of the egg
+ *
+ * @note Send enw with the egg number, the player number and the position of the egg
+*/
+void enw(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const int egg_id);
+
+/**
+ * @brief Player connection for an egg
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param egg_id The id of the egg
+ *
+ * @note Send ebo with the egg number
+*/
+void ebo(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const int egg_id);
+
+/**
+ * @brief Death of an egg
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param egg_id The id of the egg
+ *
+ * @note Send edi with the egg number
+*/
+void edi(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const int egg_id);
+
+/**
+ * @brief Time unit request
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param message The message of the command
+ *
+ * @note Send sgt with the time unit
+*/
+void sgt(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message);
+
+/**
+ * @brief Time unit modification
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param message The message of the command
+ *
+ * @note Send sst with the time unit
+*/
+void sst(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message);
+
+/**
+ * @brief End of the game
+ *
+ * @param server The server_t struct
+ * @param interlocutor The fd of the GUI
+ * @param team_name The name of the winner team
+ *
+ * @note Send seg with the winner team
+*/
+void seg(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *team_name);
+
 static const struct {
     const char *cmd;
     void (*func)(
@@ -192,7 +339,6 @@ static const struct {
     {"ppo", ppo},
     {"plv", plv},
     {"pin", pin},
-    {"pic", pic},
     {NULL, NULL}
 };
 
