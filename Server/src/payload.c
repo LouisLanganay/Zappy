@@ -14,7 +14,7 @@
 #include "server.h"
 
 static void handle_connection(
-    const zappy_server_t *server)
+    zappy_server_t *server)
 {
     protocol_connection_t *connection;
 
@@ -30,6 +30,11 @@ static void handle_connection(
         connection = TAILQ_FIRST(&server->socket->lost_connections);
         TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
         verbose(server, "Lost connection from %d\n", connection->fd);
+
+        ai_t *ai_t;
+        TAILQ_FOREACH(ai_t, &server->ais, entries)
+            if (ai_t->fd == connection->fd)
+                TAILQ_REMOVE(&server->ais, ai_t, entries);
         free(connection);
     }
 }
