@@ -143,6 +143,11 @@ void Player::draw(Camera camera)
     // TODO: Draw player level and broadcast messages
 }
 
+std::unordered_map<Zappy::Resources::Type, int> Player::getInventory() const
+{
+    return _inventory;
+}
+
 void Player::layEgg()
 {
     DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " laid an egg");

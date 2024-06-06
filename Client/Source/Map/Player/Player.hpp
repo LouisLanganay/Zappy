@@ -47,6 +47,7 @@ namespace Zappy {
             void setResource(Zappy::Resources::Type type, int quantity);
             void removeResource(Zappy::Resources::Type type, int quantity);
             int getResourceQuantity(const Zappy::Resources::IResources* resource) const;
+            std::unordered_map<Zappy::Resources::Type, int> getInventory() const;
 
             void setPosition(int x, int y);
             std::pair<int, int> getPosition() const;
