@@ -39,15 +39,6 @@ static void setup_signal(void)
     sigaction(SIGINT, &sig, NULL);
 }
 
-static void handle_payload(const protocol_payload_t *payload)
-{
-    char *message = protocol_receive_message(payload);
-
-    if (!message)
-        return;
-    printf("Received packet: %s\n", message);
-}
-
 int main(void)
 {
     protocol_client_t *client = protocol_client_create("127.0.0.1", 4242);
@@ -57,13 +48,13 @@ int main(void)
         return EXIT_FAILURE;
     printf("Client started\n");
     setup_signal();
-    protocol_client_send_message(client, "Hello from client!");
+    protocol_client_send(client, "GRAPHIC");
     while (is_open(false) && protocol_client_is_connected(client)) {
         protocol_client_listen(client);
         while (!TAILQ_EMPTY(&client->payloads)) {
             payload = TAILQ_FIRST(&client->payloads);
             TAILQ_REMOVE(&client->payloads, payload, entries);
-            handle_payload(payload);
+            printf("Received packet: %s\n", payload->message);
             free(payload);
         }
     }

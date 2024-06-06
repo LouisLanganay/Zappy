@@ -18,13 +18,9 @@ typedef struct {
     struct sockaddr_in server_addr;
 } protocol_network_data_t;
 
-typedef struct {
-    uint16_t type;
-    uint8_t data[DATA_SIZE];
-} protocol_packet_t;
-
 typedef struct protocol_payload_s {
-    protocol_packet_t packet;
+    char message[DATA_SIZE];
+
     int fd;
     TAILQ_ENTRY(protocol_payload_s) entries;
 } protocol_payload_t;

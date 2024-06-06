@@ -26,7 +26,7 @@ void ppo(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send_message(server->socket, interlocutor,
-        "ppo %d %d %d %d\n",
+    protocol_server_send(server->socket, interlocutor,
+        "ppo %d %d %d %d",
         ai->id, ai->pos.x, ai->pos.y, ai->orientation);
 }

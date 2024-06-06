@@ -14,5 +14,5 @@ void gui_send_to_all(
     const gui_t *gui;
 
     TAILQ_FOREACH(gui, &server->guis, entries)
-        protocol_server_send_message(server->socket, gui->fd, message);
+        protocol_server_send(server->socket, gui->fd, message);
 }

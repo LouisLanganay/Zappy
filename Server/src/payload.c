@@ -22,8 +22,8 @@ static void handle_connection(
         connection = TAILQ_FIRST(&server->socket->new_connections);
         TAILQ_REMOVE(&server->socket->new_connections, connection, entries);
         verbose(server, "New connection from %d\n", connection->fd);
-        protocol_server_send_message(server->socket, connection->fd,
-            "WELCOME\n");
+        protocol_server_send(server->socket, connection->fd,
+            "WELCOME");
         free(connection);
     }
     while (!TAILQ_EMPTY(&server->socket->lost_connections)) {
@@ -85,10 +85,10 @@ static void add_client(
     ai->team = team;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
-    protocol_server_send_message(server->socket, interlocutor,
-        "%i\n", server->clients_nb);
-    protocol_server_send_message(server->socket, interlocutor,
-        " %i %i\n", server->width, server->height);
+    protocol_server_send(server->socket, interlocutor,
+        "%i", server->clients_nb);
+    protocol_server_send(server->socket, interlocutor,
+        " %i %i", server->width, server->height);
 }
 
 static void handle_ai_event(
@@ -105,7 +105,7 @@ static void handle_ai_event(
             return;
         }
     }
-    protocol_server_send_message(server->socket, interlocutor, "ko\n");
+    protocol_server_send(server->socket, interlocutor, "ko");
 }
 
 static connection_t get_connection_by_fd(
@@ -126,23 +126,22 @@ static connection_t get_connection_by_fd(
 
 static void handle_event(
     zappy_server_t *server,
-    const protocol_payload_t *payload,
-    const char *message)
+    const protocol_payload_t *payload)
 {
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
-            verbose(server, "AI %d: %s", payload->fd, message);
-            handle_ai_event(server, payload->fd, message);
+            verbose(server, "AI %d: %s\n", payload->fd, payload->message);
+            handle_ai_event(server, payload->fd, payload->message);
             break;
         case CONNECTION_GUI:
-            verbose(server, "GUI %d: %s", payload->fd, message);
-            handle_gui_event(server, payload->fd, message);
+            verbose(server, "GUI %d: %s\n", payload->fd, payload->message);
+            handle_gui_event(server, payload->fd, payload->message);
             break;
         case CONNECTION_UNKNOWN:
-            if (!strcmp(message, "GRAPHIC\n"))
+            if (!strcmp(payload->message, "GRAPHIC"))
                 add_graphic(server, payload->fd);
             else
-                add_client(server, payload->fd, message);
+                add_client(server, payload->fd, payload->message);
             break;
         default:
             break;
@@ -153,17 +152,12 @@ bool handle_payload(
     zappy_server_t *server)
 {
     protocol_payload_t *payload;
-    char *message;
 
     handle_connection(server);
     while (!TAILQ_EMPTY(&server->socket->payloads)) {
         payload = TAILQ_FIRST(&server->socket->payloads);
         TAILQ_REMOVE(&server->socket->payloads, payload, entries);
-        message = protocol_receive_message(payload);
-        if (!message)
-            return false;
-        handle_event(server, payload, message);
-        free(message);
+        handle_event(server, payload);
         free(payload);
     }
     return true;
