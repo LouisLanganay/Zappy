@@ -38,19 +38,16 @@ namespace Zappy {
             void requestPlayerInventory(int playerNumber);
             void requestTimeUnit();
             void modifyTimeUnit(int t);
-            void endGame();
-            void unknownCommand();
-            void commandParameter();
 
         private:
-            std::queue<std::string> receivedData;
-            std::mutex dataMutex;
-            std::condition_variable dataCondVar;
-            std::string host;
-            int port;
-            protocol_client_t *client;
-            std::thread fetchDataThread;
-            bool isRunning;
+            std::queue<std::string> _receivedData;
+            std::mutex _dataMutex;
+            std::condition_variable _dataCondVar;
+            std::string _host;
+            int _port;
+            protocol_client_t *_client;
+            std::thread _fetchDataThread;
+            bool _isRunning;
             void fetchDataLoop();
 
     };
