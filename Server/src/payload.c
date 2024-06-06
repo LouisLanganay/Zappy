@@ -70,6 +70,7 @@ static void add_graphic(
     msz(server, interlocutor, NULL);
     sgt(server, interlocutor, NULL);
     mct(server, interlocutor, NULL);
+    tna(server, interlocutor, NULL);
 }
 
 static void add_client(
