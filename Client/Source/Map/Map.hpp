@@ -14,6 +14,7 @@
 #include <map>
 #include <queue>
 #include <mutex>
+#include <chrono>
 #include <SFML/Graphics.hpp>
 #include "IResources.hpp"
 #include "Player/Player.hpp"
@@ -30,17 +31,21 @@
 #include "Egg/Egg.hpp"
 
 namespace Zappy {
-
+    struct ServerMessage {
+        std::string message;
+        std::chrono::time_point<std::chrono::steady_clock> timestamp;
+    };
     class Map {
         public:
             Map();
             void updateTile(int x, int y, const std::vector<int>& resources);
-            void addPlayer(std::unique_ptr<Player> player);
-            void removePlayer(int playerNumber);
             void draw(Camera camera);
             void setSize(int width, int height);
 
+            void addPlayer(std::unique_ptr<Player> player);
             Player* getPlayer(int playerNumber);
+            void removePlayer(int playerNumber);
+            std::vector<Player*> getPlayers() const;
 
             void addTeam(std::string name);
             void setTeams(const std::vector<std::string>& teams);
@@ -66,13 +71,16 @@ namespace Zappy {
 
             void setWiner(const std::string& winer);
             std::string getWiner() const;
+
+            Color generateUniqueColor();
         private:
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
             std::unordered_map<int, std::unique_ptr<Player>> _players;
             std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
-            std::queue<std::string> _serverMessages;
+            std::queue<ServerMessage> _serverMessages;
             std::mutex _messageMutex;
+            std::mutex _teamMutex;
             std::string _winer;
             int _height;
             int _width;

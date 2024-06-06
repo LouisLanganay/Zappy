@@ -34,12 +34,11 @@ void Map::setSize(int width, int height)
 
 void Map::updateTile(int x, int y, const std::vector<int>& resources)
 {
-    DEBUG_SUCCESS("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with resources: " +
-    std::to_string(resources.size()) + " - " + std::to_string(resources[0]) +
+    DEBUG_SUCCESS("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with " +
+    std::to_string(resources.size()) + " resource(s): " + std::to_string(resources[0]) +
     " - " + std::to_string(resources[1]) + " - " + std::to_string(resources[2]) +
     " - " + std::to_string(resources[3]) + " - " + std::to_string(resources[4]) +
-    " - " + std::to_string(resources[5]) + " - " + std::to_string(resources[6]) +
-    " - " + std::to_string(resources[7]));
+    " - " + std::to_string(resources[5]) + " - " + std::to_string(resources[6]));
     if (x >= 0 && x < _width && y >= 0 && y < _height && resources.size() == 7)
         _tiles[y][x].setResources(resources);
 }
@@ -98,25 +97,33 @@ void Map::setTeams(const std::vector<std::string>& teams)
         _teams[teams[i]] = std::make_unique<Team>(teams[i], colors[i]);
 }
 
-void Map::addTeam(std::string name)
+Color Map::generateUniqueColor()
 {
-    Color colors[] = {
-        RED,
-        GREEN,
-        BLUE,
-        YELLOW,
-        ORANGE,
-        PINK,
-        PURPLE,
-        BROWN
-    };
+    Color teamColor;
+    bool isUnique;
+    do {
+        teamColor = {(unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), 255};
+        isUnique = true;
+        for (const auto& team : _teams) {
+            Color color = team.second->getColor();
+            if (color.r == teamColor.r && color.g == teamColor.g && color.b == teamColor.b) {
+                isUnique = false;
+                break;
+            }
+        }
+    } while (
+        !isUnique || teamColor.r == 0 || teamColor.g == 0 || teamColor.b == 0 ||
+        teamColor.r == 255 || teamColor.g == 255 || teamColor.b == 255
+    );
+    return teamColor;
+}
 
-    Color teamColor = colors[_teams.size() % 8];
-
+void Map::addTeam(std::string name) {
+    std::lock_guard<std::mutex> lock(_teamMutex);
+    Color teamColor = generateUniqueColor();
     _teams[name] = std::make_unique<Team>(name, teamColor);
     DEBUG_SUCCESS("Team added: " + name + " with color: " + std::to_string(teamColor.r) + ", " + std::to_string(teamColor.g) + ", " + std::to_string(teamColor.b));
 }
-
 Team* Map::getTeam(std::string name) const
 {
     auto it = _teams.find(name);
@@ -143,7 +150,7 @@ Tile* Map::getTile(int x, int y)
 void Map::addServerMessage(const std::string& message)
 {
     std::lock_guard<std::mutex> lock(_messageMutex);
-    _serverMessages.push(message);
+    _serverMessages.push({message, std::chrono::steady_clock::now()});
     DEBUG_SUCCESS("Server message added: " + message);
 }
 
@@ -152,7 +159,19 @@ std::string Map::getServerMessage()
     std::lock_guard<std::mutex> lock(_messageMutex);
     if (_serverMessages.empty())
         return "";
-    std::string message = _serverMessages.front();
+
+    auto& oldestMsg = _serverMessages.front();
+    auto now = std::chrono::steady_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(now - oldestMsg.timestamp).count();
+
+    constexpr int minDisplayDuration = 10000;
+
+    int displayDuration = minDisplayDuration + oldestMsg.message.size() * 100;
+
+    if (elapsedTime < displayDuration)
+        return oldestMsg.message;
+
+    std::string message = oldestMsg.message;
     _serverMessages.pop();
     return message;
 }
@@ -210,4 +229,12 @@ void Map::setWiner(const std::string& winer)
 std::string Map::getWiner() const
 {
     return _winer;
+}
+
+std::vector<Player*> Map::getPlayers() const
+{
+    std::vector<Player*> players;
+    for (auto& player : _players)
+        players.push_back(player.second.get());
+    return players;
 }
