@@ -16,42 +16,42 @@ Egg::Egg(
     int x,
     int y,
     std::unique_ptr<Team> team
-) : eggNumber(eggNumber),
-    playerNumber(playerNumber),
-    position(x, y),
-    hatched(false),
+) : _eggNumber(eggNumber),
+    _playerNumber(playerNumber),
+    _position(x, y),
+    _hatched(false),
     _team(std::move(team))
 {
 }
 
 int Egg::getEggNumber() const
 {
-    return eggNumber;
+    return _eggNumber;
 }
 
 int Egg::getPlayerNumber() const
 {
-    return playerNumber;
+    return _playerNumber;
 }
 
 std::pair<int, int> Egg::getPosition() const
 {
-    return position;
+    return _position;
 }
 
 void Egg::setHatched(bool hatched)
 {
-    this->hatched = hatched;
+    _hatched = hatched;
 }
 
 bool Egg::isHatched() const
 {
-    return hatched;
+    return _hatched;
 }
 
 void Egg::draw()
 {
-    Vector3 position = {(float)this->position.first, 0.5f, (float)this->position.second};
+    Vector3 position = {(float)_position.first, 0.5f, (float)_position.second};
     DrawSphere(position, 0.35f, BROWN);
 }
 

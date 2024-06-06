@@ -30,10 +30,10 @@ namespace Zappy {
             const Team* getTeam() const;
 
         private:
-            int eggNumber;
-            int playerNumber;
-            std::pair<int, int> position;
-            bool hatched;
+            int _eggNumber;
+            int _playerNumber;
+            std::pair<int, int> _position;
+            bool _hatched;
             std::unique_ptr<Team> _team;
     };
 }
