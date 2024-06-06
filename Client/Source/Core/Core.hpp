@@ -29,11 +29,11 @@ namespace Zappy {
             void handleServerMessages();
 
         protected:
-            std::unique_ptr<Api> api;
-            std::unique_ptr<Map> map;
-            std::thread networkThread;
-            bool running;
-            bool debug;
+            std::unique_ptr<Api> _api;
+            std::unique_ptr<Map> _map;
+            std::thread _networkThread;
+            bool _running;
+            bool _debug;
             Hud _hud;
 
             void msz(std::string message);

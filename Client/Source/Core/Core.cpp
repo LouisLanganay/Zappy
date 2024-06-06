@@ -24,22 +24,22 @@ using namespace Zappy;
 Core::Core(
     const std::string& host,
     int port
-) : api(std::make_unique<Api>(host, port)),
-    map(std::make_unique<Map>()),
-    running(true),
+) : _api(std::make_unique<Api>(host, port)),
+    _map(std::make_unique<Map>()),
+    _running(true),
     _hud(Hud())
 {
-    networkThread = std::thread(&Core::handleServerMessages, this);
+    _networkThread = std::thread(&Core::handleServerMessages, this);
     DEBUG_INFO("Core created with host: " + host + " and port: " + std::to_string(port));
 }
 
 Core::~Core()
 {
-    running = false;
-    if (networkThread.joinable())
-        networkThread.join();
+    _running = false;
+    if (_networkThread.joinable())
+        _networkThread.join();
     CloseWindow();
-    api.reset();
+    _api.reset();
 }
 
 void Core::run() {
@@ -61,20 +61,20 @@ void Core::run() {
         camera.projection = CAMERA_PERSPECTIVE;
 
 
-        while (!WindowShouldClose() && running) {
-            UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+        while (!WindowShouldClose() && _running) {
+            UpdateCamera(&camera, CAMERA_FREE);
             BeginDrawing();
             ClearBackground(RAYWHITE);
             BeginMode3D(camera);
-            map->draw(camera);
+            _map->draw(camera);
             EndMode3D();
-            _hud.draw(map.get());
+            _hud.draw(_map.get());
             DrawFPS(10, 10);
             EndDrawing();
         }
 
         CloseWindow();
-        running = false;
+        _running = false;
     } catch (const std::exception &e) {
         throw MainException(e.what());
     }
@@ -83,8 +83,8 @@ void Core::run() {
 
 void Core::handleServerMessages() {
     try {
-        while (running) {
-            std::string message = api->getData();
+        while (_running) {
+            std::string message = _api->getData();
             if (message.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
@@ -96,7 +96,14 @@ void Core::handleServerMessages() {
             }
 
             if (message.find("WELCOME") == 0) {
-                api->sendCommand("GRAPHIC");
+                _api->sendCommand("GRAPHIC");
+                if (_map->getWidth() == 0 && _map->getHeight() == 0) {
+                    _api->requestMapSize();
+                    _api->requestAllTilesContent();
+                }
+                if (_map->getTeams().empty()) {
+                    _api->requestTeamsNames();
+                }
                 continue;
             }
             if (message.find("msz") == 0) {
@@ -207,13 +214,13 @@ void Core::msz(std::string message)
 {
     int x, y;
     sscanf(message.c_str(), "msz %d %d", &x, &y);
-    map->setSize(x, y);
+    _map->setSize(x, y);
 }
 
 void Core::bct(std::string message) {
     int x, y, q0, q1, q2, q3, q4, q5, q6;
     sscanf(message.c_str(), "bct %d %d %d %d %d %d %d %d %d", &x, &y, &q0, &q1, &q2, &q3, &q4, &q5, &q6);
-    map->updateTile(x, y, {q0, q1, q2, q3, q4, q5, q6});
+    _map->updateTile(x, y, {q0, q1, q2, q3, q4, q5, q6});
 }
 
 void Core::tna(std::string message)
@@ -223,7 +230,7 @@ void Core::tna(std::string message)
     teamName.erase(0, teamName.find_first_not_of(" \t\n\r"));
     teamName.erase(teamName.find_last_not_of(" \t\n\r") + 1);
 
-    map->addTeam(teamName);
+    _map->addTeam(teamName);
 }
 
 void Core::pnw(std::string message)
@@ -245,7 +252,7 @@ void Core::pnw(std::string message)
     }
 
     Orientation orient = static_cast<Orientation>(orientation);
-    const Team* team = map->getTeam(teamName);
+    const Team* team = _map->getTeam(teamName);
     if (!team) {
         DEBUG_ERROR("Team not found: " + teamName);
         return;
@@ -258,7 +265,7 @@ void Core::pnw(std::string message)
         level
     );
     player->setPosition(x, y);
-    map->addPlayer(std::move(player));
+    _map->addPlayer(std::move(player));
 }
 
 void Core::ppo(std::string message)
@@ -278,7 +285,7 @@ void Core::ppo(std::string message)
         return;
     }
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
@@ -293,7 +300,7 @@ void Core::plv(std::string message)
     int playerNumber, level;
     sscanf(message.c_str(), "plv %d %d", &playerNumber, &level);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
@@ -307,7 +314,7 @@ void Core::pin(std::string message)
     int playerNumber, x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
     sscanf(message.c_str(), "pin %d %d %d %d %d %d %d %d %d %d %d", &playerNumber, &x, &y, &food, &linemate, &deraumere, &sibur, &mendiane, &phiras, &thystame);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
@@ -331,12 +338,13 @@ void Core::pex(std::string message)
     int playerNumber;
     sscanf(message.c_str(), "pex %d", &playerNumber);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
     }
-    // TODO: Implement pex
+    _api->requestPlayerPosition(playerNumber);
+    // TODO: Annimation
 }
 
 void Core::pbc(std::string message)
@@ -348,7 +356,7 @@ void Core::pbc(std::string message)
     iss >> command >> playerNumber;
     std::getline(iss, msg);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
@@ -384,7 +392,7 @@ void Core::pfk(std::string message)
     int playerNumber;
     sscanf(message.c_str(), "pfk %d", &playerNumber);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
@@ -397,14 +405,14 @@ void Core::pdr(std::string message)
     int playerNumber, resource;
     sscanf(message.c_str(), "pdr %d %d", &playerNumber, &resource);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
     }
     player->removeResource(static_cast<Zappy::Resources::Type>(resource), 1);
     std::pair<int, int> pos = player->getPosition();
-    Tile* tile = map->getTile(pos.first, pos.second);
+    Tile* tile = _map->getTile(pos.first, pos.second);
     if (!tile) {
         DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
         return;
@@ -417,14 +425,14 @@ void Core::pgt(std::string message)
     int playerNumber, resource;
     sscanf(message.c_str(), "pgt %d %d", &playerNumber, &resource);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
     }
     player->addResource(static_cast<Zappy::Resources::Type>(resource), 1);
     std::pair<int, int> pos = player->getPosition();
-    Tile* tile = map->getTile(pos.first, pos.second);
+    Tile* tile = _map->getTile(pos.first, pos.second);
     if (!tile) {
         DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
         return;
@@ -437,19 +445,19 @@ void Core::pdi(std::string message)
     int playerNumber;
     sscanf(message.c_str(), "pdi %d", &playerNumber);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
     }
     std::pair<int, int> pos = player->getPosition();
-    Tile* tile = map->getTile(pos.first, pos.second);
+    Tile* tile = _map->getTile(pos.first, pos.second);
     if (!tile) {
         DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
         return;
     }
     //tile->addResource(Zappy::Resources::Type::FOOD, 1);
-    map->removePlayer(playerNumber);
+    _map->removePlayer(playerNumber);
 }
 
 void Core::enw(std::string message)
@@ -457,7 +465,7 @@ void Core::enw(std::string message)
     int eggNumber, playerNumber, x, y;
     sscanf(message.c_str(), "enw %d %d %d %d", &eggNumber, &playerNumber, &x, &y);
 
-    Player* player = map->getPlayer(playerNumber);
+    Player* player = _map->getPlayer(playerNumber);
     if (!player) {
         DEBUG_ERROR("Player not found: " + std::to_string(playerNumber));
         return;
@@ -468,7 +476,7 @@ void Core::enw(std::string message)
         return;
     }
 
-    map->addEgg(std::make_unique<Egg>(
+    _map->addEgg(std::make_unique<Egg>(
         eggNumber,
         playerNumber,
         x, y,
@@ -481,13 +489,13 @@ void Core::ebo(std::string message)
     int eggNumber;
     sscanf(message.c_str(), "ebo %d", &eggNumber);
 
-    Egg* egg = map->getEgg(eggNumber);
+    Egg* egg = _map->getEgg(eggNumber);
     if (!egg) {
         DEBUG_ERROR("Egg not found: " + std::to_string(eggNumber));
         return;
     }
 
-    map->removeEgg(eggNumber);
+    _map->removeEgg(eggNumber);
     // TODO: Implement ebo
 }
 
@@ -496,7 +504,7 @@ void Core::edi(std::string message)
     int eggNumber;
     sscanf(message.c_str(), "edi %d", &eggNumber);
 
-    map->removeEgg(eggNumber);
+    _map->removeEgg(eggNumber);
 }
 
 void Core::sgt(std::string message)
@@ -504,7 +512,7 @@ void Core::sgt(std::string message)
     int frequency;
     sscanf(message.c_str(), "sgt %d", &frequency);
 
-    map->setTimeUnit(frequency);
+    _map->setTimeUnit(frequency);
 }
 
 void Core::sst(std::string message)
@@ -512,7 +520,7 @@ void Core::sst(std::string message)
     int frequency;
     sscanf(message.c_str(), "sst %d", &frequency);
 
-    map->setTimeUnit(frequency);
+    _map->setTimeUnit(frequency);
 }
 
 void Core::seg(std::string message)
@@ -522,7 +530,7 @@ void Core::seg(std::string message)
     std::string teamName;
     iss >> command >> teamName;
 
-    map->setWiner(teamName);
+    _map->setWiner(teamName);
 }
 
 void Core::smg(std::string message)
@@ -532,7 +540,7 @@ void Core::smg(std::string message)
     msg.erase(0, msg.find_first_not_of(" \t\n\r"));
     msg.erase(msg.find_last_not_of(" \t\n\r") + 1);
 
-    map->addServerMessage(msg);
+    _map->addServerMessage(msg);
 }
 
 void Core::suc()
