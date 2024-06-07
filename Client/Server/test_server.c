@@ -80,6 +80,12 @@ void test_server_run(test_server_t *test_server) {
                 printf("Sending message: pbc 1 MON message\n");
                 r = protocol_server_send(test_server->server, payload->fd, "pbc 1 MON message\n");
                 printf("Result: %i\n", r);
+                printf("Sending message: pbc 2 MON message\n");
+                r = protocol_server_send(test_server->server, payload->fd, "pbc 2 MON message\n");
+                printf("Result: %i\n", r);
+                printf("Sending message: pbc 1 ahahah ahahah ahahah\n");
+                r = protocol_server_send(test_server->server, payload->fd, "pbc 1 ahahah ahahah ahahah\n");
+                printf("Result: %i\n", r);
                 sleep(0.5);
                 printf("Sending message: enw 1 1 3 2\n");
                 r = protocol_server_send(test_server->server, payload->fd, "enw 1 1 3 2\n");
@@ -101,6 +107,12 @@ void test_server_run(test_server_t *test_server) {
                     r = protocol_server_send(test_server->server, payload->fd, "smg message %i\n", a + 50);
                     printf("Result: %i\n", r);
                     sleep(1);
+                    printf("Sending message: pbc 1 MON message aaa aaaaaaaa aaaaaaaaa %i\n", a);
+                    r = protocol_server_send(test_server->server, payload->fd, "pbc 1 MON message aaa aaaaaaaa aaaaaaaaa %i\n", a);
+                    printf("Result: %i\n", r);
+                    printf("Sending message: pbc 1 Baba message\n");
+                    r = protocol_server_send(test_server->server, payload->fd, "pbc 1 Baba message\n");
+                    printf("Result: %i\n", r);
                     a++;
                 }
                 printf("Sending message: seg team1\n");
