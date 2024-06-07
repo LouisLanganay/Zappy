@@ -18,7 +18,6 @@ void edi(
         sbp(server, interlocutor);
         return;
     }
-
     protocol_server_send(server->socket, interlocutor,
         "edi %d\n", egg_id);
 }

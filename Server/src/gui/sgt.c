@@ -21,7 +21,6 @@ void sgt(
         sbp(server, interlocutor);
         return;
     }
-
     protocol_server_send(server->socket, interlocutor,
         "sgt %d\n", server->freq);
 }

@@ -17,7 +17,6 @@ void pfk(
         sbp(server, interlocutor);
         return;
     }
-
     protocol_server_send(server->socket, interlocutor,
     "pfk %d\n", ai->id);
 }

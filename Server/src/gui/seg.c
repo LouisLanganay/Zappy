@@ -18,7 +18,6 @@ void seg(
         sbp(server, interlocutor);
         return;
     }
-
     protocol_server_send(server->socket, interlocutor,
         "seg %s\n", team_name);
 }

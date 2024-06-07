@@ -17,7 +17,6 @@ void pdi(
         sbp(server, interlocutor);
         return;
     }
-
     protocol_server_send(server->socket, interlocutor,
         "pdi %d\n", ai->id);
 }

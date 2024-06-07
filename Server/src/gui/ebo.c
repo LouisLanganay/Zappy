@@ -18,7 +18,6 @@ void ebo(
         sbp(server, interlocutor);
         return;
     }
-
     protocol_server_send(server->socket, interlocutor,
         "ebo %d\n", egg_id);
 }
