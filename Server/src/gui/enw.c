@@ -8,17 +8,10 @@
 #include "server/gui.h"
 
 void enw(
-    zappy_server_t *server,
-    const int interlocutor,
+    const zappy_server_t *server,
+    const ai_t *ai,
     const int egg_id)
 {
-    const ai_t *ai = get_ai_by_id(server, interlocutor);
-
-    if (!ai) {
-        sbp(server, interlocutor);
-        return;
-    }
-    protocol_server_send(server->socket, interlocutor,
-        "enw %d %d %d %d\n",
-        egg_id, ai->pos.x, ai->pos.y, ai->id);
+    gui_send_to_all(server, "enw %d %d %d %d",
+        egg_id, ai->id, ai->pos.x, ai->pos.y);
 }

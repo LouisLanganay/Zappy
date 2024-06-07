@@ -7,6 +7,7 @@
 
 #include "server.h"
 
+// Response to "tna\n"
 void tna(
     zappy_server_t *server,
     const int interlocutor,

@@ -5,16 +5,11 @@
 ** pex
 */
 
-#include <stdio.h>
-
 #include "server/gui.h"
 
 void pex(
-    zappy_server_t *server,
-    const int interlocutor)
+    const zappy_server_t *server,
+    const ai_t *ai)
 {
-    char formatted_message[DATA_SIZE];
-
-    snprintf(formatted_message, DATA_SIZE, "pex %d\n", interlocutor);
-    gui_send_to_all(server, formatted_message);
+    gui_send_to_all(server, "pex %d", ai->id);
 }

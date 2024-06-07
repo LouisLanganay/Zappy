@@ -9,6 +9,7 @@
 
 #include "server/gui.h"
 
+// Response to "ppo #n X Y O\n"
 void ppo(
     zappy_server_t *server,
     const int interlocutor,

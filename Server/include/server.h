@@ -106,6 +106,7 @@ ai_t *get_ai_by_id(
     uint16_t id);
 void gui_send_to_all(
     const zappy_server_t *server,
-    const char *message);
+    const char *message,
+    ...);
 
 #endif //SERVER_H

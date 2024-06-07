@@ -5,25 +5,23 @@
 ** pic
 */
 
+#include <string.h>
+#include <stdio.h>
+
 #include "server/gui.h"
 
 void pic(
-    zappy_server_t *server,
-    const int interlocutor)
+    const zappy_server_t *server,
+    const int nb_players,
+    const ai_t *ai,
+    const ai_t *ais[])
 {
-    const ai_t *ai = get_ai_by_id(server, interlocutor);
+    char formatted_message[DATA_SIZE] = {0};
 
-    if (!ai) {
-        sbp(server, interlocutor);
-        return;
-    }
-    protocol_server_send(server->socket, interlocutor,
-        "pic %d %d %d",
+    snprintf(formatted_message, DATA_SIZE, "pic %d %d %d",
         ai->pos.x, ai->pos.y, ai->level);
-    for (ai_t *tmp = server->ais.tqh_first; tmp; tmp = tmp->entries.tqe_next)
-        if (tmp->pos.x == ai->pos.x && tmp->pos.y == ai->pos.y
-            && tmp->level == ai->level && tmp->id != ai->id)
-            protocol_server_send(server->socket, interlocutor,
-                " %d", tmp->id);
-    protocol_server_send(server->socket, interlocutor, "\n");
+    for (uint8_t i = 0; i < nb_players; i++)
+        snprintf(formatted_message + strlen(formatted_message), DATA_SIZE,
+            " %d", ais[i]->id);
+    gui_send_to_all(server, formatted_message);
 }
