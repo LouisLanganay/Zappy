@@ -39,21 +39,27 @@ static void handle_connection(
     }
 }
 
-static void handle_gui_event(
+static void add_ai(
     zappy_server_t *server,
-    const int interlocutor,
-    const char *message)
+    const protocol_payload_t *payload)
 {
-    uint8_t cmd_lenght;
+    team_t *team = calloc(1, sizeof(team_t));
+    ai_t *ai = calloc(1, sizeof(ai_t));
 
-    for (uint8_t i = 0; gui_cmds[i].func; ++i) {
-        cmd_lenght = strlen(gui_cmds[i].cmd);
-        if (!strncmp(message, gui_cmds[i].cmd, cmd_lenght)) {
-            gui_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
-            return;
-        }
-    }
-    suc(server, interlocutor);
+    if (!team || !ai)
+        return;
+    team->id = TAILQ_EMPTY(&server->teams) ? 1
+        : TAILQ_LAST(&server->teams, teamhead)->id + 1;
+    strncpy(team->name, payload->message, 64);
+    TAILQ_INSERT_TAIL(&server->teams, team, entries);
+    ai->fd = payload->fd;
+    ai->team = team;
+    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
+    verbose(server, "New AI connected\n");
+    protocol_server_send(server->socket, payload->fd,
+        "%i", server->clients_nb);
+    protocol_server_send(server->socket, payload->fd,
+        " %i %i", server->width, server->height);
 }
 
 static void add_graphic(
@@ -73,46 +79,41 @@ static void add_graphic(
     tna(server, interlocutor, NULL);
 }
 
-static void add_client(
-    zappy_server_t *server,
-    const int interlocutor,
-    const char *message)
-{
-    team_t *team = calloc(1, sizeof(team_t));
-    ai_t *ai = calloc(1, sizeof(ai_t));
-
-    if (!team || !ai)
-        return;
-    team->id = TAILQ_EMPTY(&server->teams) ? 1
-        : TAILQ_LAST(&server->teams, teamhead)->id + 1;
-    strncpy(team->name, message, 64);
-    TAILQ_INSERT_TAIL(&server->teams, team, entries);
-    ai->fd = interlocutor;
-    ai->team = team;
-    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
-    verbose(server, "New AI connected\n");
-    protocol_server_send(server->socket, interlocutor,
-        "%i", server->clients_nb);
-    protocol_server_send(server->socket, interlocutor,
-        " %i %i", server->width, server->height);
-}
-
 static void handle_ai_event(
     const zappy_server_t *server,
-    const int interlocutor,
-    const char *message)
+    const protocol_payload_t *payload)
 {
     uint8_t cmd_lenght;
+    ai_t *ai = get_ai_by_fd(server, payload->fd);
 
+    if (!ai) {
+        printf("\033[31m[ERROR]\033[0m AI not found\n");
+        return;
+    }
     for (uint8_t i = 0; ai_cmds[i].func; ++i) {
         cmd_lenght = strlen(ai_cmds[i].cmd);
-        if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
-            ai_cmds[i].func(server, get_ai_by_id(server, interlocutor),
-                message + cmd_lenght + 1);
+        if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
+            ai_cmds[i].func(server, ai, payload->message + cmd_lenght + 1);
             return;
         }
     }
-    protocol_server_send(server->socket, interlocutor, "ko");
+    protocol_server_send(server->socket, payload->fd, "ko");
+}
+
+static void handle_gui_event(
+    zappy_server_t *server,
+    const protocol_payload_t *payload)
+{
+    uint8_t cmd_lenght;
+
+    for (uint8_t i = 0; gui_cmds[i].func; ++i) {
+        cmd_lenght = strlen(gui_cmds[i].cmd);
+        if (!strncmp(payload->message, gui_cmds[i].cmd, cmd_lenght)) {
+            gui_cmds[i].func(server, payload->fd, payload->message + cmd_lenght + 1);
+            return;
+        }
+    }
+    suc(server, payload->fd);
 }
 
 static connection_t get_connection_by_fd(
@@ -138,17 +139,17 @@ static void handle_event(
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
             verbose(server, "AI %d: %s\n", payload->fd, payload->message);
-            handle_ai_event(server, payload->fd, payload->message);
+            handle_ai_event(server, payload);
             break;
         case CONNECTION_GUI:
             verbose(server, "GUI %d: %s\n", payload->fd, payload->message);
-            handle_gui_event(server, payload->fd, payload->message);
+            handle_gui_event(server, payload);
             break;
         case CONNECTION_UNKNOWN:
             if (!strcmp(payload->message, "GRAPHIC"))
                 add_graphic(server, payload->fd);
             else
-                add_client(server, payload->fd, payload->message);
+                add_ai(server, payload);
             break;
         default:
             break;

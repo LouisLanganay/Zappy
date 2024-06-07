@@ -15,18 +15,18 @@ void right(
     UNUSED const char *message)
 {
     switch (ai->orientation) {
-        case (NORTH):
+        case NORTH:
             ai->orientation = EAST;
             break;
-        case (WEST):
+        case WEST:
             ai->orientation = NORTH;
             break;
-        case (EAST):
+        case EAST:
             ai->orientation = SOUTH;
             break;
-        case (SOUTH):
+        case SOUTH:
             ai->orientation = WEST;
             break;
     }
-    protocol_server_send(server->socket, ai->fd, "ok\n");
+    protocol_server_send(server->socket, ai->fd, "ok");
 }

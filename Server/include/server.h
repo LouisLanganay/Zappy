@@ -101,6 +101,9 @@ void verbose(
     const zappy_server_t *server,
     const char *format,
     ...);
+ai_t *get_ai_by_fd(
+    const zappy_server_t *server,
+    int fd);
 ai_t *get_ai_by_id(
     const zappy_server_t *server,
     uint16_t id);
