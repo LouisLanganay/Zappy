@@ -2,103 +2,32 @@
 ** EPITECH PROJECT, 2024
 ** Zappy
 ** File description:
-** Hud
+** HudLeft
 */
 
-#include "Hud.hpp"
+#include "HudLeft.hpp"
 
 using namespace Zappy;
 
-Hud::Hud()
+HudLeft::HudLeft() : AHud({500, 0}, {20, 20})
 {
 }
 
-void Hud::draw(Map *map)
+void HudLeft::draw(Map *map)
 {
-    float y = 50;
-    DrawRectangle(0, 0, _hudWidth, GetScreenHeight(), Fade(SKYBLUE, 0.2f));
-    DrawRectangleLines(0, 0, _hudWidth, GetScreenHeight(), BLUE);
+    float y = 30;
+    AHud::draw(map);
 
-    drawTeams(map, y);
-    drawServerInfos(map, y);
-    drawPlayers(map, y);
+    DrawFPS(_hudPos.first + _hudPadding, _hudPos.second + _hudPadding);
+    _drawTeams(map, y);
+    _drawServerInfos(map, y);
+    _drawPlayers(map, y);
     if (_selectedPlayer != -1)
-        drawPlayerInfos(map->getPlayer(_selectedPlayer), y);
-    drawResources(map, y);
+        _drawPlayerInfos(map->getPlayer(_selectedPlayer), y);
+    _drawResources(map, y);
 }
 
-void Hud::drawTextWrapped(
-    const std::string &text,
-    float x,
-    float &y,
-    float maxWidth,
-    float fontSize,
-    const Color &color,
-    bool underline
-)
-{
-    std::vector<std::string> lines;
-    std::string line;
-    std::istringstream iss(text);
-    for (std::string word; iss >> word;) {
-        if (MeasureTextEx(GetFontDefault(), (line + word).c_str(), fontSize, 1).x > maxWidth) {
-            if (word.size() > maxWidth / fontSize) {
-                int parts = word.size() / (maxWidth / fontSize) + 1;
-                int partSize = word.size() / parts;
-                for (int i = 0; i < parts; ++i) {
-                    std::string subword = word.substr(i * partSize, partSize);
-                    if (i != parts - 1) subword += "-";
-                    lines.push_back(line);
-                    line = subword + " ";
-                }
-            } else {
-                lines.push_back(line);
-                line = word + " ";
-            }
-        } else {
-            line += word + " ";
-        }
-    }
-    lines.push_back(line);
-
-    for (auto &line : lines) {
-        DrawTextEx(
-            GetFontDefault(),
-            line.c_str(),
-            {x, y},
-            fontSize,
-            2,
-            color
-        );
-        if (underline) {
-            DrawRectangle(
-                x,
-                y + fontSize - 2,
-                MeasureTextEx(GetFontDefault(), line.c_str(), fontSize, 1).x,
-                3,
-                color
-            );
-        }
-        y += fontSize;
-    }
-}
-
-void Hud::drawSectionTitle(const std::string &title, float &y)
-{
-    y += _titleSize;
-    drawTextWrapped(
-        title,
-        _hudPadding,
-        y,
-        _hudWidth - _hudPadding * 2,
-        _titleSize,
-        RED,
-        true
-    );
-    y += 10;
-}
-
-void Hud::drawTeams(Map *map, float &y)
+void HudLeft::_drawTeams(Map *map, float &y)
 {
     drawSectionTitle("Teams:", y);
     if (map->getTeams().empty()) {
@@ -125,7 +54,7 @@ void Hud::drawTeams(Map *map, float &y)
     }
 }
 
-void Hud::drawServerInfos(Map *map, float &y)
+void HudLeft::_drawServerInfos(Map *map, float &y)
 {
     drawSectionTitle("Server infos:", y);
     drawTextWrapped(
@@ -146,8 +75,9 @@ void Hud::drawServerInfos(Map *map, float &y)
         BLACK,
         false
     );
+    std::string message = map->getServerMessage();
     drawTextWrapped(
-        "Server messages:",
+        "Server message: " + (message.empty() ? "No message" : message),
         _hudPadding,
         y,
         _hudWidth - _hudPadding * 2,
@@ -155,31 +85,9 @@ void Hud::drawServerInfos(Map *map, float &y)
         BLACK,
         false
     );
-    std::string message = map->getServerMessage();
-    if (!message.empty()) {
-        drawTextWrapped(
-            "- " + message,
-            _hudPadding,
-            y,
-            _hudWidth - _hudPadding * 2,
-            _textSize,
-            BLACK,
-            false
-        );
-    } else {
-        drawTextWrapped(
-            "- No message",
-            _hudPadding,
-            y,
-            _hudWidth - _hudPadding * 2,
-            _textSize,
-            BLACK,
-            false
-        );
-    }
 }
 
-void Hud::drawResources(Map *map, float &y)
+void HudLeft::_drawResources(Map *map, float &y)
 {
     drawSectionTitle("Resources:", y);
     std::unordered_map<Resources::Type, int> resourcesTotal;
@@ -201,9 +109,20 @@ void Hud::drawResources(Map *map, float &y)
             false
         );
     }
+    if (resourcesTotal.empty()) {
+        drawTextWrapped(
+            "No resources",
+            _hudPadding,
+            y,
+            _hudWidth - _hudPadding * 2,
+            _textSize,
+            BLACK,
+            false
+        );
+    }
 }
 
-void Hud::drawPlayers(Map *map, float &y) {
+void HudLeft::_drawPlayers(Map *map, float &y) {
     drawSectionTitle("Players:", y);
     const auto &players = map->getPlayers();
     if (players.empty()) {
@@ -225,10 +144,15 @@ void Hud::drawPlayers(Map *map, float &y) {
         _playerIndex = (_playerIndex - 1 + players.size()) % players.size();
 
     if (IsKeyPressed(KEY_ENTER)) {
-        if (players[_playerIndex]->getPlayerNumber() != _selectedPlayer)
+        if (players[_playerIndex]->getPlayerNumber() != _selectedPlayer) {
+            for (auto &player : players)
+                player->setSelected(false);
             _selectedPlayer = players[_playerIndex]->getPlayerNumber();
-        else
+            players[_playerIndex]->setSelected(true);
+        } else {
             _selectedPlayer = -1;
+            players[_playerIndex]->setSelected(false);
+        }
     }
 
     for (size_t i = 0; i < players.size(); ++i) {
@@ -236,15 +160,15 @@ void Hud::drawPlayers(Map *map, float &y) {
         if (player->getPlayerNumber() == _selectedPlayer) {
             Color color = player->getTeam()->getColor();
             DrawRectangle(
-                _hudPadding - 5,
-                y - 3,
+                _hudPadding - 5 + _hudPos.first,
+                y - 3 + _hudPos.second + _hudPadding,
                 _hudWidth - _hudPadding * 2,
                 _textSize + 10,
                 Fade(color, 0.2f)
             );
         }
         if (i == _playerIndex)
-            DrawText(">>", _hudPadding, y + 3, _textSize, RED);
+            DrawText(">>", _hudPadding + _hudPos.first, y + 3 + _hudPos.second + _hudPadding, _textSize, RED);
         drawTextWrapped(
             "- " + std::to_string(player->getPlayerNumber()) + " - " + player->getTeam()->getName(),
             _hudPadding + 30,
@@ -257,7 +181,7 @@ void Hud::drawPlayers(Map *map, float &y) {
     }
 }
 
-void Hud::drawPlayerInfos(Player *player, float &y)
+void HudLeft::_drawPlayerInfos(Player *player, float &y)
 {
     y += 10;
     drawTextWrapped(
@@ -318,40 +242,4 @@ void Hud::drawPlayerInfos(Player *player, float &y)
             false
         );
     }
-}
-
-std::string Hud::typeToString(Resources::Type type)
-{
-    switch(type) {
-        case Resources::Type::FOOD:
-            return "FOOD";
-        case Resources::Type::LINEMATE:
-            return "LINEMATE";
-        case Resources::Type::DERAUMERE:
-            return "DERAUMERE";
-        case Resources::Type::SIBUR:
-            return "SIBUR";
-        case Resources::Type::MENDIANE:
-            return "MENDIANE";
-        case Resources::Type::PHIRAS:
-            return "PHIRAS";
-        case Resources::Type::THYSTAME:
-            return "THYSTAME";
-    }
-    return "";
-}
-
-std::string Hud::orientationToString(Orientation orientation)
-{
-    switch(orientation) {
-        case Orientation::NORTH:
-            return "NORTH";
-        case Orientation::EAST:
-            return "EAST";
-        case Orientation::SOUTH:
-            return "SOUTH";
-        case Orientation::WEST:
-            return "WEST";
-    }
-    return "";
 }
