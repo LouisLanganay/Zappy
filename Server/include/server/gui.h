@@ -213,7 +213,7 @@ void pic(
  * @param server The server_t struct
  * @param interlocutor The fd of the GUI
  *
- * @note Send pie with the position of the tile and the result of the incantation
+ * @note Send pie with the position of the tile, the result of the incantation
  */
 void pie(
     zappy_server_t *server,
@@ -237,7 +237,7 @@ void pfk(
  * @param interlocutor The fd of the GUI
  * @param message The message of the command
  *
- * @note Send pdr with the player number and the actual ressource in the inventory
+ * @note Send pdr with the player number and the actual ressource
 */
 void pdr(
     zappy_server_t *server,
@@ -251,7 +251,7 @@ void pdr(
  * @param interlocutor The fd of the GUI
  * @param message The message of the command
  *
- * @note Send pgt with the player number and the actual ressource in the inventory
+ * @note Send pgt with the player number and the actual ressource
 */
 void pgt(
     zappy_server_t *server,
@@ -277,7 +277,7 @@ void pdi(
  * @param interlocutor The fd of the GUI
  * @param egg_id The id of the egg
  *
- * @note Send enw with the egg number, the player number and the position of the egg
+ * @note Send enw with the egg number, player number and position of the egg
 */
 void enw(
     zappy_server_t *server,
