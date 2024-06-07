@@ -13,7 +13,7 @@
 #include "server/gui.h"
 #include "server.h"
 
-static void handle_connection(
+static void handle_new_connection(
     zappy_server_t *server)
 {
     protocol_connection_t *connection;
@@ -26,15 +26,24 @@ static void handle_connection(
             "WELCOME");
         free(connection);
     }
+}
+
+static void handle_lost_connection(
+    zappy_server_t *server)
+{
+    protocol_connection_t *connection;
+    ai_t *ai;
+
     while (!TAILQ_EMPTY(&server->socket->lost_connections)) {
         connection = TAILQ_FIRST(&server->socket->lost_connections);
         TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
         verbose(server, "Lost connection from %d\n", connection->fd);
-
-        ai_t *ai_t;
-        TAILQ_FOREACH(ai_t, &server->ais, entries)
-            if (ai_t->fd == connection->fd)
-                TAILQ_REMOVE(&server->ais, ai_t, entries);
+        ai = get_ai_by_fd(server, connection->fd);
+        if (ai) {
+            verbose(server, "AI disconnected\n");
+            TAILQ_REMOVE(&server->ais, ai, entries);
+            free(ai);
+        }
         free(connection);
     }
 }
@@ -112,7 +121,8 @@ static void handle_gui_event(
     for (uint8_t i = 0; gui_cmds[i].func; ++i) {
         cmd_lenght = strlen(gui_cmds[i].cmd);
         if (!strncmp(payload->message, gui_cmds[i].cmd, cmd_lenght)) {
-            gui_cmds[i].func(server, payload->fd, payload->message + cmd_lenght + 1);
+            gui_cmds[i].func(server, payload->fd,
+                payload->message + cmd_lenght + 1);
             return;
         }
     }
@@ -164,7 +174,8 @@ bool handle_payload(
 {
     protocol_payload_t *payload;
 
-    handle_connection(server);
+    handle_new_connection(server);
+    handle_lost_connection(server);
     while (!TAILQ_EMPTY(&server->socket->payloads)) {
         payload = TAILQ_FIRST(&server->socket->payloads);
         TAILQ_REMOVE(&server->socket->payloads, payload, entries);
