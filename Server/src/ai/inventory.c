@@ -14,8 +14,8 @@ void inventory(
     ai_t *ai,
     UNUSED const char *message)
 {
-    protocol_server_send(server->socket, ai->fd, "[food %i, sibur %i, \
-linemate %i, deraumere %i, mendiane %i, phiras %i, thystame %i]",
+    protocol_server_send(server->socket, ai->fd, "[food %i, sibur %i, "
+    "linemate %i, deraumere %i, mendiane %i, phiras %i, thystame %i]\n",
     ai->inventory.food,
     ai->inventory.sibur,
     ai->inventory.linemate,
