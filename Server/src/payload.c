@@ -43,17 +43,20 @@ static void add_ai(
     zappy_server_t *server,
     const protocol_payload_t *payload)
 {
-    team_t *team = calloc(1, sizeof(team_t));
     ai_t *ai = calloc(1, sizeof(ai_t));
+    team_t *team;
 
-    if (!team || !ai)
+    if (!ai)
         return;
-    team->id = TAILQ_EMPTY(&server->teams) ? 1
-        : TAILQ_LAST(&server->teams, teamhead)->id + 1;
-    strncpy(team->name, payload->message, 64);
-    TAILQ_INSERT_TAIL(&server->teams, team, entries);
+    TAILQ_FOREACH(team, &server->teams, entries)
+        if (!strcmp(team->name, payload->message))
+            ai->team = team;
+    if (!ai->team) {
+        free(ai);
+        printf("\033[31m[ERROR]\033[0m Team not found\n");
+        return;
+    }
     ai->fd = payload->fd;
-    ai->team = team;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
     protocol_server_send(server->socket, payload->fd,
