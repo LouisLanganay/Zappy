@@ -13,34 +13,12 @@
 
 #include "protocol/client.h"
 
-bool protocol_client_send_packet(
-    const protocol_client_t *client,
-    const uint16_t type,
-    const void *data,
-    const int size)
-{
-    protocol_packet_t packet = {type, {0}};
-
-    if (FD_ISSET(client->network_data.sockfd,
-        &client->master_write_fds) == 0) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
-        return false;
-    }
-    memcpy(packet.data, data, size);
-    if (write(client->network_data.sockfd, &packet,
-        sizeof(protocol_packet_t)) == -1) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
-        return false;
-    }
-    return true;
-}
-
-bool protocol_client_send_message(
+bool protocol_client_send(
     const protocol_client_t *client,
     const char *format,
     ...)
 {
-    char message[DATA_SIZE];
+    char message[DATA_SIZE + 1] = {0};
     va_list args;
 
     if (FD_ISSET(client->network_data.sockfd,
@@ -49,9 +27,10 @@ bool protocol_client_send_message(
         return false;
     }
     va_start(args, format);
-    vsnprintf(message, sizeof(message), format, args);
+    vsnprintf(message, sizeof(message) - 2, format, args);
     va_end(args);
-    if (write(client->network_data.sockfd, message, strlen(message)) == -1) {
+    message[strlen(message)] = '\n';
+    if (write(client->network_data.sockfd, message, strlen(message)) < 0) {
         fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return false;
     }

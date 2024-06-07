@@ -10,7 +10,7 @@
 #include "server/gui.h"
 
 void plv(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     const char *message)
 {
@@ -26,6 +26,6 @@ void plv(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send_message(server->socket, interlocutor, "plv %d %d\n",
+    protocol_server_send(server->socket, interlocutor, "plv %d %d",
         ai->id, ai->level);
 }

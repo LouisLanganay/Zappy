@@ -1,17 +1,17 @@
 /*
 ** EPITECH PROJECT, 2024
-** Server
+** zappy
 ** File description:
-** msz
+** sgt
 */
 
 #include "server.h"
 
-void msz(
+void sgt(
     zappy_server_t *server,
     const int interlocutor,
     UNUSED const char *message)
 {
-    protocol_server_send(server->socket, interlocutor, "msz %d %d",
-        server->width, server->height);
+    protocol_server_send(server->socket, interlocutor, "sgt %d",
+        server->freq);
 }

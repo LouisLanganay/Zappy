@@ -10,7 +10,7 @@
 #include "server/gui.h"
 
 void pin(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     const char *message)
 {
@@ -26,8 +26,8 @@ void pin(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send_message(server->socket, interlocutor,
-        "pin %d %d %d %d %d %d %d %d %d %d\n",
+    protocol_server_send(server->socket, interlocutor,
+        "pin %d %d %d %d %d %d %d %d %d %d",
         ai->id, ai->pos.x, ai->pos.y, ai->inventory.food,
         ai->inventory.linemate, ai->inventory.deraumere,
         ai->inventory.sibur, ai->inventory.mendiane,

@@ -10,7 +10,7 @@
 #include "server/gui.h"
 
 void pex(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor)
 {
     char formatted_message[DATA_SIZE];

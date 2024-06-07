@@ -43,26 +43,69 @@ static void add_lost_connection(
     TAILQ_INSERT_TAIL(&server->lost_connections, connection, entries);
 }
 
-static protocol_payload_t *receive_packet(
-    const protocol_server_t *server,
+static uint16_t parse_message(
+    protocol_server_t *server,
+    const int fd,
+    char *buffer)
+{
+    protocol_payload_t *payload;
+    uint16_t size = 0;
+
+    for (; buffer[size] && buffer[size] != '\n'; size++);
+    if (size == 0 || !buffer[size])
+        return size;
+    buffer[size] = '\0';
+    payload = calloc(1, sizeof(protocol_payload_t));
+    if (!payload) {
+        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        return 0;
+    }
+    payload->fd = fd;
+    strncpy(payload->message, buffer, size);
+    TAILQ_INSERT_TAIL(&server->payloads, payload, entries);
+    return size;
+}
+
+static void parse_messages(
+    protocol_server_t *server,
+    protocol_client_t *client,
+    const int fd,
+    const uint16_t read_size)
+{
+    uint16_t parsed;
+
+    for (uint16_t size = 0;;) {
+        parsed = parse_message(server, fd, client->buffer + size);
+        if (size + parsed >= read_size) {
+            strcpy(client->buffer, client->buffer + size);
+            client->buffer[read_size - size] = '\0';
+            break;
+        }
+        size += parsed + 1;
+    }
+}
+
+static bool receive_messages(
+    protocol_server_t *server,
+    protocol_client_t *client,
     const int fd)
 {
-    protocol_client_t *current_client;
-    protocol_payload_t *payload = calloc(1, sizeof(protocol_payload_t));
+    const uint16_t strlen_buffer = strlen(client->buffer);
+    ssize_t read_size = read(fd, client->buffer + strlen_buffer,
+        DATA_SIZE - strlen_buffer);
 
-    if (!payload) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
-        return NULL;
+    if (read_size < 0) {
+        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        return false;
     }
-    TAILQ_FOREACH(current_client, &server->clients, entries) {
-        if (current_client->network_data.sockfd != fd)
-            continue;
-        if (read(fd, &payload->packet, sizeof(protocol_packet_t)) > 0)
-            return payload;
-        break;
+    if (read_size == 0) {
+        client->is_connected = false;
+        return false;
     }
-    free(payload);
-    return NULL;
+    read_size += strlen_buffer;
+    client->buffer[read_size] = '\0';
+    parse_messages(server, client, fd, read_size);
+    return true;
 }
 
 static void handle_payload(
@@ -70,20 +113,15 @@ static void handle_payload(
     protocol_server_t *server)
 {
     protocol_client_t *client;
-    protocol_payload_t *payload = receive_packet(server, fd);
 
-    if (payload) {
-        payload->fd = fd;
-        TAILQ_INSERT_TAIL(&server->payloads, payload, entries);
+    TAILQ_FOREACH(client, &server->clients, entries)
+        if (client->network_data.sockfd == fd)
+            break;
+    if (receive_messages(server, client, fd))
         return;
-    }
     FD_CLR(fd, &server->master_read_fds);
     FD_CLR(fd, &server->master_write_fds);
-    TAILQ_FOREACH(client, &server->clients, entries)
-        if (client->network_data.sockfd == fd) {
-            TAILQ_REMOVE(&server->clients, client, entries);
-            break;
-        }
+    TAILQ_REMOVE(&server->clients, client, entries);
     add_lost_connection(server, fd);
     free(client);
     close(fd);
@@ -106,16 +144,14 @@ static int accept_client(
     const protocol_server_t *server,
     protocol_client_t *client)
 {
-    int socket;
     socklen_t size;
 
     size = sizeof(struct sockaddr_in);
-    socket = accept(
+    return accept(
         server->network_data.sockfd,
         (struct sockaddr*)&client->network_data.server_addr,
         &size
     );
-    return socket;
 }
 
 static bool new_client(

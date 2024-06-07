@@ -10,7 +10,7 @@
 #include "server.h"
 
 void pnw(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai)
 {
     char formatted_message[DATA_SIZE];

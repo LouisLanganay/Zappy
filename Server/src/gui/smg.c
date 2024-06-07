@@ -9,7 +9,9 @@
 
 #include "server.h"
 
-void smg(const zappy_server_t *server, const char *message)
+void smg(
+    zappy_server_t *server,
+    const char *message)
 {
     char formatted_message[DATA_SIZE];
 

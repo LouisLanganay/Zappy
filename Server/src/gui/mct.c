@@ -10,7 +10,7 @@
 #include "server/gui.h"
 
 void mct(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     UNUSED const char *message)
 {
