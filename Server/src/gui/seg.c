@@ -8,8 +8,8 @@
 #include "server/gui.h"
 
 void seg(
-    const zappy_server_t *server,
-    int interlocutor,
+    zappy_server_t *server,
+    const int interlocutor,
     const char *team_name)
 {
     const ai_t *ai = get_ai_by_id(server, interlocutor);
@@ -19,6 +19,6 @@ void seg(
         return;
     }
 
-    protocol_server_send_message(server->socket, interlocutor,
+    protocol_server_send(server->socket, interlocutor,
         "seg %s\n", team_name);
 }

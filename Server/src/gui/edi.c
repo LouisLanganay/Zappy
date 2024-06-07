@@ -8,7 +8,7 @@
 #include "server/gui.h"
 
 void edi(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     const int egg_id)
 {
@@ -19,6 +19,6 @@ void edi(
         return;
     }
 
-    protocol_server_send_message(server->socket, interlocutor,
+    protocol_server_send(server->socket, interlocutor,
         "edi %d\n", egg_id);
 }

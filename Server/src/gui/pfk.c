@@ -8,7 +8,7 @@
 #include "server/gui.h"
 
 void pfk(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor)
 {
     const ai_t *ai = get_ai_by_id(server, interlocutor);
@@ -18,6 +18,6 @@ void pfk(
         return;
     }
 
-    protocol_server_send_message(server->socket, interlocutor,
+    protocol_server_send(server->socket, interlocutor,
     "pfk %d\n", ai->id);
 }

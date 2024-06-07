@@ -16,13 +16,13 @@ void pgt2(
     const char *message)
 {
     if (strcmp(message, "mendiane") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.mendiane);
     else if (strcmp(message, "phiras") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.phiras);
     else if (strcmp(message, "thystame") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.thystame);
     else
         sbp(server, interlocutor);
@@ -39,18 +39,18 @@ void pgt(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send_message(server->socket, interlocutor, "pgt %d", ai->id);
+    protocol_server_send(server->socket, interlocutor, "pgt %d", ai->id);
     if (strcmp(message, "food") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.food);
     else if (strcmp(message, "linemate") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.linemate);
     else if (strcmp(message, "deraumere") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.deraumere);
     else if (strcmp(message, "sibur") == 0)
-        protocol_server_send_message(server->socket, interlocutor, "%d\n",
+        protocol_server_send(server->socket, interlocutor, "%d\n",
         ai->inventory.sibur);
     pgt2(server, interlocutor, ai, message);
 }
