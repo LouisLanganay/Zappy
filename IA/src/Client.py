@@ -2,6 +2,16 @@
 import socket
 import sys
 
+inventory = {
+    "food": 0,
+    "linemate": 0,
+    "deraumere": 0,
+    "sibur": 0,
+    "mendiane": 0,
+    "phiras": 0,
+    "thystame": 0
+}
+
 class ParseArgs:
     def __init__(self):
         self.host = 'localhost'
