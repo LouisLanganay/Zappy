@@ -35,6 +35,18 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					smg.c											\
 					suc.c											\
 					sbp.c											\
+					pic.c											\
+					pie.c											\
+					pfk.c											\
+					pdr.c											\
+					pgt.c											\
+					pdi.c											\
+					enw.c											\
+					ebo.c											\
+					edi.c											\
+					sgt.c											\
+					sst.c											\
+					seg.c											\
 				)
 
 DIR         +=	src/ai

@@ -2,18 +2,14 @@
 ** EPITECH PROJECT, 2024
 ** Zappy
 ** File description:
-** sgt
+** pfk
 */
 
 #include "server/gui.h"
 
-#include <string.h>
-#include <stdio.h>
-
-void sgt(
+void pfk(
     zappy_server_t *server,
-    const int interlocutor,
-    UNUSED const char *message)
+    const int interlocutor)
 {
     const ai_t *ai = get_ai_by_id(server, interlocutor);
 
@@ -22,5 +18,5 @@ void sgt(
         return;
     }
     protocol_server_send(server->socket, interlocutor,
-        "sgt %d\n", server->freq);
+    "pfk %d\n", ai->id);
 }

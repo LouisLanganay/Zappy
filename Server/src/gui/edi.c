@@ -2,18 +2,15 @@
 ** EPITECH PROJECT, 2024
 ** Zappy
 ** File description:
-** sgt
+** edi
 */
 
 #include "server/gui.h"
 
-#include <string.h>
-#include <stdio.h>
-
-void sgt(
+void edi(
     zappy_server_t *server,
     const int interlocutor,
-    UNUSED const char *message)
+    const int egg_id)
 {
     const ai_t *ai = get_ai_by_id(server, interlocutor);
 
@@ -22,5 +19,5 @@ void sgt(
         return;
     }
     protocol_server_send(server->socket, interlocutor,
-        "sgt %d\n", server->freq);
+        "edi %d\n", egg_id);
 }
