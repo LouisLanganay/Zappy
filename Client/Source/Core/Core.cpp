@@ -27,7 +27,8 @@ Core::Core(
 ) : _api(std::make_unique<Api>(host, port)),
     _map(std::make_unique<Map>()),
     _running(true),
-    _hud(Hud())
+    _hudLeft(HudLeft()),
+    _hudRight(HudRight())
 {
     _networkThread = std::thread(&Core::handleServerMessages, this);
     DEBUG_INFO("Core created with host: " + host + " and port: " + std::to_string(port));
@@ -60,6 +61,10 @@ void Core::run() {
         camera.fovy = 45.0f;
         camera.projection = CAMERA_PERSPECTIVE;
 
+        _hudRight.setHudPos({
+            GetScreenWidth() - _hudRight.getHudWidth() - 20,
+            GetScreenHeight() - _hudRight.getHudHeight()
+        });
 
         while (!WindowShouldClose() && _running) {
             UpdateCamera(&camera, CAMERA_FREE);
@@ -68,8 +73,8 @@ void Core::run() {
             BeginMode3D(camera);
             _map->draw(camera);
             EndMode3D();
-            _hud.draw(_map.get());
-            DrawFPS(10, 10);
+            _hudLeft.draw(_map.get());
+            _hudRight.draw(_map.get());
             EndDrawing();
         }
 
@@ -418,6 +423,8 @@ void Core::pdr(std::string message)
         return;
     }
     tile->addResource(static_cast<Zappy::Resources::Type>(resource), 1);
+    _api->requestPlayerInventory(playerNumber);
+    _api->requestTileContent(pos.first, pos.second);
 }
 
 void Core::pgt(std::string message)
@@ -438,6 +445,8 @@ void Core::pgt(std::string message)
         return;
     }
     tile->removeResource(static_cast<Zappy::Resources::Type>(resource), 1);
+    _api->requestPlayerInventory(playerNumber);
+    _api->requestTileContent(pos.first, pos.second);
 }
 
 void Core::pdi(std::string message)

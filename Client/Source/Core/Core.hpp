@@ -17,7 +17,8 @@
 #include "../API/Api.hpp"
 #include "../Map/Map.hpp"
 #include "../API/Events.h"
-#include "../Hud/Hud.hpp"
+#include "../Hud/Left/HudLeft.hpp"
+#include "../Hud/Right/HudRight.hpp"
 
 namespace Zappy {
     class Core {
@@ -34,7 +35,8 @@ namespace Zappy {
             std::thread _networkThread;
             bool _running;
             bool _debug;
-            Hud _hud;
+            HudLeft _hudLeft;
+            HudRight _hudRight;
 
             void msz(std::string message);
             void bct(std::string message);
