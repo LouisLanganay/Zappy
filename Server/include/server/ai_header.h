@@ -211,7 +211,7 @@ static const struct {
     {"Left", left},
     {"Look", look},
     {"Inventory", inventory},
-    {"Broadcast text", broadcast_text},
+    {"Broadcast", broadcast_text},
     {"Connect_nbr", connect_nbr},
     {"Fork", exec_fork},
     {"Eject", eject},

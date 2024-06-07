@@ -28,5 +28,5 @@ void forward(
             ai->pos.y = (ai->pos.y + 1) % server->height;
             break;
     }
-    protocol_server_send_message(server->socket, ai->fd, "ok\n");
+    protocol_server_send(server->socket, ai->fd, "ok\n");
 }
