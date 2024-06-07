@@ -12,6 +12,8 @@ DIR			:=	src
 SRC			:=	$(addprefix $(DIR)/,								\
 					main.c											\
 					server.c										\
+					payload.c										\
+					verbose.c										\
 					get_ai_by_id.c									\
 					gui_send_to_all.c								\
 				)
@@ -28,6 +30,8 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					pin.c											\
 					pex.c											\
 					pbc.c											\
+					sgt.c											\
+					sst.c											\
 					smg.c											\
 					suc.c											\
 					sbp.c											\
@@ -45,6 +49,12 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					seg.c											\
 				)
 
+DIR         +=	src/ai
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					forward.c										\
+					right.c											\
+				)
+
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
 
@@ -55,6 +65,8 @@ DEP			:=	$(OBJ:.o=.d)
 DG_DIR_OBJ	:=	$(DIR_BUILD)/debug
 DG_OBJ		:=	$(patsubst %$(EXT),$(DG_DIR_OBJ)/%.o,$(SRC))
 DG_DEP		:=	$(DG_OBJ:.o=.d)
+
+DEBUG		:=	$(DIR_BIN)/$(NAME)_debug
 
 RM			:=	rm -rf
 

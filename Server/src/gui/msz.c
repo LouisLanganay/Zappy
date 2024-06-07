@@ -8,10 +8,10 @@
 #include "server.h"
 
 void msz(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     UNUSED const char *message)
 {
-    protocol_server_send_message(server->socket, interlocutor, "msz %d %d\n",
+    protocol_server_send(server->socket, interlocutor, "msz %d %d",
         server->width, server->height);
 }

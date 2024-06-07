@@ -10,7 +10,7 @@
 #include "server/gui.h"
 
 void mct(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     UNUSED const char *message)
 {
@@ -20,7 +20,7 @@ void mct(
     for (pos.y = 0; pos.y < server->height; pos.y++)
         for (pos.x = 0; pos.x < server->width; pos.x++) {
             snprintf(formatted_message, DATA_SIZE,
-                "bct %d %d\n", pos.x, pos.y);
+                " %d %d\n", pos.x, pos.y);
             bct(server, interlocutor, formatted_message);
         }
 }

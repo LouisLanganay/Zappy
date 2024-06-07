@@ -15,7 +15,6 @@
     #define UNUSED __attribute__((unused))
 
 typedef enum {
-    CONNECTION_SELF,
     CONNECTION_AI,
     CONNECTION_GUI,
     CONNECTION_UNKNOWN,
@@ -50,6 +49,11 @@ typedef struct team_s {
     TAILQ_ENTRY(team_s) entries;
 } team_t;
 
+typedef struct ai_cmd_s {
+    char *cmd;
+    TAILQ_ENTRY(ai_cmd_s) entries;
+} ai_cmd_t;
+
 typedef struct ai_s {
     int fd;
 
@@ -62,6 +66,7 @@ typedef struct ai_s {
     inventory_t inventory;
 
     TAILQ_ENTRY(ai_s) entries;
+    TAILQ_HEAD(, ai_cmd_t) commands;
 } ai_t;
 
 typedef struct gui_s {
@@ -88,8 +93,14 @@ typedef struct {
 
 bool zappy_server(
     zappy_server_t *server);
-void server_init(
+void server_create(
     zappy_server_t *server);
+bool handle_payload(
+    zappy_server_t *server);
+void verbose(
+    const zappy_server_t *server,
+    const char *format,
+    ...);
 ai_t *get_ai_by_id(
     const zappy_server_t *server,
     uint16_t id);

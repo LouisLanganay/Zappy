@@ -10,19 +10,22 @@
 #include "server/gui.h"
 
 void bct(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor,
     const char *message)
 {
-    vector2_t pos;
+    vector2_t pos = {0};
 
-    scanf(message, "%d %d", &pos.x, &pos.y);
+    if (sscanf(message, " %hd %hd", &pos.x, &pos.y) != 2) {
+        sbp(server, interlocutor);
+        return;
+    }
     if (pos.x >= server->width || pos.y >= server->height) {
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send_message(server->socket, interlocutor,
-        "bct %d %d %d %d %d %d %d %d %d\n",
+    protocol_server_send(server->socket, interlocutor,
+        "bct %d %d %d %d %d %d %d %d %d",
         pos.x, pos.y, server->map[pos.y][pos.x].food,
         server->map[pos.y][pos.x].linemate,
         server->map[pos.y][pos.x].deraumere, server->map[pos.y][pos.x].sibur,

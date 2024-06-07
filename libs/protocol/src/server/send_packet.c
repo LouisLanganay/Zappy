@@ -13,61 +13,36 @@
 
 #include "protocol/server.h"
 
-bool protocol_server_send_packet(
+static bool set_client_fd(
     protocol_server_t *server,
-    const int client_fd,
-    const protocol_packet_t *packet)
+    const int client_fd)
 {
     protocol_client_t *client;
 
     TAILQ_FOREACH(client, &server->clients, entries)
         if (client->network_data.sockfd == client_fd) {
             FD_SET(client->network_data.sockfd, &server->write_fds);
-            break;
+            return true;
         }
-    if (!client) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m client not found\n");
-        return false;
-    }
-    if (write(client_fd, packet, sizeof(protocol_packet_t)) == -1) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
-        return false;
-    }
-    return true;
+    fprintf(stderr, "\033[31m[ERROR]\033[0m client not found\n");
+    return false;
 }
 
-bool protocol_server_send_packet_type(
-    protocol_server_t *server,
-    const int client_fd,
-    const uint16_t type)
-{
-    const protocol_packet_t packet = {type, {0}};
-
-    return protocol_server_send_packet(server, client_fd, &packet);
-}
-
-bool protocol_server_send_message(
+bool protocol_server_send(
     protocol_server_t *server,
     const int client_fd,
     const char *format,
     ...)
 {
-    protocol_client_t *client;
-    char message[DATA_SIZE];
+    char message[DATA_SIZE + 1] = {0};
     va_list args;
 
-    TAILQ_FOREACH(client, &server->clients, entries)
-        if (client->network_data.sockfd == client_fd) {
-            FD_SET(client->network_data.sockfd, &server->write_fds);
-            break;
-        }
-    if (!client) {
-        fprintf(stderr, "\033[31m[ERROR]\033[0m client not found\n");
+    if (!set_client_fd(server, client_fd))
         return false;
-    }
     va_start(args, format);
-    vsnprintf(message, sizeof(message), format, args);
+    vsnprintf(message, sizeof(message) - 2, format, args);
     va_end(args);
+    message[strlen(message)] = '\n';
     if (write(client_fd, message, strlen(message)) > 0)
         return true;
     fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
