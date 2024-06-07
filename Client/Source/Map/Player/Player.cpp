@@ -9,6 +9,8 @@
 #include <queue>
 #include <mutex>
 #include "Debug.hpp"
+#include "rlgl.h"
+#include "../../Text/Text.hpp"
 
 using namespace Zappy;
 
@@ -105,18 +107,31 @@ std::pair<int, int> Player::getPosition() const
 void Player::addBroadcast(const std::string& message)
 {
     std::lock_guard<std::mutex> lock(_messageMutex);
-    _broadcast.push(message);
+    _broadcasts.push({message, std::chrono::steady_clock::now()});
     DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " broadcasted: " + message);
 }
 
 std::string Player::getBroadcast()
 {
-    std::lock_guard<std::mutex> lock(_messageMutex);
-    if (_broadcast.empty())
+    auto now = std::chrono::steady_clock::now();
+    if (_broadcasts.empty())
         return "";
-    std::string message = _broadcast.front();
-    _broadcast.pop();
-    return message;
+
+    if (_lastBroadcastTime == std::chrono::time_point<std::chrono::steady_clock>{}) {
+        _lastBroadcastTime = now;
+        return _broadcasts.front().message;
+    }
+
+    auto elapsedSeconds = std::chrono::duration_cast<std::chrono::seconds>(now - _lastBroadcastTime).count();
+    int displayTime = 5 + _broadcasts.front().message.size() / 10;
+
+    if (elapsedSeconds >= displayTime) {
+        _lastBroadcastTime = now;
+        _broadcasts.pop();
+        if (_broadcasts.empty())
+            return "";
+    }
+    return _broadcasts.front().message;
 }
 
 void Player::draw(Camera camera)
@@ -140,7 +155,19 @@ void Player::draw(Camera camera)
 
     DrawSphere(spherePosition, 0.2f, BLACK);
 
-    // TODO: Draw player level and broadcast messages
+    if (!_isSelected)
+        return;
+
+    const char* opt = "Selected player";
+    WaveTextConfig wcfg;
+    wcfg.waveSpeed.x = wcfg.waveSpeed.y = 3.0f; wcfg.waveSpeed.z = 0.5f;
+    wcfg.waveOffset.x = wcfg.waveOffset.y = wcfg.waveOffset.z = 0.35f;
+    wcfg.waveRange.x = wcfg.waveRange.y = wcfg.waveRange.z = 0.45f;
+
+    Text text;
+    Vector3 tbox = text.MeasureTextWave3D(GetFontDefault(), opt, 3, 1, 1);
+    Vector3 pos = {position.x - tbox.x / 2, position.y + 1.0f, position.z - tbox.z / 2};
+    text.DrawTextWave3D(GetFontDefault(), opt, pos, 3, 1, 1, true, &wcfg, GetTime(), BLACK);
 }
 
 std::unordered_map<Zappy::Resources::Type, int> Player::getInventory() const
@@ -152,4 +179,14 @@ void Player::layEgg()
 {
     DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " laid an egg");
     // TODO: Implement laying egg animation
+}
+
+void Player::setSelected(bool selected)
+{
+    _isSelected = selected;
+}
+
+bool Player::isSelected() const
+{
+    return _isSelected;
 }

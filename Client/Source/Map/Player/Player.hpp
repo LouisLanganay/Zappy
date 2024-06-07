@@ -26,6 +26,11 @@ namespace Zappy {
         WEST = 4
     };
 
+    struct PlayerBroadcast {
+        std::string message;
+        std::chrono::time_point<std::chrono::steady_clock> timestamp;
+    };
+
     class Player {
         public:
             Player(
@@ -59,6 +64,9 @@ namespace Zappy {
 
             void layEgg();
 
+            void setSelected(bool isSelected);
+            bool isSelected() const;
+
         protected:
         private:
             int _playerNumber;
@@ -67,10 +75,13 @@ namespace Zappy {
             int _level;
             std::unordered_map<Zappy::Resources::Type, int> _inventory;
             std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
-            std::queue<std::string> _broadcast;
+            std::queue<PlayerBroadcast> _broadcasts;
+            std::chrono::time_point<std::chrono::steady_clock> _lastBroadcastTime;
             std::mutex _messageMutex;
             int _x;
             int _y;
+            bool _isSelected = false;
+
     };
 
 }
