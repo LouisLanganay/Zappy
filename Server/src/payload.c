@@ -30,7 +30,6 @@ static void handle_connection(
         connection = TAILQ_FIRST(&server->socket->lost_connections);
         TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
         verbose(server, "Lost connection from %d\n", connection->fd);
-
         ai_t *ai_t;
         TAILQ_FOREACH(ai_t, &server->ais, entries)
             if (ai_t->fd == connection->fd)
