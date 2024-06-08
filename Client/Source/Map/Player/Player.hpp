@@ -67,6 +67,8 @@ namespace Zappy {
             void setSelected(bool isSelected);
             bool isSelected() const;
 
+            void update(float deltaTime);
+
         protected:
         private:
             int _playerNumber;
@@ -78,9 +80,14 @@ namespace Zappy {
             std::queue<PlayerBroadcast> _broadcasts;
             std::chrono::time_point<std::chrono::steady_clock> _lastBroadcastTime;
             std::mutex _messageMutex;
-            int _x;
-            int _y;
+            float _x;
+            float _y;
+            float _targetX;
+            float _targetY;
+            bool _isMoving;
             bool _isSelected = false;
+            float _movementSpeed; // Speed of movement per second
+            float _timeAccumulator; // Time accumulator for interpolation
 
     };
 

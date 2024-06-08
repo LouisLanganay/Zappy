@@ -22,11 +22,15 @@ Player::Player(
 ) : _playerNumber(playerNumber),
     _orientation(orientation),
     _team(std::move(team)),
-    _level(level)
+    _level(level),
+    _x(0),
+    _y(0),
+    _targetX(0),
+    _targetY(0),
+    _isMoving(false),
+    _movementSpeed(1.0f),
+    _timeAccumulator(0.0f)
 {
-    _x = 0;
-    _y = 0;
-
     _inventory[Zappy::Resources::Type::FOOD] = 0;
     _inventory[Zappy::Resources::Type::LINEMATE] = 0;
     _inventory[Zappy::Resources::Type::DERAUMERE] = 0;
@@ -34,7 +38,6 @@ Player::Player(
     _inventory[Zappy::Resources::Type::MENDIANE] = 0;
     _inventory[Zappy::Resources::Type::PHIRAS] = 0;
     _inventory[Zappy::Resources::Type::THYSTAME] = 0;
-
 }
 
 int Player::getPlayerNumber() const
@@ -95,8 +98,31 @@ int Player::getResourceQuantity(const Zappy::Resources::IResources* resource) co
 
 void Player::setPosition(int x, int y)
 {
-    _x = x;
-    _y = y;
+    _targetX = x;
+    _targetY = y;
+    _isMoving = true;
+    _timeAccumulator = 0.0f;
+}
+
+void Player::update(float deltaTime)
+{
+    if (!_isMoving)
+        return;
+
+    float distance = std::sqrt((_targetX - _x) * (_targetX - _x) + (_targetY - _y) * (_targetY - _y));
+    float duration = distance / _movementSpeed;
+    _timeAccumulator += deltaTime;
+
+    if (_timeAccumulator >= duration) {
+        _x = _targetX;
+        _y = _targetY;
+        _isMoving = false;
+        _timeAccumulator = 0.0f;
+    } else {
+        float t = _timeAccumulator / duration;
+        _x = _x + t * (_targetX - _x);
+        _y = _y + t * (_targetY - _y);
+    }
 }
 
 std::pair<int, int> Player::getPosition() const
@@ -136,7 +162,7 @@ std::string Player::getBroadcast()
 
 void Player::draw(Camera camera)
 {
-    Vector3 position = {(float)_x, 0.5f, (float)_y};
+    Vector3 position = {_x, 0.5f, _y};
 
     DrawCube(position, 0.5f, 0.5f, 0.5f, _team->getColor());
     DrawCubeWires(position, 0.5f, 0.5f, 0.5f, BLACK);
