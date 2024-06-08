@@ -27,7 +27,6 @@ namespace Zappy {
 
             void sendCommand(std::string command);
             std::string getData();
-            void fetchDataFromServer();
 
             void requestMapSize();
             void requestTileContent(int x, int y);
@@ -39,6 +38,9 @@ namespace Zappy {
             void requestTimeUnit();
             void modifyTimeUnit(int t);
 
+            void stop();
+            bool isRunning() const;
+
         private:
             std::queue<std::string> _receivedData;
             std::mutex _dataMutex;
@@ -48,7 +50,9 @@ namespace Zappy {
             protocol_client_t *_client;
             std::thread _fetchDataThread;
             bool _isRunning;
+
             void fetchDataLoop();
+            void fetchDataFromServer();
 
     };
 }

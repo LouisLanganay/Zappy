@@ -41,11 +41,22 @@ Api::Api(
 
 Api::~Api()
 {
-    std::cout << "Api destructor" << std::endl;
-    _isRunning = false;
     if (_fetchDataThread.joinable())
         _fetchDataThread.join();
     protocol_client_close(_client);
+}
+
+void Api::stop()
+{
+    _isRunning = false;
+    _dataCondVar.notify_all();
+    if (_fetchDataThread.joinable())
+        _fetchDataThread.join();
+}
+
+bool Api::isRunning() const
+{
+    return _isRunning;
 }
 
 void Api::sendCommand(std::string command)
@@ -59,7 +70,9 @@ void Api::sendCommand(std::string command)
 std::string Api::getData()
 {
     std::unique_lock<std::mutex> lock(_dataMutex);
-    _dataCondVar.wait(lock, [this] { return !_receivedData.empty(); });
+    _dataCondVar.wait(lock, [this] { return !_receivedData.empty() || !_isRunning; });
+    if (!_isRunning && _receivedData.empty())
+        return "";
     std::string message = _receivedData.front();
     _receivedData.pop();
     return message;
