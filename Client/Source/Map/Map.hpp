@@ -84,7 +84,7 @@ namespace Zappy {
             std::string _winer;
             int _height;
             int _width;
-            int _timeUnit;
+            int _timeUnit = 100;
     };
 };
 
