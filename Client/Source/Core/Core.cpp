@@ -92,7 +92,7 @@ void Core::run() {
                 std::string winnerText2 = "Winner: " + _map->getWiner();
                 std::string winnerText3 = "Press ESC to quit";
                 int textWidth1 = MeasureText(winnerText1.c_str(), 100);
-                int textWidth2 = MeasureText(winnerText2.c_str(), 80);
+                int textWidth2 = MeasureText(winnerText2.c_str(), 90);
                 int textWidth3 = MeasureText(winnerText3.c_str(), 40);
 
                 DrawText(winnerText1.c_str(), (screenWidth - textWidth1) / 2, screenHeight / 2 - 200, 100, RAYWHITE);
@@ -399,11 +399,25 @@ void Core::pic(std::string message)
     int x, y, level, playerNumber;
     iss >> command >> x >> y >> level;
     std::vector<int> players;
-    while (iss >> playerNumber) {
+    while (iss >> playerNumber)
         players.push_back(playerNumber);
+
+    Tile* tile = _map->getTile(x, y);
+    if (!tile) {
+        DEBUG_ERROR("Tile not found at (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+        return;
     }
-    DEBUG_INFO("Incantation started at " + std::to_string(x) + " " + std::to_string(y) + " with level " + std::to_string(level) + " and players: " + std::to_string(players.size()));
-    // TODO: Implement pic
+
+    //tile->startIncantation(level, players);
+//
+    //for (int playerId : players) {
+    //    Player* player = _map->getPlayer(playerId);
+    //    if (player)
+    //        player->startIncantation();
+    //    else
+    //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
+    //}
+    DEBUG_INFO("Incantation started at (" + std::to_string(x) + ", " + std::to_string(y) + ") with level " + std::to_string(level) + " and players: " + std::to_string(players.size()));
 }
 
 void Core::pie(std::string message)
@@ -411,9 +425,25 @@ void Core::pie(std::string message)
     int x, y, result;
     sscanf(message.c_str(), "pie %d %d %d", &x, &y, &result);
 
-    DEBUG_INFO("Incantation ended at " + std::to_string(x) + " " + std::to_string(y) + " with result: " + std::to_string(result));
-    // TODO: Implement pie
+    Tile* tile = _map->getTile(x, y);
+    if (!tile) {
+        DEBUG_ERROR("Tile not found at (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+        return;
+    }
+
+    //tile->endIncantation(result);
+//
+    //const std::vector<int>& players = tile->getIncantationPlayers();
+    //for (int playerId : players) {
+    //    Player* player = _map->getPlayer(playerId);
+    //    if (player)
+    //        player->endIncantation(result);
+    //    else
+    //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
+    //}
+    DEBUG_INFO("Incantation ended at (" + std::to_string(x) + ", " + std::to_string(y) + ") with result: " + std::to_string(result));
 }
+
 
 void Core::pfk(std::string message)
 {
