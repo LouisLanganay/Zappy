@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2024
 ** zappy
 ** File description:
-** gui_send_to_all
+** gui
 */
 
 #include "server.h"

@@ -2,27 +2,24 @@
 ** EPITECH PROJECT, 2024
 ** zappy
 ** File description:
-** get_ai_by_id
+** ai
 */
 
 #include <stddef.h>
 
 #include "server.h"
 
-
-ai_t *get_ai_by_fd(
+void ai_send_to_all(
     const zappy_server_t *server,
-    const int fd)
+    const char *message)
 {
-    ai_t *ai;
+    const ai_t *ai;
 
     TAILQ_FOREACH(ai, &server->ais, entries)
-        if (ai->fd == fd)
-            return ai;
-    return NULL;
+        protocol_server_send(server->socket, ai->fd, message);
 }
 
-ai_t *get_ai_by_id(
+ai_t *ai_get_by_id(
     const zappy_server_t *server,
     const uint16_t id)
 {
@@ -30,6 +27,18 @@ ai_t *get_ai_by_id(
 
     TAILQ_FOREACH(ai, &server->ais, entries)
         if (ai->id == id)
+            return ai;
+    return NULL;
+}
+
+ai_t *ai_get_by_fd(
+    const zappy_server_t *server,
+    const int fd)
+{
+    ai_t *ai;
+
+    TAILQ_FOREACH(ai, &server->ais, entries)
+        if (ai->fd == fd)
             return ai;
     return NULL;
 }

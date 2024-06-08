@@ -52,6 +52,7 @@ typedef struct team_s {
 
 typedef struct ai_cmd_s {
     char *cmd;
+
     TAILQ_ENTRY(ai_cmd_s) entries;
 } ai_cmd_t;
 
