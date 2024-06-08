@@ -73,6 +73,12 @@ namespace Zappy {
             std::string getWiner() const;
 
             Color generateUniqueColor();
+
+            void setCameraMode(CameraMode mode);
+            CameraMode getCameraMode() const;
+
+            Camera3D getCamera() const;
+            Camera3D* getCameraPtr();
         private:
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
@@ -85,6 +91,8 @@ namespace Zappy {
             int _height;
             int _width;
             int _timeUnit = 100;
+            CameraMode _cameraMode = CameraMode::CAMERA_FREE;
+            Camera3D _camera;
     };
 };
 

@@ -62,27 +62,19 @@ void Core::run() {
         DEBUG_INFO("Window initialized with size: " + std::to_string(screenWidth) + "x" + std::to_string(screenHeight));
         SetTargetFPS(60);
 
-        Camera3D camera = { 0 };
-        camera.position = (Vector3){ 0.0f, 10.0f, 10.0f };
-        camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-        camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
-        camera.fovy = 45.0f;
-        camera.projection = CAMERA_PERSPECTIVE;
-
         _hudRight.setHudPos({
             GetScreenWidth() - _hudRight.getHudWidth() - 20,
             GetScreenHeight() - _hudRight.getHudHeight()
         });
 
         while (!WindowShouldClose() && _running) {
-            for (auto &player : _map->getPlayers()) {
+            for (auto &player : _map->getPlayers())
                 player->update(GetFrameTime());
-            }
-            UpdateCamera(&camera, CAMERA_FREE);
+            UpdateCamera(_map->getCameraPtr(), _map->getCameraMode());
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            BeginMode3D(camera);
-            _map->draw(camera);
+            BeginMode3D(_map->getCamera());
+            _map->draw(_map->getCamera());
             EndMode3D();
             _hudLeft.draw(_map.get());
             _hudRight.draw(_map.get());
@@ -104,7 +96,7 @@ void Core::run() {
                 int textWidth3 = MeasureText(winnerText3.c_str(), 40);
 
                 DrawText(winnerText1.c_str(), (screenWidth - textWidth1) / 2, screenHeight / 2 - 200, 100, RAYWHITE);
-                DrawText(winnerText2.c_str(), (screenWidth - textWidth2) / 2, screenHeight / 2 - 50, 80, RAYWHITE);
+                DrawText(winnerText2.c_str(), (screenWidth - textWidth2) / 2, screenHeight / 2 - 50, 85, _map->getTeam(_map->getWiner())->getColor());
                 DrawText(winnerText3.c_str(), (screenWidth - textWidth3) / 2, screenHeight / 2 + 100, 40, RAYWHITE);
             }
             EndDrawing();

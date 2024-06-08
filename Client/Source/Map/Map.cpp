@@ -15,6 +15,13 @@ Map::Map()
 {
     setSize(0, 0);
     _teams.clear();
+
+    _camera = { 0 };
+    _camera.position = (Vector3){ 0.0f, 10.0f, 10.0f };
+    _camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
+    _camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    _camera.fovy = 45.0f;
+    _camera.projection = CAMERA_PERSPECTIVE;
 }
 
 void Map::setSize(int width, int height)
@@ -223,6 +230,9 @@ int Map::getHeight() const
 void Map::setWiner(const std::string& winer)
 {
     _winer = winer;
+    _cameraMode = CameraMode::CAMERA_ORBITAL;
+    Vector3 mapCenter = { (float)_width / 2, 0.0f, (float)_height / 2 };
+    _camera.target = mapCenter;
     DEBUG_SUCCESS("Winer set to: " + winer);
 }
 
@@ -237,4 +247,24 @@ std::vector<Player*> Map::getPlayers() const
     for (auto& player : _players)
         players.push_back(player.second.get());
     return players;
+}
+
+void Map::setCameraMode(CameraMode mode)
+{
+    _cameraMode = mode;
+}
+
+CameraMode Map::getCameraMode() const
+{
+    return _cameraMode;
+}
+
+Camera3D Map::getCamera() const
+{
+    return _camera;
+}
+
+Camera3D* Map::getCameraPtr()
+{
+    return &_camera;
 }
