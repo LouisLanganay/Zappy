@@ -36,12 +36,20 @@ Core::Core(
 
 Core::~Core()
 {
-    _running = false;
+    stop();
     if (_networkThread.joinable())
         _networkThread.join();
-    CloseWindow();
-    _api.reset();
 }
+
+void Core::stop()
+{
+    DEBUG_INFO("Core stopping");
+    _running = false;
+    _api->stop();
+    if (_networkThread.joinable())
+        _networkThread.join();
+}
+
 
 void Core::run() {
     try {
@@ -67,6 +75,9 @@ void Core::run() {
         });
 
         while (!WindowShouldClose() && _running) {
+            for (auto &player : _map->getPlayers()) {
+                player->update(GetFrameTime());
+            }
             UpdateCamera(&camera, CAMERA_FREE);
             BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -75,11 +86,31 @@ void Core::run() {
             EndMode3D();
             _hudLeft.draw(_map.get());
             _hudRight.draw(_map.get());
+            if (_map->getWiner() != "") {
+                int screenWidth = GetScreenWidth();
+                int screenHeight = GetScreenHeight();
+                int rectWidth = GetScreenWidth();
+                int rectHeight = GetScreenHeight();
+                int rectX = (screenWidth - rectWidth) / 2;
+                int rectY = (screenHeight - rectHeight) / 2;
+
+                DrawRectangle(rectX, rectY, rectWidth, rectHeight, Fade(GRAY, 0.8f));
+
+                std::string winnerText1 = "End of the game";
+                std::string winnerText2 = "Winner: " + _map->getWiner();
+                std::string winnerText3 = "Press ESC to quit";
+                int textWidth1 = MeasureText(winnerText1.c_str(), 100);
+                int textWidth2 = MeasureText(winnerText2.c_str(), 80);
+                int textWidth3 = MeasureText(winnerText3.c_str(), 40);
+
+                DrawText(winnerText1.c_str(), (screenWidth - textWidth1) / 2, screenHeight / 2 - 200, 100, RAYWHITE);
+                DrawText(winnerText2.c_str(), (screenWidth - textWidth2) / 2, screenHeight / 2 - 50, 80, RAYWHITE);
+                DrawText(winnerText3.c_str(), (screenWidth - textWidth3) / 2, screenHeight / 2 + 100, 40, RAYWHITE);
+            }
             EndDrawing();
         }
-
         CloseWindow();
-        _running = false;
+        stop();
     } catch (const std::exception &e) {
         throw MainException(e.what());
     }
@@ -88,7 +119,7 @@ void Core::run() {
 
 void Core::handleServerMessages() {
     try {
-        while (_running) {
+        while (_running && _api->isRunning()) {
             std::string message = _api->getData();
             if (message.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));

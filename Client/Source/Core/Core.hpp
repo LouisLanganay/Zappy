@@ -62,6 +62,8 @@ namespace Zappy {
             void smg(std::string message);
             void suc();
             void sbp();
+
+            void stop();
     };
 
 }
