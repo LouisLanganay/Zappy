@@ -28,11 +28,19 @@ namespace Zappy {
             void removeResource(Zappy::Resources::Type type, int quantity);
             std::unordered_map<Zappy::Resources::Type, int> getResources() const;
 
+            void startIncantation(int level, const std::vector<int>& players);
+            void endIncantation(int result);
+            const std::vector<int>& getIncantationPlayers() const;
+
         private:
             std::unordered_map<Zappy::Resources::Type, int> _resources;
             int _x;
             int _y;
             int _size;
+
+            std::vector<int> _incantationPlayers;
+            int _incantationLevel;
+            bool _incantationInProgress;
     };
 };
 

@@ -66,13 +66,6 @@ void Tile::draw(int x, int y) const
             DrawSphereWires((Vector3){ positions[i].x, positions[i].y + offset, positions[i].z }, 0.10f, 16, 16, BLACK);
         }
     }
-
-    for (int i = 0; i < 7; i++) {
-        int resourceCount = _resources.at(static_cast<Zappy::Resources::Type>(i));
-        if (resourceCount > 0) {
-            DrawText(std::to_string(resourceCount).c_str(), (int)(positions[i].x * 32), (int)(positions[i].z * 32), 10, BLACK);
-        }
-    }
 }
 
 void Tile::addResource(Zappy::Resources::Type type, int quantity)
@@ -90,4 +83,23 @@ void Tile::removeResource(Zappy::Resources::Type type, int quantity)
 std::unordered_map<Zappy::Resources::Type, int> Tile::getResources() const
 {
     return _resources;
+}
+
+void Tile::startIncantation(int level, const std::vector<int>& players)
+{
+    _incantationLevel = level;
+    _incantationPlayers = players;
+    _incantationInProgress = true;
+}
+
+void Tile::endIncantation(int result)
+{
+    _incantationInProgress = false;
+    // Handle result
+    _incantationPlayers.clear();
+}
+
+const std::vector<int>& Tile::getIncantationPlayers() const
+{
+    return _incantationPlayers;
 }
