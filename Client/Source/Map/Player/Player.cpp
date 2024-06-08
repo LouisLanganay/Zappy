@@ -216,3 +216,13 @@ bool Player::isSelected() const
 {
     return _isSelected;
 }
+
+void Player::startIncantation()
+{
+
+}
+
+void Player::endIncantation(int result)
+{
+
+}

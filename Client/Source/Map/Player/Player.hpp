@@ -69,6 +69,9 @@ namespace Zappy {
 
             void update(float deltaTime);
 
+            void startIncantation();
+            void endIncantation(int result);
+
         protected:
         private:
             int _playerNumber;
