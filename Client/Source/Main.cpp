@@ -35,7 +35,6 @@ int main(int ac, char **av)
             return displayHelp(84);
         Zappy::Core core(av[4], std::stoi(av[2]));
         core.run();
-        std::cout << "Exiting..." << std::endl;
     } catch (const std::exception &e) {
         std::cerr << "An error occurred: " << e.what() << std::endl;
         return 84;
