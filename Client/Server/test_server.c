@@ -40,8 +40,8 @@ void test_server_run(test_server_t *test_server) {
         if (payload) {
             printf("Received packet: %s\n", payload->message);
             if (a == 0) {
-                printf("Sending message: msz 10 10\n");
-                int r = protocol_server_send(test_server->server, payload->fd, "msz 10 10\n");
+                printf("Sending message: msz 25 25\n");
+                int r = protocol_server_send(test_server->server, payload->fd, "msz 25 25\n");
                 printf("Result: %i\n", r);
                 a++;
                 sleep(0.5);
@@ -77,6 +77,7 @@ void test_server_run(test_server_t *test_server) {
                 r = protocol_server_send(test_server->server, payload->fd, "bct 1 1 2 5 5 5 5 5 5 5\n");
                 printf("Result: %i\n", r);
                 sleep(0.5);
+                protocol_server_send(test_server->server, payload->fd, "pic 1 5 1 1\n");
                 printf("Sending message: pbc 1 MON message\n");
                 r = protocol_server_send(test_server->server, payload->fd, "pbc 1 MON message\n");
                 printf("Result: %i\n", r);
@@ -115,10 +116,11 @@ void test_server_run(test_server_t *test_server) {
                     printf("Result: %i\n", r);
                     a++;
                 }
+                protocol_server_send(test_server->server, payload->fd, "pie 1 5 1\n");
+                sleep(10);
                 printf("Sending message: seg team1\n");
                 r = protocol_server_send(test_server->server, payload->fd, "seg team1\n");
                 printf("Result: %i\n", r);
-                sleep(1);
             }
         }
     }
