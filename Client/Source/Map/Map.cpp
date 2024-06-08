@@ -17,9 +17,9 @@ Map::Map()
     _teams.clear();
 
     _camera = { 0 };
-    _camera.position = (Vector3){ 0.0f, 10.0f, 10.0f };
-    _camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-    _camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    _camera.position = { -5.0f, 5.0f, -5.0f };
+    _camera.target = { 0.0f, 0.0f, 0.0f };
+    _camera.up = { 0.0f, 1.0f, 0.0f };
     _camera.fovy = 45.0f;
     _camera.projection = CAMERA_PERSPECTIVE;
 }
@@ -233,6 +233,7 @@ void Map::setWiner(const std::string& winer)
     _cameraMode = CameraMode::CAMERA_ORBITAL;
     Vector3 mapCenter = { (float)_width / 2, 0.0f, (float)_height / 2 };
     _camera.target = mapCenter;
+    _camera.position = { 0, 8, 0 };
     DEBUG_SUCCESS("Winer set to: " + winer);
 }
 
