@@ -2,15 +2,6 @@
 import socket
 import sys
 
-inventory = {
-    "food": 0,
-    "linemate": 0,
-    "deraumere": 0,
-    "sibur": 0,
-    "mendiane": 0,
-    "phiras": 0,
-    "thystame": 0
-}
 
 class ParseArgs:
     def __init__(self):
@@ -96,10 +87,30 @@ class Client:
     def close(self):
         self.socket.close()
 
+
+
+    def command_rcv(self, msg_rcv, input):
+        if(input == "Inventory"):
+            print("test:", msg_rcv)
+
+            msg_rcv = msg_rcv.strip('[]').strip()
+            items = msg_rcv.split(',')
+            for item in items:
+                parts = item.strip().split()
+                key = parts[0]
+                value = int(parts[1])
+                self.inventaire[key] = value
+        print("mon dico:", self.inventaire)
 # Lancer le Zappy si inventory pas vide au lancement le remplir sinon remplir l'inventaire une fois rammaser object
 # faire le systeme de vision
 # faire le systeme d'évolution
 # attention décalage lorsque -n remplis
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -111,8 +122,10 @@ if __name__ == '__main__':
         client.send(name + '\n')
         print("Received:", client.receive())
         while True:
-            print("Received:", client.receive())
+            msg_receive = client.receive()
+            print("Received: ", msg_receive)
             message = input("Enter message to send (type 'exit' to close): ")
+            client.command_rcv(msg_receive, message)
             print(message)
             if message.lower() == 'exit':
                 message += '\n'
