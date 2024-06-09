@@ -24,7 +24,7 @@ class ParseArgs:
         except ValueError:
             self.print_invalid_argument()
             sys.exit(84)
-        
+
         if self.port == -1 or self.name == '':
             self.print_usage()
             sys.exit(84)
@@ -77,6 +77,14 @@ class Client:
     def __init__(self, host, port, name):
         self.host = host
         self.port = port
+        self.inventaire = {"food": 0,
+                            "linemate" : 0,
+                            "deraumere": 0,
+                            "sibur" : 0,
+                            "mendiane" : 0,
+                            "phiras" : 0,
+                            "thystame" : 0}
+
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
     def send(self, data):
@@ -88,6 +96,12 @@ class Client:
     def close(self):
         self.socket.close()
 
+# Lancer le Zappy si inventory pas vide au lancement le remplir sinon remplir l'inventaire une fois rammaser object
+# faire le systeme de vision
+# faire le systeme d'évolution
+# attention décalage lorsque -n remplis
+
+
 if __name__ == '__main__':
     args = ParseArgs()
     host, port, name = args.parse(sys.argv[1:])
@@ -95,6 +109,7 @@ if __name__ == '__main__':
     try:
         print("Connected to server")
         client.send(name + '\n')
+        print("Received:", client.receive())
         while True:
             print("Received:", client.receive())
             message = input("Enter message to send (type 'exit' to close): ")
