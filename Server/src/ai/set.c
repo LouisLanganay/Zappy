@@ -15,8 +15,8 @@ void set(
     const char *message)
 {
     for (uint8_t i = 0; i < 7; i++) {
-        if (!strncmp(message + 1, RESSOURCES_NAMES[i],
-            strlen(RESSOURCES_NAMES[i])) || !ai->inventory.resources[i]) {
+        if (!strcmp(RESSOURCES_NAMES[i], message + 1)
+            || !ai->inventory.resources[i]) {
             protocol_server_send(server->socket, ai->fd, "ko");
             return;
             }
