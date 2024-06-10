@@ -114,7 +114,9 @@ ai_t *ai_get_by_fd(
 ai_t *ai_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
-
+uint16_t ai_get_nb_by_pos(
+    const zappy_server_t *server,
+    const vector2_t *pos);
 // gui
 void gui_send_to_all(
     const zappy_server_t *server,
