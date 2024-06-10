@@ -11,7 +11,7 @@
 
 void death(
     const zappy_server_t *server,
-    const ai_t *ai,
+    ai_t *ai,
     UNUSED const char *message)
 {
     protocol_server_send(server->socket, ai->fd, "dead");

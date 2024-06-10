@@ -52,8 +52,19 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 
 DIR         +=	src/ai
 SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					broadcast_text.c								\
+					connect_nbr.c									\
+					death.c											\
+					eject.c											\
+					fork.c											\
 					forward.c										\
+					incantation.c									\
+					inventory.c										\
+					left.c											\
+					look.c											\
 					right.c											\
+					set_object.c									\
+					take_object.c									\
 				)
 
 DIR_BUILD	:=	build
