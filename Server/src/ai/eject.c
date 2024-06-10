@@ -5,49 +5,34 @@
 ** eject
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
 
-static void move_ai(
-    const zappy_server_t *server,
-    ai_t *t_ai,
-    const ai_t *ai)
+static orientation_t convert_orientation(
+    const orientation_t orientation)
 {
-    switch (ai->orientation) {
-        case (NORTH):
-            t_ai->pos.y = (t_ai->pos.y + server->height - 1) % server->height;
-            break;
-        case (EAST):
-            t_ai->pos.x = (t_ai->pos.x + 1) % server->width;
-            break;
-        case (SOUTH):
-            t_ai->pos.y = (t_ai->pos.y + 1) % server->height;
-            break;
-        case (WEST):
-            t_ai->pos.x = (t_ai->pos.x + server->width - 1) % server->width;
-            break;
-    }
-    protocol_server_send(server->socket, t_ai->fd,"eject: %i",
-        { 8, 6, 4, 2 }[(t_ai->orientation - 1 + ai->orientation + 2) % 4]);
+    return (orientation_t[]){ WEST, SOUTH, EAST, NORTH }[orientation - 1];
 }
 
+//        SOUTH WEST NORTH EAST
+// SOUTH  | 6   | 8  | 2   | 4
+// WEST   | 4   | 6  | 8   | 2
+// NORTH  | 2   | 4  | 6   | 8
+// EAST   | 8   | 2  | 4   | 6
 void eject(
     const zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {
-    bool ejected = false;
-    ai_t *target_ai;
+    ai_t *target;
 
-    TAILQ_FOREACH(target_ai, &server->ais, entries)
-        if (target_ai->fd != ai->fd && (target_ai->pos.x == ai->pos.x &&
-            target_ai->pos.y == ai->pos.y)) {
-            move_ai(server, target_ai, ai);
-            ejected = true;
+    TAILQ_FOREACH(target, &server->ais, entries)
+        if (target->fd != ai->fd
+            && target->pos.x == ai->pos.x && target->pos.y == ai->pos.y) {
+            protocol_server_send(server->socket, ai->fd, "eject: %i",
+                (uint8_t[]){ 8, 6, 4, 2 }[(convert_orientation(WEST)
+                    + convert_orientation(NORTH) - 1) % 4]);
+            protocol_server_send(server->socket, ai->fd, "ok");
+            return;
         }
-    if (!ejected)
-        protocol_server_send(server->socket, ai->fd, "ko");
-    else
-        protocol_server_send(server->socket, ai->fd, "ok");
+    protocol_server_send(server->socket, ai->fd, "ko");
 }
