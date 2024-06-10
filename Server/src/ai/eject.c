@@ -12,7 +12,7 @@
 static void move_ai(
     const zappy_server_t *server,
     ai_t *t_ai,
-    ai_t *ai)
+    const ai_t *ai)
 {
     switch (ai->orientation) {
         case (NORTH):
