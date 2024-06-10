@@ -6,7 +6,7 @@
 
 # Zappy
 
-<b>binary name:</b> ``zappy_server``, ``zappy_gui`, ``zappy_ai``  
+<b>binary name:</b> `zappy_server`, `zappy_gui`, `zappy_ai`  
 <b>language:</b> C (server), C++ (gui), free (ai)  
 
 > [!NOTE]
