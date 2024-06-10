@@ -215,8 +215,8 @@ static const struct {
     {"Connect_nbr", connect_nbr},
     {"Fork", exec_fork},
     {"Eject", eject},
-    {"Take object", take_object},
-    {"Set object", set_object},
+    {"Take", take_object},
+    {"Set", set_object},
     {"Incantation", incantation},
     {NULL, NULL}
 };
