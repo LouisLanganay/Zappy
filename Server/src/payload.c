@@ -57,6 +57,7 @@ static void add_ai(
 
     if (!ai)
         return;
+    *ai = (ai_t){.fd = payload->fd, .level = 1};
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
             ai->team = team;
@@ -65,7 +66,6 @@ static void add_ai(
         printf("\033[31m[ERROR]\033[0m Team not found\n");
         return;
     }
-    ai->fd = payload->fd;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
     protocol_server_send(server->socket, payload->fd,

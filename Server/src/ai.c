@@ -42,3 +42,16 @@ ai_t *ai_get_by_fd(
             return ai;
     return NULL;
 }
+
+uint16_t ai_get_nb_by_pos(
+    const zappy_server_t *server,
+    const vector2_t *pos)
+{
+    uint16_t nb = 0;
+    ai_t *ai;
+
+    TAILQ_FOREACH(ai, &server->ais, entries)
+        if (ai->pos.x == pos->x && ai->pos.y == pos->y)
+            nb++;
+    return nb;
+}
