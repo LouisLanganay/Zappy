@@ -6,7 +6,7 @@
 
 # Zappy
 
-<b>binary name:</b> zappy_server, zappy_gui, zappy_ai  
+<b>binary name:</b> ``zappy_server``, ``zappy_gui`, ``zappy_ai``  
 <b>language:</b> C (server), C++ (gui), free (ai)  
 
 > [!NOTE]
@@ -51,12 +51,9 @@ USAGE: ./zappy_ai -p port -n name -h machine
 ## Contributions
 
 Project members:
-- [Valentin P.](https://github.com/ValentinPeron)
-- [Guillaume B.](https://github.com/Gaulaume)
-- [Louis L.](https://github.com/LouisLanganay)
-- [Augustin B.](https://github.com/AugustinBst)
-- [Romain H.](https://github.com/Neo-Diamons)
-- [Maxence L.](https://github.com/mlargeot)
+<a href="https://github.com/LouisLanganay/Zappy/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=LouisLanganay/Zappy" />
+</a>
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
