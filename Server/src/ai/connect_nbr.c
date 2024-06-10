@@ -5,13 +5,13 @@
 ** connect_nbr
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
 
 void connect_nbr(
-    UNUSED const zappy_server_t *server,
+    const zappy_server_t *server,
     UNUSED ai_t *ai,
     UNUSED const char *message)
 {
+    protocol_server_send(server->socket, ai->fd, "%d", team_get_empty_slots(
+        server, ai->team));
 }

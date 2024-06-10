@@ -32,3 +32,16 @@ team_t *team_get_by_id(
             return team;
     return NULL;
 }
+
+uint16_t team_get_empty_slots(
+    const zappy_server_t *server,
+    const team_t *team)
+{
+    uint16_t used_slots = 0;
+    ai_t *ai;
+
+    TAILQ_FOREACH(ai, &server->ais, entries)
+        if (ai->team == team)
+            used_slots++;
+    return server->clients_nb - used_slots;
+}

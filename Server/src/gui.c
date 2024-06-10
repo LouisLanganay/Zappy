@@ -17,8 +17,8 @@ void gui_send_to_all(
 {
     char formatted_message[DATA_SIZE] = {0};
     const gui_t *gui;
-
     va_list args;
+
     va_start(args, message);
     vsnprintf(formatted_message, DATA_SIZE, message, args);
     va_end(args);

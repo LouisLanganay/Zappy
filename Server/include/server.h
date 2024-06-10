@@ -103,15 +103,33 @@ void verbose(
     const zappy_server_t *server,
     const char *format,
     ...);
+
+// ai
+void ai_send_to_all(
+    const zappy_server_t *server,
+    const char *message);
 ai_t *ai_get_by_fd(
     const zappy_server_t *server,
     int fd);
 ai_t *ai_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
+
+// gui
 void gui_send_to_all(
     const zappy_server_t *server,
     const char *message,
     ...);
+
+// team
+team_t *team_get_by_name(
+    const zappy_server_t *server,
+    const char *name);
+team_t *team_get_by_id(
+    const zappy_server_t *server,
+    uint16_t id);
+uint16_t team_get_empty_slots(
+    const zappy_server_t *server,
+    const team_t *team);
 
 #endif //SERVER_H
