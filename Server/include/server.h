@@ -33,14 +33,17 @@ typedef struct {
     uint16_t y;
 } vector2_t;
 
-typedef struct {
-    uint16_t food;
-    uint16_t linemate;
-    uint16_t deraumere;
-    uint16_t sibur;
-    uint16_t mendiane;
-    uint16_t phiras;
-    uint16_t thystame;
+typedef union {
+    uint16_t resources[7];
+    struct {
+        uint16_t food;
+        uint16_t linemate;
+        uint16_t deraumere;
+        uint16_t sibur;
+        uint16_t mendiane;
+        uint16_t phiras;
+        uint16_t thystame;
+    };
 } inventory_t;
 
 typedef struct team_s {
