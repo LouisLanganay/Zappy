@@ -52,7 +52,7 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 
 DIR         +=	src/ai
 SRC			+=	$(addprefix $(lastword $(DIR))/,					\
-					broadcast_text.c								\
+					broadcast.c										\
 					connect_nbr.c									\
 					death.c											\
 					eject.c											\
