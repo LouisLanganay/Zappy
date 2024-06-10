@@ -46,6 +46,17 @@ typedef union {
     };
 } inventory_t;
 
+
+static const char RESSOURCES_NAMES[][10] = {
+    "food",
+    "linemate",
+    "deraumere",
+    "sibur",
+    "mendiane",
+    "phiras",
+    "thystame"
+};
+
 typedef struct team_s {
     uint16_t id;
     char name[TEAM_NAME_SIZE];
@@ -125,7 +136,6 @@ void gui_send_to_all(
     const zappy_server_t *server,
     const char *message,
     ...);
-
 // team
 team_t *team_get_by_name(
     const zappy_server_t *server,

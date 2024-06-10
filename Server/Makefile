@@ -63,8 +63,8 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					left.c											\
 					look.c											\
 					right.c											\
-					set_object.c									\
-					take_object.c									\
+					set.c											\
+					take.c											\
 				)
 
 DIR_BUILD	:=	build

@@ -168,7 +168,7 @@ void death(
  * @param message The message of the command
  *
  */
-void take_object(
+void take(
     const zappy_server_t *server,
     ai_t *ai,
     const char *message);
@@ -181,7 +181,7 @@ void take_object(
  * @param message The message of the command
  *
  */
-void set_object(
+void set(
     const zappy_server_t *server,
     ai_t *ai,
     const char *message);
@@ -215,8 +215,8 @@ static const struct {
     {"Connect_nbr", connect_nbr},
     {"Fork", exec_fork},
     {"Eject", eject},
-    {"Take", take_object},
-    {"Set", set_object},
+    {"Take", take},
+    {"Set", set},
     {"Incantation", incantation},
     {NULL, NULL}
 };
