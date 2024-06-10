@@ -36,7 +36,7 @@ static void move_ai(
 
 void eject(
     const zappy_server_t *server,
-    ai_t *ai,
+    const ai_t *ai,
     UNUSED const char *message)
 {
     bool ejected = false;
