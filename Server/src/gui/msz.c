@@ -7,6 +7,7 @@
 
 #include "server.h"
 
+// Response to "msz\n"
 void msz(
     zappy_server_t *server,
     const int interlocutor,

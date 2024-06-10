@@ -9,6 +9,7 @@
 
 #include "server/gui.h"
 
+// Response to "plv #n\n"
 void plv(
     zappy_server_t *server,
     const int interlocutor,

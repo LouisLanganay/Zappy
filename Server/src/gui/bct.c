@@ -9,6 +9,7 @@
 
 #include "server/gui.h"
 
+// Response to "bct X Y\n"
 void bct(
     zappy_server_t *server,
     const int interlocutor,

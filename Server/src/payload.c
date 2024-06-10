@@ -13,7 +13,7 @@
 #include "server/gui.h"
 #include "server.h"
 
-static void handle_new_connection(
+static void handle_connection(
     zappy_server_t *server)
 {
     protocol_connection_t *connection;
@@ -26,52 +26,33 @@ static void handle_new_connection(
             "WELCOME");
         free(connection);
     }
-}
-
-static void handle_lost_connection(
-    zappy_server_t *server)
-{
-    protocol_connection_t *connection;
-    ai_t *ai;
-
     while (!TAILQ_EMPTY(&server->socket->lost_connections)) {
         connection = TAILQ_FIRST(&server->socket->lost_connections);
         TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
         verbose(server, "Lost connection from %d\n", connection->fd);
-        ai = get_ai_by_fd(server, connection->fd);
-        if (ai) {
-            verbose(server, "AI disconnected\n");
-            TAILQ_REMOVE(&server->ais, ai, entries);
-            free(ai);
-        }
+        ai_t *ai_t;
+        TAILQ_FOREACH(ai_t, &server->ais, entries)
+            if (ai_t->fd == connection->fd)
+                TAILQ_REMOVE(&server->ais, ai_t, entries);
         free(connection);
     }
 }
 
-static void add_ai(
+static void handle_gui_event(
     zappy_server_t *server,
-    const protocol_payload_t *payload)
+    const int interlocutor,
+    const char *message)
 {
-    ai_t *ai = calloc(1, sizeof(ai_t));
-    team_t *team;
+    uint8_t cmd_lenght;
 
-    if (!ai)
-        return;
-    TAILQ_FOREACH(team, &server->teams, entries)
-        if (!strcmp(team->name, payload->message))
-            ai->team = team;
-    if (!ai->team) {
-        free(ai);
-        printf("\033[31m[ERROR]\033[0m Team not found\n");
-        return;
+    for (uint8_t i = 0; gui_cmds[i].func; ++i) {
+        cmd_lenght = strlen(gui_cmds[i].cmd);
+        if (!strncmp(message, gui_cmds[i].cmd, cmd_lenght)) {
+            gui_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
+            return;
+        }
     }
-    ai->fd = payload->fd;
-    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
-    verbose(server, "New AI connected\n");
-    protocol_server_send(server->socket, payload->fd,
-        "%i", server->clients_nb);
-    protocol_server_send(server->socket, payload->fd,
-        " %i %i", server->width, server->height);
+    suc(server, interlocutor);
 }
 
 static void add_graphic(
@@ -91,42 +72,45 @@ static void add_graphic(
     tna(server, interlocutor, NULL);
 }
 
-static void handle_ai_event(
-    const zappy_server_t *server,
-    const protocol_payload_t *payload)
+static void add_client(
+    zappy_server_t *server,
+    const int interlocutor,
+    const char *message)
 {
-    uint8_t cmd_lenght;
-    ai_t *ai = get_ai_by_fd(server, payload->fd);
+    team_t *team = calloc(1, sizeof(team_t));
+    ai_t *ai = calloc(1, sizeof(ai_t));
 
-    if (!ai) {
-        printf("\033[31m[ERROR]\033[0m AI not found\n");
+    if (!team || !ai)
         return;
-    }
-    for (uint8_t i = 0; ai_cmds[i].func; ++i) {
-        cmd_lenght = strlen(ai_cmds[i].cmd);
-        if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
-            ai_cmds[i].func(server, ai, payload->message + cmd_lenght + 1);
-            return;
-        }
-    }
-    protocol_server_send(server->socket, payload->fd, "ko");
+    team->id = TAILQ_EMPTY(&server->teams) ? 1
+        : TAILQ_LAST(&server->teams, teamhead)->id + 1;
+    strncpy(team->name, message, 64);
+    TAILQ_INSERT_TAIL(&server->teams, team, entries);
+    ai->fd = interlocutor;
+    ai->team = team;
+    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
+    verbose(server, "New AI connected\n");
+    protocol_server_send(server->socket, interlocutor,
+        "%i", server->clients_nb);
+    protocol_server_send(server->socket, interlocutor,
+        " %i %i", server->width, server->height);
 }
 
-static void handle_gui_event(
-    zappy_server_t *server,
-    const protocol_payload_t *payload)
+static void handle_ai_event(
+    const zappy_server_t *server,
+    const int interlocutor,
+    const char *message)
 {
     uint8_t cmd_lenght;
 
-    for (uint8_t i = 0; gui_cmds[i].func; ++i) {
-        cmd_lenght = strlen(gui_cmds[i].cmd);
-        if (!strncmp(payload->message, gui_cmds[i].cmd, cmd_lenght)) {
-            gui_cmds[i].func(server, payload->fd,
-                payload->message + cmd_lenght + 1);
+    for (uint8_t i = 0; ai_cmds[i].func; ++i) {
+        cmd_lenght = strlen(ai_cmds[i].cmd);
+        if (!strncmp(message, ai_cmds[i].cmd, cmd_lenght)) {
+            ai_cmds[i].func(server, interlocutor, message + cmd_lenght + 1);
             return;
         }
     }
-    suc(server, payload->fd);
+    protocol_server_send(server->socket, interlocutor, "ko");
 }
 
 static connection_t get_connection_by_fd(
@@ -152,17 +136,17 @@ static void handle_event(
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
             verbose(server, "AI %d: %s\n", payload->fd, payload->message);
-            handle_ai_event(server, payload);
+            handle_ai_event(server, payload->fd, payload->message);
             break;
         case CONNECTION_GUI:
             verbose(server, "GUI %d: %s\n", payload->fd, payload->message);
-            handle_gui_event(server, payload);
+            handle_gui_event(server, payload->fd, payload->message);
             break;
         case CONNECTION_UNKNOWN:
             if (!strcmp(payload->message, "GRAPHIC"))
                 add_graphic(server, payload->fd);
             else
-                add_ai(server, payload);
+                add_client(server, payload->fd, payload->message);
             break;
         default:
             break;
@@ -174,8 +158,7 @@ bool handle_payload(
 {
     protocol_payload_t *payload;
 
-    handle_new_connection(server);
-    handle_lost_connection(server);
+    handle_connection(server);
     while (!TAILQ_EMPTY(&server->socket->payloads)) {
         payload = TAILQ_FIRST(&server->socket->payloads);
         TAILQ_REMOVE(&server->socket->payloads, payload, entries);

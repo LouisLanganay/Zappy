@@ -9,6 +9,7 @@
 
 #include "server/gui.h"
 
+// Response to "pin #n\n"
 void pin(
     zappy_server_t *server,
     const int interlocutor,

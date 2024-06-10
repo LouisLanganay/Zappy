@@ -1,15 +1,15 @@
 /*
 ** EPITECH PROJECT, 2024
-** zappy
+** Zappy
 ** File description:
-** pex
+** ebo
 */
 
 #include "server/gui.h"
 
-void pex(
+void ebo(
     const zappy_server_t *server,
-    const ai_t *ai)
+    const uint16_t egg_id)
 {
-    gui_send_to_all(server, "pex %d", ai->id);
+    gui_send_to_all(server, "ebo %d", egg_id);
 }
