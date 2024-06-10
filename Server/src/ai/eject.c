@@ -17,21 +17,19 @@ static void move_ai(
     switch (ai->orientation) {
         case (NORTH):
             t_ai->pos.y = (t_ai->pos.y + server->height - 1) % server->height;
-            protocol_server_send(server->socket, t_ai->fd, "eject: 6");
             break;
         case (EAST):
             t_ai->pos.x = (t_ai->pos.x + 1) % server->width;
-            protocol_server_send(server->socket, t_ai->fd, "eject: 8");
             break;
         case (SOUTH):
             t_ai->pos.y = (t_ai->pos.y + 1) % server->height;
-            protocol_server_send(server->socket, t_ai->fd, "eject: 2");
             break;
         case (WEST):
             t_ai->pos.x = (t_ai->pos.x + server->width - 1) % server->width;
-            protocol_server_send(server->socket, t_ai->fd, "eject: 4");
             break;
     }
+    protocol_server_send(server->socket, t_ai->fd,"eject: %i",
+        { 8, 6, 4, 2 }[(t_ai->orientation - 1 + ai->orientation + 2) % 4]);
 }
 
 void eject(
