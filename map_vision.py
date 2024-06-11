@@ -65,9 +65,7 @@ def list_to_dict(tile_list):
             tile[elt] += 1
     return tile
 
-
 row_list = "[ player,, food food, deraumere ]"
-
 row_list = "[player,,,thystame,,food,,,,,thystame,,,,,]"
 
 list_of_dicts = convert_to_a_list_of_dicts(row_list)
