@@ -1,3 +1,5 @@
+import os
+
 def generate_key(msg, key):
     if len(msg) == len(key):
         return key
@@ -29,19 +31,25 @@ def decrypte_vigneron(msg_crypte, key):
     return decrypted_msg
 
 
-def check_msg(key, msg_crypte):
+def check_msg(key, msg_crypte, pid_liste):
     decrypte_msg = decrypte_vigneron(msg_crypte, key)
-    begin_key = "augus"
-    for i in range(len(begin_key)):
-        if (decrypte_msg[i] != begin_key[i]):
-            return False
-    return True
+    nouvelle_chaine = decrypte_msg[len(pid_liste):]
+    for i in range(len(pid_liste)):
+        if (decrypte_msg[:len(pid_liste[i][0])] == pid_liste[i][0] and
+         nouvelle_chaine[:len(pid_liste[i][1])] == pid_liste[i][1]):
+            return True
+    return False
 
 def main():
+    pid_liste = []
+    pid = os.getpid()
+    id = 0
+    id += 1
+    pid_liste.append((pid, id))
     msg = input("ICI MSG: ")
     key =  input("ICI KEY: ")
     msg_crypte = crypte_vigneron(msg, key)
-    if (check_msg(key, msg_crypte) == False):
+    if (check_msg(key, msg_crypte, pid_liste) == False):
         return False
     print("msg crypte= ", msg_crypte)
     decrypte_msg = decrypte_vigneron(msg_crypte, key)
