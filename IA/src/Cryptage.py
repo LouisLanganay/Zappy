@@ -29,14 +29,24 @@ def decrypte_vigneron(msg_crypte, key):
     return decrypted_msg
 
 
+def check_msg(key, msg_crypte):
+    decrypte_msg = decrypte_vigneron(msg_crypte, key)
+    begin_key = "augus"
+    for i in range(len(begin_key)):
+        if (decrypte_msg[i] != begin_key[i]):
+            return False
+    return True
+
 def main():
     msg = input("ICI MSG: ")
-    key=  input("ICI KEY: ")
+    key =  input("ICI KEY: ")
     msg_crypte = crypte_vigneron(msg, key)
+    if (check_msg(key, msg_crypte) == False):
+        return False
     print("msg crypte= ", msg_crypte)
     decrypte_msg = decrypte_vigneron(msg_crypte, key)
     print(decrypte_msg)
-    return
+    return True
 
 main()
 
