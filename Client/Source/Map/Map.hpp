@@ -65,6 +65,7 @@ namespace Zappy {
             void addEgg(std::unique_ptr<Egg> egg);
             void removeEgg(int eggNumber);
             Egg* getEgg(int eggNumber);
+            std::vector<Egg*> getEggs();
 
             int getWidth() const;
             int getHeight() const;
@@ -79,6 +80,8 @@ namespace Zappy {
 
             Camera3D getCamera() const;
             Camera3D* getCameraPtr();
+
+            std::vector<Player*> getPlayersOnTile(int x, int y);
         private:
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;

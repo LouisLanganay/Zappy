@@ -269,3 +269,23 @@ Camera3D* Map::getCameraPtr()
 {
     return &_camera;
 }
+
+std::vector<Egg*> Map::getEggs()
+{
+    std::vector<Egg*> eggs;
+    for (auto& egg : _eggs)
+        eggs.push_back(egg.second.get());
+    return eggs;
+}
+
+std::vector<Player*> Map::getPlayersOnTile(int x, int y)
+{
+    std::vector<Player*> playersOnTile;
+    for (auto& pair : _players) {
+        Player* player = pair.second.get();
+        auto [playerX, playerY] = player->getPosition();
+        if (playerX == x && playerY == y)
+            playersOnTile.push_back(player);
+    }
+    return playersOnTile;
+}

@@ -19,6 +19,7 @@
 #include "../API/Events.h"
 #include "../Hud/Left/HudLeft.hpp"
 #include "../Hud/Right/HudRight.hpp"
+#include "../Particle/ParticleSystem.hpp"
 
 namespace Zappy {
     class Core {
@@ -32,6 +33,7 @@ namespace Zappy {
         protected:
             std::unique_ptr<Api> _api;
             std::unique_ptr<Map> _map;
+            std::unique_ptr<ParticleSystem> _particleSystem;
             std::thread _networkThread;
             bool _running;
             bool _debug;

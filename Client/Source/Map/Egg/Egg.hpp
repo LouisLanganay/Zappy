@@ -26,6 +26,8 @@ namespace Zappy {
             bool isHatched() const;
 
             void draw();
+            void startHatchingAnimation();
+            void update(float deltaTime);
 
             const Team* getTeam() const;
 
@@ -35,6 +37,12 @@ namespace Zappy {
             std::pair<int, int> _position;
             bool _hatched;
             std::unique_ptr<Team> _team;
+
+            bool _isHatching;
+            int _animationFrame;
+            int _animationFrameMax;
+            float _frameTime;
+            float _currentFrameTime;
     };
 }
 

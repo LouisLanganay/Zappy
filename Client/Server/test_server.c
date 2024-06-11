@@ -59,6 +59,8 @@ void test_server_run(test_server_t *test_server) {
                 sleep(0.5);
                 printf("Sending message: pnw 2 3 3 4 1 team2\n");
                 r = protocol_server_send(test_server->server, payload->fd, "pnw 2 3 3 4 1 team2\n");
+                protocol_server_send(test_server->server, payload->fd, "pnw 3 5 5 2 1 team2\n");
+                protocol_server_send(test_server->server, payload->fd, "pnw 4 5 5 2 1 team2\n");
                 printf("Result: %i\n", r);
                 sleep(0.5);
                 printf("Sending message: pin 1 2 2 5 5 5 5 5 5 5\n");
@@ -91,7 +93,8 @@ void test_server_run(test_server_t *test_server) {
                 printf("Sending message: enw 1 1 3 2\n");
                 r = protocol_server_send(test_server->server, payload->fd, "enw 1 1 3 2\n");
                 printf("Result: %i\n", r);
-                sleep(0.5);
+                sleep(5);
+                protocol_server_send(test_server->server, payload->fd, "pex 4\n");
                 while (a < 5) {
                     printf("Sending message: ppo 1 3 2 1\n");
                     r = protocol_server_send(test_server->server, payload->fd, "ppo 1 3 2 1\n");

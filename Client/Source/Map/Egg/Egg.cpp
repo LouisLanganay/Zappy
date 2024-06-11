@@ -20,9 +20,15 @@ Egg::Egg(
     _playerNumber(playerNumber),
     _position(x, y),
     _hatched(false),
-    _team(std::move(team))
+    _team(std::move(team)),
+    _isHatching(false),
+    _animationFrame(0),
+    _animationFrameMax(10),
+    _frameTime(0.1f),
+    _currentFrameTime(0.0f)
 {
 }
+
 
 int Egg::getEggNumber() const
 {
@@ -51,11 +57,44 @@ bool Egg::isHatched() const
 
 void Egg::draw()
 {
-    Vector3 position = {(float)_position.first, 0.5f, (float)_position.second};
-    DrawSphere(position, 0.35f, BROWN);
+    if (_hatched)
+        return;
+    if (_isHatching) {
+        // TODO: Hatching annimation
+        _animationFrame++;
+        if (_animationFrame > _animationFrameMax) {
+            _isHatching = false;
+            _hatched = true;
+        }
+    } else {
+        Vector3 position = {(float)_position.first, 0.5f, (float)_position.second};
+        DrawSphere(position, 0.35f, BROWN);
+    }
 }
 
 const Team* Egg::getTeam() const
 {
     return _team.get();
+}
+
+void Egg::startHatchingAnimation()
+{
+    _isHatching = true;
+    _animationFrame = 0;
+    _currentFrameTime = 0.0f;
+}
+
+void Egg::update(float deltaTime)
+{
+    if (!_isHatching)
+        return;
+    _currentFrameTime += deltaTime;
+    if (_currentFrameTime >= _frameTime) {
+        _animationFrame++;
+        _currentFrameTime = 0.0f;
+        if (_animationFrame > _animationFrameMax) {
+            _isHatching = false;
+            _hatched = true;
+        }
+    }
 }

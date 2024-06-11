@@ -17,6 +17,7 @@
 #include <iostream>
 #include "../Exceptions.hpp"
 #include "../API/Events.h"
+#include "../Particle/ParticleSystem.hpp"
 
 
 using namespace Zappy;
@@ -26,6 +27,7 @@ Core::Core(
     int port
 ) : _api(std::make_unique<Api>(host, port)),
     _map(std::make_unique<Map>()),
+    _particleSystem(std::make_unique<ParticleSystem>()),
     _running(true),
     _hudLeft(HudLeft()),
     _hudRight(HudRight())
@@ -70,11 +72,15 @@ void Core::run() {
         while (!WindowShouldClose() && _running) {
             for (auto &player : _map->getPlayers())
                 player->update(GetFrameTime());
+            for (auto &egg : _map->getEggs())
+                egg->update(GetFrameTime());
+            _particleSystem->update(GetFrameTime());
             UpdateCamera(_map->getCameraPtr(), _map->getCameraMode());
             BeginDrawing();
             ClearBackground(RAYWHITE);
             BeginMode3D(_map->getCamera());
             _map->draw(_map->getCamera());
+            _particleSystem->draw();
             EndMode3D();
             _hudLeft.draw(_map.get());
             _hudRight.draw(_map.get());
@@ -372,7 +378,27 @@ void Core::pex(std::string message)
         return;
     }
     _api->requestPlayerPosition(playerNumber);
-    // TODO: Annimation
+
+    auto [expellingPlayerX, expellingPlayerY] = player->getPosition();
+    Zappy::Orientation orientation = player->getOrientation();
+
+    _particleSystem->emit(ParticleType::EXPULSION, expellingPlayerX, 1, expellingPlayerY, 15);
+
+    int dx = 0, dy = 0;
+    switch (orientation) {
+        case Zappy::Orientation::NORTH: dy = -1; break;
+        case Zappy::Orientation::EAST:  dx = 1;  break;
+        case Zappy::Orientation::SOUTH: dy = 1;  break;
+        case Zappy::Orientation::WEST:  dx = -1; break;
+    }
+
+    for (Player* otherPlayer : _map->getPlayersOnTile(expellingPlayerX, expellingPlayerY)) {
+        if (otherPlayer->getPlayerNumber() != playerNumber) {
+            float targetX = otherPlayer->getPosition().first + dx;
+            float targetY = otherPlayer->getPosition().second + dy;
+            otherPlayer->setPosition(targetX, targetY);
+        }
+    }
 }
 
 void Core::pbc(std::string message)
@@ -518,7 +544,6 @@ void Core::pdi(std::string message)
         DEBUG_ERROR("Tile not found at " + std::to_string(pos.first) + " " + std::to_string(pos.second));
         return;
     }
-    //tile->addResource(Zappy::Resources::Type::FOOD, 1);
     _map->removePlayer(playerNumber);
 }
 
@@ -556,9 +581,7 @@ void Core::ebo(std::string message)
         DEBUG_ERROR("Egg not found: " + std::to_string(eggNumber));
         return;
     }
-
-    _map->removeEgg(eggNumber);
-    // TODO: Implement ebo
+    egg->startHatchingAnimation();
 }
 
 void Core::edi(std::string message)

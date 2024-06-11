@@ -30,6 +30,7 @@ VPATH 		+= ./Source/Hud
 VPATH 		+= ./Source/Hud/Left
 VPATH 		+= ./Source/Hud/Right
 VPATH 		+= ./Source/Text
+VPATH 		+= ./Source/Particle
 
 vpath %.cpp $(VPATH)
 
