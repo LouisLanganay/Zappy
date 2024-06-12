@@ -20,6 +20,9 @@
 #include "../Hud/Left/HudLeft.hpp"
 #include "../Hud/Right/HudRight.hpp"
 #include "../Particle/ParticleSystem.hpp"
+#include "../Model3D/Model3D.hpp"
+#include "../Map/Resources/IResources.hpp"
+#include "../Map/Resources/AResources.hpp"
 
 namespace Zappy {
     class Core {

@@ -31,6 +31,7 @@ VPATH 		+= ./Source/Hud/Left
 VPATH 		+= ./Source/Hud/Right
 VPATH 		+= ./Source/Text
 VPATH 		+= ./Source/Particle
+VPATH 		+= ./Source/Model3D
 
 vpath %.cpp $(VPATH)
 
@@ -54,6 +55,7 @@ SRC 		+= AHud.cpp
 SRC 		+= HudLeft.cpp
 SRC 		+= HudRight.cpp
 SRC 		+= Text.cpp
+SRC 		+= Model3D.cpp
 
 BUILD_DIR 	= Build
 OBJ 		:= $(SRC:%.cpp=$(BUILD_DIR)/%.o)

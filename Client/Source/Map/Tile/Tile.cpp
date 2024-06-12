@@ -33,37 +33,30 @@ void Tile::setResources(const std::vector<int>& resources)
     _resources[Zappy::Resources::Type::THYSTAME] = resources[6];
 }
 
-void Tile::draw(int x, int y) const
+void Tile::draw(int x, int y, std::map<Zappy::Resources::Type, Model3D> resources) const
 {
     DrawCube((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, LIGHTGRAY);
     DrawCubeWires((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, GRAY);
 
     Vector3 positions[] = {
-        {(float)x - 0.4f, 0.1f, (float)y - 0.4f}, // FOOD
-        {(float)x + 0.4f, 0.1f, (float)y - 0.4f}, // LINEMATE
-        {(float)x - 0.4f, 0.1f, (float)y + 0.4f}, // DERAUMERE
-        {(float)x + 0.4f, 0.1f, (float)y + 0.4f}, // SIBUR
-        {(float)x, 0.1f, (float)y},               // MENDIANE
-        {(float)x - 0.4f, 0.1f, (float)y},        // PHIRAS
-        {(float)x + 0.4f, 0.1f, (float)y}         // THYSTAME
-    };
-
-    Color colors[] = {
-        RED,    // FOOD
-        GREEN,  // LINEMATE
-        BLUE,   // DERAUMERE
-        PURPLE, // SIBUR
-        ORANGE, // MENDIANE
-        YELLOW, // PHIRAS
-        PINK    // THYSTAME
+        {(float)x - 0.4f, 0.0f, (float)y - 0.4f}, // FOOD
+        {(float)x + 0.4f, 0.0f, (float)y - 0.4f}, // LINEMATE
+        {(float)x - 0.4f, 0.0f, (float)y + 0.4f}, // DERAUMERE
+        {(float)x + 0.4f, 0.0f, (float)y + 0.4f}, // SIBUR
+        {(float)x, 0.0f, (float)y},               // MENDIANE
+        {(float)x - 0.4f, 0.0f, (float)y},        // PHIRAS
+        {(float)x + 0.4f, 0.0f, (float)y}         // THYSTAME
     };
 
     for (int i = 0; i < 7; ++i) {
-        int resourceCount = _resources.at(static_cast<Zappy::Resources::Type>(i));
+        auto resourceType = static_cast<Zappy::Resources::Type>(i);
+        int resourceCount = _resources.at(resourceType);
         for (int j = 0; j < resourceCount; ++j) {
-            float offset = 0.10f * j;
-            DrawSphere((Vector3){ positions[i].x, positions[i].y + offset, positions[i].z }, 0.10f, colors[i]);
-            DrawSphereWires((Vector3){ positions[i].x, positions[i].y + offset, positions[i].z }, 0.10f, 16, 16, BLACK);
+            float offset = 0.5f * j;
+            auto model = resources.at(resourceType);
+            model.setPosition(positions[i].x, positions[i].y + offset, positions[i].z);
+            model.setSize(0.3);
+            model.draw();
         }
     }
 }

@@ -9,6 +9,7 @@
 #ifndef TILE_HPP_
 #define TILE_HPP_
 
+#include "../Resources/AResources.hpp"
 #include "../Resources/IResources.hpp"
 #include "raylib.h"
 #include <vector>
@@ -16,13 +17,15 @@
 #include <algorithm>
 #include <unordered_map>
 #include <iostream>
+#include <map>
+#include "../Model3D/Model3D.hpp"
 
 namespace Zappy {
     class Tile {
         public:
             Tile(int x = 0, int y = 0, int size = 32);
             void setResources(const std::vector<int>& resources);
-            void draw(int x, int y) const;
+            void draw(int x, int y, std::map<Zappy::Resources::Type, Model3D> resources) const;
 
             void addResource(Zappy::Resources::Type type, int quantity);
             void removeResource(Zappy::Resources::Type type, int quantity);

@@ -29,6 +29,7 @@
 #include "Tile/Tile.hpp"
 #include "Team/Team.hpp"
 #include "Egg/Egg.hpp"
+#include "../Model3D/Model3D.hpp"
 
 namespace Zappy {
     struct ServerMessage {
@@ -82,12 +83,15 @@ namespace Zappy {
             Camera3D* getCameraPtr();
 
             std::vector<Player*> getPlayersOnTile(int x, int y);
+
+            void loadModels();
         private:
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
             std::unordered_map<int, std::unique_ptr<Player>> _players;
             std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
             std::queue<ServerMessage> _serverMessages;
+            std::map<Resources::Type, Model3D> _resourcesModel;
             std::mutex _messageMutex;
             std::mutex _teamMutex;
             std::string _winer;

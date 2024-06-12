@@ -8,12 +8,16 @@
 #ifndef ARESOURCES_HPP_
 #define ARESOURCES_HPP_
 
+#include <unordered_map>
+
+#include "../../Model3D/Model3D.hpp"
 #include "IResources.hpp"
 
 namespace Zappy::Resources {
     class AResources : public IResources {
         public:
             AResources(const std::string& type, int initialQuantity = 0);
+            AResources(Type type, int initialQuantity = 0);
             virtual ~AResources() = default;
 
             Type getType() const override;

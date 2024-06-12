@@ -24,6 +24,17 @@ Map::Map()
     _camera.projection = CAMERA_PERSPECTIVE;
 }
 
+void Map::loadModels()
+{
+    _resourcesModel.emplace(Resources::Type::FOOD, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/CopperIngot.png"));
+    _resourcesModel.emplace(Resources::Type::LINEMATE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/CopperIngot.png"));
+    _resourcesModel.emplace(Resources::Type::DERAUMERE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/GoldIngot.png"));
+    _resourcesModel.emplace(Resources::Type::SIBUR, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/IronIngot.png"));
+    _resourcesModel.emplace(Resources::Type::MENDIANE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/MithrilIngot.png"));
+    _resourcesModel.emplace(Resources::Type::PHIRAS, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/SilverIngot.png"));
+    _resourcesModel.emplace(Resources::Type::THYSTAME, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/ThoriumIngot.png"));
+}
+
 void Map::setSize(int width, int height)
 {
     _width = width;
@@ -79,7 +90,7 @@ void Map::draw(Camera camera)
 {
     for (int y = 0; y < _height; ++y) {
         for (int x = 0; x < _width; ++x)
-            _tiles[y][x].draw(x, y);
+            _tiles[y][x].draw(x, y, _resourcesModel);
     }
     for (auto& player : _players)
         player.second->draw(camera);

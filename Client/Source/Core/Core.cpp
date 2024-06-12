@@ -18,6 +18,7 @@
 #include "../Exceptions.hpp"
 #include "../API/Events.h"
 #include "../Particle/ParticleSystem.hpp"
+#include "../Model3D/Model3D.hpp"
 
 
 using namespace Zappy;
@@ -63,11 +64,14 @@ void Core::run() {
         InitWindow(screenWidth, screenHeight, "Zappy Game");
         DEBUG_INFO("Window initialized with size: " + std::to_string(screenWidth) + "x" + std::to_string(screenHeight));
         SetTargetFPS(60);
+        DisableCursor();
 
         _hudRight.setHudPos({
             GetScreenWidth() - _hudRight.getHudWidth() - 20,
             GetScreenHeight() - _hudRight.getHudHeight()
         });
+
+        _map->loadModels();
 
         while (!WindowShouldClose() && _running) {
             for (auto &player : _map->getPlayers())
@@ -467,6 +471,7 @@ void Core::pie(std::string message)
     //    else
     //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
     //}
+    _api->requestTileContent(x, y);
     DEBUG_INFO("Incantation ended at (" + std::to_string(x) + ", " + std::to_string(y) + ") with result: " + std::to_string(result));
 }
 

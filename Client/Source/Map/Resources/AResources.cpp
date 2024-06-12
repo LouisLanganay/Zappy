@@ -30,6 +30,14 @@ AResources::AResources(
         this->type = Type::THYSTAME;
 }
 
+AResources::AResources(
+    Type type,
+    int initialQuantity
+) : quantity(initialQuantity)
+{
+    this->type = type;
+}
+
 Type AResources::getType() const
 {
     return type;
