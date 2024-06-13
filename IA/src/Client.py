@@ -87,12 +87,9 @@ class Client:
     def close(self):
         self.socket.close()
 
-
-
     def command_rcv(self, msg_rcv, input):
         if(input == "Inventory"):
             print("test:", msg_rcv)
-
             msg_rcv = msg_rcv.strip('[]').strip()
             items = msg_rcv.split(',')
             for item in items:
