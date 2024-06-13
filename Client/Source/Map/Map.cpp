@@ -88,9 +88,12 @@ Player* Map::getPlayer(int playerNumber)
 
 void Map::draw(Camera camera)
 {
+    std::vector<Player*> players;
+    for (const auto& [id, player] : _players)
+        players.push_back(player.get());
     for (int y = 0; y < _height; ++y) {
         for (int x = 0; x < _width; ++x)
-            _tiles[y][x].draw(x, y, _resourcesModel);
+            _tiles[y][x].draw(x, y, _resourcesModel, getPlayers());
     }
     for (auto& player : _players)
         player.second->draw(camera);

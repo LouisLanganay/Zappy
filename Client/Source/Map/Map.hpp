@@ -85,10 +85,12 @@ namespace Zappy {
             std::vector<Player*> getPlayersOnTile(int x, int y);
 
             void loadModels();
+
+        protected:
         private:
+            std::unordered_map<int, std::unique_ptr<Player>> _players;
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
-            std::unordered_map<int, std::unique_ptr<Player>> _players;
             std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
             std::queue<ServerMessage> _serverMessages;
             std::map<Resources::Type, Model3D> _resourcesModel;

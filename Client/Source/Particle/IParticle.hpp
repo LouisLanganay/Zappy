@@ -10,7 +10,8 @@
 
 namespace Zappy {
     enum class ParticleType {
-        EXPULSION
+        EXPULSION,
+        INCANTATION
     };
 
     class IParticle {

@@ -7,6 +7,8 @@
 
 #include "Tile.hpp"
 #include "Debug.hpp"
+#include "../../../Exceptions.hpp"
+#include <unordered_map>
 
 using namespace Zappy;
 
@@ -33,26 +35,56 @@ void Tile::setResources(const std::vector<int>& resources)
     _resources[Zappy::Resources::Type::THYSTAME] = resources[6];
 }
 
-void Tile::draw(int x, int y, std::map<Zappy::Resources::Type, Model3D> resources) const
+void Tile::draw(
+    int x,
+    int y,
+    std::map<Zappy::Resources::Type, Model3D> resources,
+    const std::vector<Zappy::Player*>& players
+) const
 {
-    DrawCube((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, LIGHTGRAY);
+    Color tileColor = LIGHTGRAY;
+
+    if (_incantationInProgress && !_incantationPlayers.empty()) {
+        int playerId = _incantationPlayers.front();
+
+        Zappy::Player* player = nullptr;
+        for (const auto& p : players) {
+            if (p->getPlayerNumber() == playerId) {
+                player = p;
+                break;
+            }
+        }
+
+        if (player) {
+            auto team = player->getTeam();
+            if (team) {
+                tileColor = team->getColor();
+            }
+        }
+    }
+
+    DrawCube((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, tileColor);
     DrawCubeWires((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, GRAY);
 
     Vector3 positions[] = {
-        {(float)x - 0.4f, 0.0f, (float)y - 0.4f}, // FOOD
-        {(float)x + 0.4f, 0.0f, (float)y - 0.4f}, // LINEMATE
-        {(float)x - 0.4f, 0.0f, (float)y + 0.4f}, // DERAUMERE
-        {(float)x + 0.4f, 0.0f, (float)y + 0.4f}, // SIBUR
-        {(float)x, 0.0f, (float)y},               // MENDIANE
-        {(float)x - 0.4f, 0.0f, (float)y},        // PHIRAS
-        {(float)x + 0.4f, 0.0f, (float)y}         // THYSTAME
+        {(float)x - 0.4f, 0.05f, (float)y - 0.3f}, // FOOD
+        {(float)x + 0.4f, 0.05f, (float)y - 0.3f}, // LINEMATE
+        {(float)x - 0.4f, 0.05f, (float)y + 0.3f}, // DERAUMERE
+        {(float)x + 0.4f, 0.05f, (float)y + 0.3f}, // SIBUR
+        {(float)x, 0.05f, (float)y},               // MENDIANE
+        {(float)x - 0.4f, 0.05f, (float)y},        // PHIRAS
+        {(float)x + 0.4f, 0.05f, (float)y}         // THYSTAME
     };
 
     for (int i = 0; i < 7; ++i) {
         auto resourceType = static_cast<Zappy::Resources::Type>(i);
         int resourceCount = _resources.at(resourceType);
         for (int j = 0; j < resourceCount; ++j) {
-            float offset = 0.5f * j;
+            float offset = 0.05f * j;
+            if (resourceType == Resources::Type::FOOD) {
+                DrawSphere(positions[i], 0.08, WHITE);
+                continue;
+            }
             auto model = resources.at(resourceType);
             model.setPosition(positions[i].x, positions[i].y + offset, positions[i].z);
             model.setSize(0.3);
@@ -88,8 +120,6 @@ void Tile::startIncantation(int level, const std::vector<int>& players)
 void Tile::endIncantation(int result)
 {
     _incantationInProgress = false;
-    // Handle result
-    _incantationPlayers.clear();
 }
 
 const std::vector<int>& Tile::getIncantationPlayers() const

@@ -438,7 +438,9 @@ void Core::pic(std::string message)
         return;
     }
 
-    //tile->startIncantation(level, players);
+    _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
+
+    tile->startIncantation(level, players);
 //
     //for (int playerId : players) {
     //    Player* player = _map->getPlayer(playerId);
@@ -461,7 +463,9 @@ void Core::pie(std::string message)
         return;
     }
 
-    //tile->endIncantation(result);
+    _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
+
+    tile->endIncantation(result);
 //
     //const std::vector<int>& players = tile->getIncantationPlayers();
     //for (int playerId : players) {

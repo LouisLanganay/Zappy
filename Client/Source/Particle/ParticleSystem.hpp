@@ -9,11 +9,13 @@
 #define PARTICLESYSTEM_HPP_
 
 #include <vector>
+#include <memory>
 #include <math.h>
 #include <algorithm>
 
 #include "IParticle.hpp"
 #include "Expulsion/ExpulsionParticle.hpp"
+#include "Expulsion/IncantationParticle.hpp"
 
 namespace Zappy {
     class ParticleSystem {
@@ -31,6 +33,8 @@ namespace Zappy {
 
                     if (type == ParticleType::EXPULSION)
                         _particles.emplace_back(std::make_unique<ExpulsionParticle>(x, y, z, vx, vy, vz, lifetime));
+                    if (type == ParticleType::INCANTATION)
+                        _particles.emplace_back(std::make_unique<IncantationParticle>(x, y, z, vx, vy, vz, lifetime));
                 }
             }
 

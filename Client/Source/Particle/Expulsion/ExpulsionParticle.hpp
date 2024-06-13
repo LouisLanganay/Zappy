@@ -21,7 +21,7 @@ namespace Zappy {
                 ExpulsionParticle(float x, float y, float z, float vx, float vy, float vz, float lifetime)
                 : AParticle(x, y, z, vx, vy, vz, lifetime)
                 {
-                    int numSpheres = 15;
+                    int numSpheres = 10;
                     for (int i = 0; i < numSpheres; ++i)
                         spheres.push_back({x, y, z});
                 }
