@@ -92,6 +92,7 @@ namespace Zappy {
             std::vector<std::vector<Tile>> _tiles;
             std::unordered_map<std::string, std::unique_ptr<Team>> _teams;
             std::unordered_map<int, std::unique_ptr<Egg>> _eggs;
+            Model3D _egsModel;
             std::queue<ServerMessage> _serverMessages;
             std::map<Resources::Type, Model3D> _resourcesModel;
             std::mutex _messageMutex;

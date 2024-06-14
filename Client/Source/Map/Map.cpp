@@ -33,6 +33,8 @@ void Map::loadModels()
     _resourcesModel.emplace(Resources::Type::MENDIANE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/MithrilIngot.png"));
     _resourcesModel.emplace(Resources::Type::PHIRAS, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/SilverIngot.png"));
     _resourcesModel.emplace(Resources::Type::THYSTAME, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/ThoriumIngot.png"));
+
+    _egsModel = Model3D("Client/Models/Egg/Egg.obj", "Client/Models/Egg/Egg.png");
 }
 
 void Map::setSize(int width, int height)
@@ -98,7 +100,7 @@ void Map::draw(Camera camera)
     for (auto& player : _players)
         player.second->draw(camera);
     for (auto& egg : _eggs)
-        egg.second->draw();
+        egg.second->draw(_egsModel);
 }
 
 void Map::setTeams(const std::vector<std::string>& teams)

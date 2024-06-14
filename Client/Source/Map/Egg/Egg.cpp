@@ -55,7 +55,7 @@ bool Egg::isHatched() const
     return _hatched;
 }
 
-void Egg::draw()
+void Egg::draw(Model3D model)
 {
     if (_hatched)
         return;
@@ -68,7 +68,9 @@ void Egg::draw()
         }
     } else {
         Vector3 position = {(float)_position.first, 0.5f, (float)_position.second};
-        DrawSphere(position, 0.35f, BROWN);
+        model.setPosition(position.x, position.y, position.z);
+        model.setSize(0.05);
+        model.draw();
     }
 }
 

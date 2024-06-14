@@ -96,12 +96,18 @@ int Player::getResourceQuantity(const Zappy::Resources::IResources* resource) co
     return 0;
 }
 
-void Player::setPosition(int x, int y)
+void Player::generateRandomDrawPosition()
 {
+    _drawPosition.x = GetRandomValue(-30, 30) / 100.0f;
+    _drawPosition.y = GetRandomValue(-30, 30) / 100.0f;
+}
+
+void Player::setPosition(int x, int y) {
     _targetX = x;
     _targetY = y;
     _isMoving = true;
     _timeAccumulator = 0.0f;
+    generateRandomDrawPosition();
 }
 
 void Player::update(float deltaTime)
@@ -160,26 +166,25 @@ std::string Player::getBroadcast()
     return _broadcasts.front().message;
 }
 
-void Player::draw(Camera camera)
-{
-    Vector3 position = {_x, 0.5f, _y};
+void Player::draw(Camera camera) {
+    Vector3 position = {_x + _drawPosition.x, 0.3f, _y + _drawPosition.y};
 
-    DrawCube(position, 0.5f, 0.5f, 0.5f, _team->getColor());
-    DrawCubeWires(position, 0.5f, 0.5f, 0.5f, BLACK);
+    DrawCube(position, 0.3f, 0.3f, 0.3f, _team->getColor());
+    DrawCubeWires(position, 0.3f, 0.3f, 0.3f, BLACK);
 
     Vector3 spherePosition = position;
     if (_orientation == Orientation::NORTH)
-        spherePosition.z -= 0.2f;
+        spherePosition.z -= 0.1f;
     else if (_orientation == Orientation::SOUTH)
-        spherePosition.z += 0.2f;
+        spherePosition.z += 0.1f;
     else if (_orientation == Orientation::EAST)
-        spherePosition.x += 0.2f;
+        spherePosition.x += 0.1f;
     else if (_orientation == Orientation::WEST)
-        spherePosition.x -= 0.2f;
+        spherePosition.x -= 0.1f;
 
-    spherePosition.y += 0.2f;
+    spherePosition.y += 0.1f;
 
-    DrawSphere(spherePosition, 0.2f, BLACK);
+    DrawSphere(spherePosition, 0.1f, BLACK);
 
     if (!_isSelected)
         return;
@@ -195,6 +200,7 @@ void Player::draw(Camera camera)
     Vector3 pos = {position.x - tbox.x / 2, position.y + 1.0f, position.z - tbox.z / 2};
     text.DrawTextWave3D(GetFontDefault(), opt, pos, 3, 1, 1, true, &wcfg, GetTime(), BLACK);
 }
+
 
 std::unordered_map<Zappy::Resources::Type, int> Player::getInventory() const
 {

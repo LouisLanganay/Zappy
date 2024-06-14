@@ -12,6 +12,7 @@
 #include <memory>
 #include <raylib.h>
 #include "../Team/Team.hpp"
+#include "../../Model3D/Model3D.hpp"
 
 namespace Zappy {
     class Egg {
@@ -25,7 +26,7 @@ namespace Zappy {
             void setHatched(bool hatched);
             bool isHatched() const;
 
-            void draw();
+            void draw(Model3D model);
             void startHatchingAnimation();
             void update(float deltaTime);
 

@@ -72,6 +72,8 @@ namespace Zappy {
             void startIncantation();
             void endIncantation(int result);
 
+            void generateRandomDrawPosition();
+
         protected:
         private:
             int _playerNumber;
@@ -89,6 +91,7 @@ namespace Zappy {
             float _targetY;
             bool _isMoving;
             bool _isSelected = false;
+            Vector2 _drawPosition;
             float _movementSpeed; // Speed of movement per second
             float _timeAccumulator; // Time accumulator for interpolation
 
