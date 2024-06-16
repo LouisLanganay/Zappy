@@ -6,6 +6,16 @@ import random
 import time
 from ParseArgs import ParseArgs
 
+levels = [
+    {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
+    {"linemate": 1, "deraumere": 1, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0},
+    {"linemate": 2, "deraumere": 0, "sibur": 1, "mendiane": 0, "phiras": 2, "thystame": 0},
+    {"linemate": 1, "deraumere": 1, "sibur": 2, "mendiane": 0, "phiras": 1, "thystame": 0},
+    {"linemate": 1, "deraumere": 2, "sibur": 1, "mendiane": 3, "phiras": 0, "thystame": 0},
+    {"linemate": 1, "deraumere": 2, "sibur": 3, "mendiane": 0, "phiras": 1, "thystame": 0},
+    {"linemate": 2, "deraumere": 2, "sibur": 2, "mendiane": 2, "phiras": 2, "thystame": 1}
+]
+
 inventory = {
     "food": 0,
     "linemate": 0,
@@ -123,124 +133,73 @@ class AI:
         if type_of_response == 'look':
             self.vision = self.parse_vision(response)
     
-    def move_left(self):
-        if self.direction == 'Up':
-            self.direction = 'Left'
+    def set_direction(self, goal_direction):
+        if self.direction == goal_direction:
+            return
+        
+        idx_directions = ['Left', 'Up', 'Right', 'Down']
+        idx_goal = idx_directions.index(goal_direction)
+        idx_current = idx_directions.index(self.direction)
+        diff = idx_goal - idx_current
+        if diff == 1 or diff == -3:
+            self.queue.append('Left')
+        elif diff == 2 or diff == -2:
             self.queue.append('Right')
-            self.queue.append('Forward')
-        elif self.direction == 'Down':
-            self.direction = 'Left'
-            self.queue.append('Left')
-            self.queue.append('Forward')
-        elif self.direction == 'Left':
-            self.direction = 'Left'
-            self.queue.append('Forward')
-        elif self.direction == 'Right':
-            self.direction = 'Left'
-            self.queue.append('Left')
-            self.queue.append('Left')
-            self.queue.append('Forward')
+            self.queue.append('Right')
+        elif diff == 3 or diff == -1:
+            self.queue.append('Right')
+        self.direction = goal_direction
 
-    # def move_right(self):
+    def move_direction(self, goal_direction):
+        self.set_direction(goal_direction)
+        self.queue.append('Forward')
 
+    def move_to(self, goal_x, goal_y):
+        
+        vertical_direction = 'Down' if goal_y > self.y else 'Up'
+        horizontal_direction = 'Right' if goal_x > self.x else 'Left'
 
-    # def move_right(self):
+        while self.y != goal_y:
+            self.move_direction(vertical_direction)
+            if vertical_direction == 'Down':
+                self.y += 1
+            else:
+                self.y -= 1
 
-
-    
-    # def move_left(self):
-    #     self.queue.append('Left')
-    #     self.queue.append('Forward')
-
-    # def move_right(self):
-    #     self.queue.append('Right')
-    #     self.queue.append('Forward')
-
-    # def move_up(self):
-    #     self.queue.append('Forward')
-
-    # def move_down(self):
-    #     self.queue.append('Right')
-    #     self.queue.append('Right')
-    #     self.queue.append('Forward')
-
-    # def move_to(self, target_x, target_y):
-    #     while x < target_x:
-    #         self.
-    # def turn_left(self):
-    #     directions = ['Up', 'Left', 'Down', 'Right']
-    #     self.direction = directions[(directions.index(self.direction) + 1) % 4]
-    #     self.queue.append('Left')
-
-    # def turn_right(self):
-    #     directions = ['Up', 'Right', 'Down', 'Left']
-    #     self.direction = directions[(directions.index(self.direction) + 1) % 4]
-    #     self.queue.append('Right')
-
-    # def move_forward(self):
-    #     self.queue.append('Forward')
-    #     if self.direction == 'Up':
-    #         self.y -= 1
-    #     elif self.direction == 'Down':
-    #         self.y += 1
-    #     elif self.direction == 'Left':
-    #         self.x -= 1
-    #     elif self.direction == 'Right':
-    #         self.x += 1
-
-    # def move_to(self, target_x, target_y):
-    #     print(f"Player position: ({self.x}, {self.y})")
-    #     print(f"Player direction: {self.direction}")
-    #     print(f"Player target position: ({target_x}, {target_y})")
-
-    #     while self.x != target_x or self.y != target_y:
-    #         if self.y < target_y:
-    #             if self.direction != 'Down':
-    #                 self.turn_right()
-    #                 if self.direction != 'Down':
-    #                     self.turn_right()
-    #             self.move_forward()
-    #         elif self.y > target_y:
-    #             if self.direction != 'Up':
-    #                 self.turn_right()
-    #                 if self.direction != 'Up':
-    #                     self.turn_right()
-    #             self.move_forward()
-    #         elif self.x < target_x:
-    #             if self.direction != 'Right':
-    #                 self.turn_right()
-    #                 if self.direction != 'Right':
-    #                     self.turn_right()
-    #             self.move_forward()
-    #         elif self.x > target_x:
-    #             if self.direction != 'Left':
-    #                 self.turn_right()
-    #                 if self.direction != 'Left':
-    #                     self.turn_right()
-    #             self.move_forward()
+        while self.x != goal_x:
+            self.move_direction(horizontal_direction)
+            if horizontal_direction == 'Right':
+                self.x += 1
+            else:
+                self.x -= 1
 
     def take_resources(self, resource):
         state = False
         for i, row in enumerate(self.vision):
             for j, cell in enumerate(row):
-                if cell[resource] > 0:
-                    self.move_to(j, i)  # Adjusted for row-column order
-                    for _ in range(cell[resource]):
-                        self.queue.append(f'Take {resource}')
-                    state = True
+                try:
+                    if cell[resource] > 0:
+                        self.move_to(j, i)  # Adjusted for row-column order
+                        for _ in range(cell[resource]):
+                            self.queue.append(f'Take {resource}')
+                        state = True
+                except:
+                    print(f"{resource} doesn't exist")
         return state
+    
+    def reset_direction(self):
+        self.direction = 'Down'
 
     def algorithm(self):
         # Set initial position and direction of the player in the vision grid
         self.y = 0
         self.x = len(self.vision[0]) // 2
+        self.reset_direction()
 
-        self.move_left()
-        # self.direction = 'Down'
-        # Check if there is food in the vision
-        # if self.inventory['food'] < 10:
-        #     if self.take_resources('food'):
-        #         return self.queue
+        if not self.take_resources('food'):
+            # we are now going to append a random choice between Forward, Left, right
+            self.queue.append(random.choice(['Forward', 'Left', 'Right']))
+            self.queue.append('Forward')
         
         return self.queue
 
@@ -298,12 +257,10 @@ class Client:
         self.connect()
         self.receive(self.socket)
         self.receive(self.socket)
-        
         while True:
             self.update_vision()
             self.update_inventory()
-            self.queue = self.ai.algorithm()       
-            print(self.queue) 
+            self.queue = self.ai.algorithm()
             self.send_queue()
 
 def main():
