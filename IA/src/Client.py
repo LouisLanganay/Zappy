@@ -191,7 +191,7 @@ class ParseArgs:
         except ValueError:
             self.print_invalid_argument()
             sys.exit(84)
-        
+
         if self.port == -1 or self.name == '':
             self.print_usage()
             sys.exit(84)
@@ -265,10 +265,8 @@ class Client:
             print(available_slots_msg)
             available_slots = int(available_slots_msg.split('\n')[0].strip())
             chaine = available_slots_msg.splitlines()
-            print(chaine)
             list_nbr = chaine[1].split()
             self.size_map = tuple(int(nombre) for nombre in list_nbr)
-            print(self.size_map)
             return available_slots + 1
         return 0
 
@@ -296,12 +294,27 @@ class Client:
 
     def connect(self):
         self.send(self.name + '\n')
-    
+
+    def check_broadcast(self, msg_serv):
+        msg_serv_parse = msg_serv.split()
+        if (msg_serv_parse[0] == "message"):
+            return "ok"
+        return msg_serv
+
+    def handle_broadcast(self):
+        pass
+
+
+    def handleCommand():
+        pass
+
     def run(self):
-        self.connect()
-        self.receive(self.socket)
-        self.receive(self.socket)
-        
+        msg_serv = self.receive(self.socket)
+        if (self.check_broadcast(msg_serv) == "ok"):
+            self.handle_broadcast()
+        self.handleCommand()
+        return
+
         while True:
             self.send('Look\n')
             data = self.receive(self.socket)
@@ -325,7 +338,8 @@ def main():
     host, port, name = parser.parse(args)
     client = Client(host, port, name)
     available_slots = client.connect_and_get_slots()
-
+    if (available_slots == 0):
+        return "ko"
     client.run()
 
 if __name__ == "__main__":
