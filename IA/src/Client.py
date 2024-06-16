@@ -247,13 +247,30 @@ class Client:
         self.name = name
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
-
+        self.size_map = (0,0)
         self.selector = selectors.DefaultSelector()
         self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
+
 
         self.ai = AI(self)
         self.command_queue = []
         self.max_queue_size = 10
+
+
+    def connect_and_get_slots(self):
+        if (self.receive(self.socket) == "WELCOME"):
+            print("WELCOME")
+            self.send(self.name + '\n')
+            available_slots_msg = self.receive(self.socket)
+            print(available_slots_msg)
+            available_slots = int(available_slots_msg.split('\n')[0].strip())
+            chaine = available_slots_msg.splitlines()
+            print(chaine)
+            list_nbr = chaine[1].split()
+            self.size_map = tuple(int(nombre) for nombre in list_nbr)
+            print(self.size_map)
+            return available_slots + 1
+        return 0
 
     def send(self, data):
         if len(self.command_queue) < self.max_queue_size:
@@ -307,6 +324,8 @@ def main():
     parser = ParseArgs()
     host, port, name = parser.parse(args)
     client = Client(host, port, name)
+    available_slots = client.connect_and_get_slots()
+
     client.run()
 
 if __name__ == "__main__":
