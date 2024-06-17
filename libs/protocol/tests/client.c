@@ -7,7 +7,6 @@
 
 #include <errno.h>
 #include <signal.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -48,7 +47,7 @@ int main(void)
         return EXIT_FAILURE;
     printf("Client started\n");
     setup_signal();
-    protocol_client_send_packet(client, 0, "Hello from client!", 18);
+    protocol_client_send_message(client, "Hello from client!");
     while (is_open(false) && protocol_client_is_connected(client)) {
         protocol_client_listen(client);
         while (!TAILQ_EMPTY(&client->payloads)) {
