@@ -15,10 +15,9 @@ $(NAME):
 	ln -sf $(abspath $(SRC)) $(abspath $(NAME))
 
 clean:
-	rm -rf ./src/__pycache__
-
+	rm -rf src/__pycache__
+	
 fclean: clean
-	rm -f $(NAME)
 
 re: fclean all
 

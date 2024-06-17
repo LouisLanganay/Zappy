@@ -10,11 +10,21 @@
 
 #include "protocol/server.h"
 
+static void handle_payload(
+    protocol_server_t *server,
+    protocol_payload_t *payload)
+{
+    char *message = protocol_receive_message(payload);
+
+    printf("Received packet: %s\n", message);
+    protocol_server_send_message(server, payload->fd, "Hello from server!");
+    free(message);
+}
+
 int main(void)
 {
     protocol_server_t *server = protocol_server_create(4242);
     protocol_payload_t *payload;
-    const protocol_packet_t server_payload = {0, "Hello from server!"};
 
     if (!server)
         return EXIT_FAILURE;
@@ -24,8 +34,7 @@ int main(void)
         while (!TAILQ_EMPTY(&server->payloads)) {
             payload = TAILQ_FIRST(&server->payloads);
             TAILQ_REMOVE(&server->payloads, payload, entries);
-            printf("Received packet: %s\n", (char *)payload->packet.data);
-            protocol_server_send_packet(&server_payload, payload->fd, server);
+            handle_payload(server, payload);
             free(payload);
         }
     }

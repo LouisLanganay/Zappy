@@ -9,6 +9,7 @@
     #define PROTOCOL_DATA_H
 
     #include <netinet/in.h>
+    #include <sys/queue.h>
 
     #define DATA_SIZE 1024
 

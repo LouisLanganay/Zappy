@@ -25,6 +25,8 @@ typedef struct {
  *
  * @param port The port to listen on
  * @return protocol_server_t* The created server
+ *
+ * @note The server must be closed after use with protocol_server_close
  */
 protocol_server_t *protocol_server_create(
     int port);
@@ -50,6 +52,8 @@ bool protocol_server_is_open(void);
  *
  * @param server The server to listen with
  * @return protocol_payload_t* The received payload
+ *
+ * @note The payload must be freed after use
  */
 protocol_payload_t *protocol_server_listen(
     protocol_server_t *server);
@@ -57,29 +61,43 @@ protocol_payload_t *protocol_server_listen(
 /**
  * @brief Send a packet to a client
  *
- * @param packet The packet to send
- * @param client_fd The client to send the packet to
  * @param server The server to send the packet with
+ * @param client_fd The client to send the packet to
+ * @param packet The packet to send
  * @return true If the packet was sent
  * @return false If the packet was not sent
  */
 bool protocol_server_send_packet(
-    const protocol_packet_t *packet,
+    protocol_server_t *server,
     int client_fd,
-    protocol_server_t *server);
+    const protocol_packet_t *packet);
 
 /**
  * @brief Send a packet type to a client
  *
- * @param type The type of the packet to send
- * @param client_fd The client to send the packet to
  * @param server The server to send the packet with
+ * @param client_fd The client to send the packet to
+ * @param type The type of the packet to send
  * @return true If the packet was sent
  * @return false If the packet was not sent
  */
 bool protocol_server_send_packet_type(
-    uint16_t type,
+    protocol_server_t *server,
     int client_fd,
-    protocol_server_t *server);
+    uint16_t type);
+
+/**
+ * @brief Send a message to a client
+ *
+ * @param server The server to send the message with
+ * @param client_fd The client to send the message to
+ * @param message The message to send
+ * @return true If the message was sent
+ * @return false If the message was not sent
+ */
+bool protocol_server_send_message(
+    protocol_server_t *server,
+    int client_fd,
+    const char *message);
 
 #endif //PROTOCOL_SERVER_H
