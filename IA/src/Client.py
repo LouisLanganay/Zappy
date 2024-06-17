@@ -302,12 +302,9 @@ class Client:
         # Optionally handle response to broadcast if needed
 
     def handle_broadcast(self, message):
-        # Logic to handle incoming broadcast messages
         if message.startswith('Broadcast'):
             _, content = message.split(' ', 1)
-            # Example: Handle broadcast content here
             print(f"Received broadcast: {content}")
-            # Add logic to respond or update internal state based on the broadcast
 
     def close(self):
         self.selector.unregister(self.socket)
@@ -318,15 +315,15 @@ class Client:
     
     def run(self):
         self.connect()
-        self.receive()  # Initial connection response
-        self.receive()  # Additional server response (if any)
+        self.receive()  # Initial connection response (welcome message)
+        self.receive()  # Additional server response (map size)
         while True:
             self.update_inventory()
             self.update_vision()
             self.queue = self.ai.algorithm()
             self.send_movement_queue()
 
-            # Check for broadcasts
+            # Check for broadcasts from other clients
             events = self.selector.select(timeout=0)
             for key, mask in events:
                 callback = key.data
