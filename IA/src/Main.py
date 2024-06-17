@@ -88,12 +88,20 @@ class MainClient:
             sys.exit(84)
         return data
 
+
+
     def connect_and_get_slots(self):
-        self.send(self.name + '\n')
-        welcome_msg = self.receive()
-        available_slots_msg = self.receive()
-        available_slots = int(available_slots_msg.split('\n')[0].strip())
-        return available_slots + 1
+        if (self.receive() == "WELCOME"):
+            print("WELCOME")
+            self.send(self.name + '\n')
+            available_slots_msg = self.receive()
+            print(available_slots_msg)
+            available_slots = int(available_slots_msg.split('\n')[0].strip())
+            chaine = available_slots_msg.splitlines()
+            list_nbr = chaine[1].split()
+            self.size_map = tuple(int(nombre) for nombre in list_nbr)
+            return available_slots + 1
+        return 0
 
     def close(self):
         self.socket.close()
@@ -111,7 +119,7 @@ if __name__ == '__main__':
     mainClient.close()
 
     for i in range(available_slots):
-        subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name])
+        subprocess.Popen(['./src/Client.py', '-p', str(port), '-n', name])
 
     while True:
         continue

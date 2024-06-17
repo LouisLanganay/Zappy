@@ -312,7 +312,7 @@ class Client:
 
     def connect(self):
         self.send(self.name)
-    
+
     def run(self):
         self.connect()
         self.receive()  # Initial connection response (welcome message)
@@ -334,16 +334,6 @@ class Client:
                 else:
                     self.ai.update_state(data)
 
-
-def main():
-    args = sys.argv[1:]
-    parser = ParseArgs()
-    host, port, name = parser.parse(args)
-    client = Client(host, port, name)
-    client.run()
-
-if __name__ == "__main__":
-    main()
 
 def main():
     args = sys.argv[1:]

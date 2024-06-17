@@ -5,19 +5,26 @@
 ## Makefile
 ##
 
-NAME	=	zappy_ai
+NAME = zappy_ai
+CLIENT_NAME = client
 
-SRC =	src/Main.py
+SRC = src/Main.py
+CLIENT_SRC = src/Client.py
 
-all: $(NAME)
+all: $(NAME) $(CLIENT_NAME)
 
 $(NAME):
 	ln -sf $(abspath $(SRC)) $(abspath $(NAME))
 
+$(CLIENT_NAME):
+	ln -sf $(abspath $(CLIENT_SRC)) $(abspath $(CLIENT_NAME))
+	chmod +x $(abspath $(CLIENT_SRC))
+
 clean:
 	rm -rf src/__pycache__
-	
+
 fclean: clean
+	rm -f $(NAME) $(CLIENT_NAME)
 
 re: fclean all
 
