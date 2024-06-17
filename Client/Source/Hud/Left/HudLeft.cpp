@@ -9,7 +9,7 @@
 
 using namespace Zappy;
 
-HudLeft::HudLeft() : AHud({500, 0}, {20, 20})
+HudLeft::HudLeft() : AHud({650, 0}, {20, 20})
 {
 }
 
@@ -66,6 +66,16 @@ void HudLeft::_drawServerInfos(Map *map, float &y)
         BLACK,
         false
     );
+    drawTextWrapped(
+        "Press 'I' to increase and 'U' to decrease",
+        _hudPadding,
+        y,
+        _hudWidth - _hudPadding * 2,
+        _textSize,
+        BLACK,
+        false
+    );
+
     drawTextWrapped(
         "Map size: " + std::to_string(map->getWidth()) + "x" + std::to_string(map->getHeight()),
         _hudPadding,
