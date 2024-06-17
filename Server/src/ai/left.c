@@ -2,30 +2,30 @@
 ** EPITECH PROJECT, 2024
 ** zappy
 ** File description:
-** forward
+** left
 */
 
 #include <stdio.h>
 
 #include "server/ai_header.h"
 
-void forward(
+void left(
     const zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {
     switch (ai->orientation) {
         case NORTH:
-            ai->pos.y = (ai->pos.y + server->height - 1) % server->height;
+            ai->orientation = WEST;
             break;
         case WEST:
-            ai->pos.x = (ai->pos.x + server->width - 1) % server->width;
+            ai->orientation = SOUTH;
             break;
         case EAST:
-            ai->pos.x = (ai->pos.x + 1) % server->width;
+            ai->orientation = NORTH;
             break;
         case SOUTH:
-            ai->pos.y = (ai->pos.y + 1) % server->height;
+            ai->orientation = EAST;
             break;
     }
     protocol_server_send(server->socket, ai->fd, "ok");

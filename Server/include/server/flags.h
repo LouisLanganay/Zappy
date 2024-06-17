@@ -54,7 +54,7 @@ static inline void set_teams(
             return;
         team->id = TAILQ_EMPTY(&server->teams) ? 1 :
             TAILQ_LAST(&server->teams, teamhead)->id + 1;
-        strncpy(team->name, optargs->av[i], 64);
+        strncpy(team->name, optargs->av[i], TEAM_NAME_SIZE);
         TAILQ_INSERT_TAIL(&server->teams, team, entries);
     }
 }

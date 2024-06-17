@@ -11,7 +11,22 @@
 
 void right(
     const zappy_server_t *server,
-    const int interlocutor,
-    const char *message)
+    ai_t *ai,
+    UNUSED const char *message)
 {
+    switch (ai->orientation) {
+        case NORTH:
+            ai->orientation = EAST;
+            break;
+        case WEST:
+            ai->orientation = NORTH;
+            break;
+        case EAST:
+            ai->orientation = SOUTH;
+            break;
+        case SOUTH:
+            ai->orientation = WEST;
+            break;
+    }
+    protocol_server_send(server->socket, ai->fd, "ok");
 }

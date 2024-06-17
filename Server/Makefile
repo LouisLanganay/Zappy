@@ -14,8 +14,9 @@ SRC			:=	$(addprefix $(DIR)/,								\
 					server.c										\
 					payload.c										\
 					verbose.c										\
-					get_ai_by_id.c									\
-					gui_send_to_all.c								\
+					ai.c											\
+					gui.c											\
+					team.c											\
 				)
 
 DIR			+=	src/gui
@@ -51,8 +52,19 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 
 DIR         +=	src/ai
 SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					broadcast.c										\
+					connect_nbr.c									\
+					death.c											\
+					eject.c											\
+					fork.c											\
 					forward.c										\
+					incantation.c									\
+					inventory.c										\
+					left.c											\
+					look.c											\
 					right.c											\
+					set.c											\
+					take.c											\
 				)
 
 DIR_BUILD	:=	build

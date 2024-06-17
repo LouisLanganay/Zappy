@@ -22,7 +22,7 @@ void plv(
         sbp(server, interlocutor);
         return;
     }
-    ai = get_ai_by_id(server, id);
+    ai = ai_get_by_id(server, id);
     if (!ai) {
         sbp(server, interlocutor);
         return;
