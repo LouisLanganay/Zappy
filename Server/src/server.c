@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include "server.h"
+#include "server/game.h"
 
 #include <string.h>
 
@@ -77,6 +78,7 @@ bool zappy_server(zappy_server_t *server)
         return false;
     display_server(server);
     while (protocol_server_is_open()) {
+        game_update(server);
         protocol_server_listen(server->socket);
         if (!handle_payload(server))
             return false;
