@@ -51,13 +51,17 @@ debug: 		$(DEPS)			; $(MAKE_DEPS)
 		"project compiled successfully in debug mode !"
 clean: 		$(DEPS)			; $(MAKE_DEPS)
 	@$(ECHO) "${_B_GREEN}[SUCCESS]${_END} project cleaned successfully !"
-fclean:		$(DEPS)			; $(MAKE_DEPS)
+fclean: 	$(DEPS)			; $(MAKE_DEPS)
+	rm -f zappy_ai  # Remove the symlink during fclean, if necessary
 	@for out in $(realpath $(join $(addsuffix /../, $(DEPS)), $(OUTS))); do \
 		if [ -f $$out ]; then 												\
-			$(ECHO) "${_B_YELLOW}[INFO]${_END} Removing $${out##*/}..."; 	\
-			rm -f $$out; 													\
+			if [ "$${out##*/}" != "Main.py" ]; then                          \
+				$(ECHO) "${_B_YELLOW}[INFO]${_END} Removing $${out##*/}..."; \
+				rm -f $$out; 												\
+			fi;                                                             \
 		fi 																	\
 	done
+
 
 re: fclean all
 
