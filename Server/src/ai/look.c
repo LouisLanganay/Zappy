@@ -57,6 +57,7 @@ void look(
             add_element_to_message(formatted_message, ",");
         }
     }
+    formatted_message[strlen(formatted_message) - 1] = '\0';
     add_element_to_message(formatted_message, " ]");
     protocol_server_send(server->socket, ai->fd, formatted_message);
 }
