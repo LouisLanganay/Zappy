@@ -106,11 +106,13 @@ void test_server_run(test_server_t *test_server) {
                 printf("Sending message: pbc 1 ahahah ahahah ahahah\n");
                 r = protocol_server_send(test_server->server, payload->fd, "pbc 1 ahahah ahahah ahahah\n");
                 printf("Result: %i\n", r);
-                sleep(0.5);
+                protocol_server_send(test_server->server, payload->fd, "pfk 1\n");
+                sleep(8);
                 printf("Sending message: enw 1 1 3 2\n");
                 r = protocol_server_send(test_server->server, payload->fd, "enw 1 1 3 2\n");
                 printf("Result: %i\n", r);
                 sleep(5);
+                protocol_server_send(test_server->server, payload->fd, "ebo 1\n");
                 protocol_server_send(test_server->server, payload->fd, "pex 4\n");
                 while (a < 5) {
                     printf("Sending message: ppo 1 3 2 1\n");
