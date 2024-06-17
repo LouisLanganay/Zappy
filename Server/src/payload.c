@@ -57,7 +57,7 @@ static void add_ai(
 
     if (!ai)
         return;
-    *ai = (ai_t){.fd = payload->fd, .level = 1};
+    *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
             ai->team = team;

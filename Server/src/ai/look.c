@@ -41,6 +41,66 @@ static void look_tile(
         add_element_to_message(formatted_message, " thystame");
 }
 
+static void look_north(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    char *formatted_message)
+{
+    for (int y = 0; y <= ai->level; y++) {
+        for (int x = -y; x <= y; x++) {
+            look_tile(server, formatted_message, &(vector2_t){
+                (server->width + ai->pos.x + x) % server->width,
+                (server->height + ai->pos.y - y) % server->height});
+            add_element_to_message(formatted_message, ",");
+        }
+    }
+}
+
+static void look_east(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    char *formatted_message)
+{
+    for (int x = 0; x <= ai->level; x++) {
+        for (int y = -x; y <= x; y++) {
+            look_tile(server, formatted_message, &(vector2_t){
+                (server->width + ai->pos.x + x) % server->width,
+                (server->height + ai->pos.y + y) % server->height});
+            add_element_to_message(formatted_message, ",");
+        }
+    }
+}
+
+static void look_south(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    char *formatted_message)
+{
+    for (int y = 0; y <= ai->level; y++) {
+        for (int x = -y; x <= y; x++) {
+            look_tile(server, formatted_message, &(vector2_t){
+                (server->width + ai->pos.x + x) % server->width,
+                (server->height + ai->pos.y + y) % server->height});
+            add_element_to_message(formatted_message, ",");
+        }
+    }
+}
+
+static void look_west(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    char *formatted_message)
+{
+    for (int x = 0; x <= ai->level; x++) {
+        for (int y = -x; y <= x; y++) {
+            look_tile(server, formatted_message, &(vector2_t){
+                (server->width + ai->pos.x - x) % server->width,
+                (server->height + ai->pos.y + y) % server->height});
+            add_element_to_message(formatted_message, ",");
+        }
+    }
+}
+
 void look(
     const zappy_server_t *server,
     ai_t *ai,
@@ -49,13 +109,19 @@ void look(
     char formatted_message[DATA_SIZE] = {0};
 
     snprintf(formatted_message, DATA_SIZE, "[");
-    for (int y = 0; y <= ai->level; y++) {
-        for (int x = -y; x <= y; x++) {
-            look_tile(server, formatted_message, &(vector2_t){
-                (server->width + ai->pos.x + x) % server->width,
-                (server->height + ai->pos.y + y) % server->height});
-            add_element_to_message(formatted_message, ",");
-        }
+    switch (ai->orientation) {
+        case NORTH:
+            look_north(server, ai, formatted_message);
+            break;
+        case EAST:
+            look_east(server, ai, formatted_message);
+            break;
+        case SOUTH:
+            look_south(server, ai, formatted_message);
+            break;
+        case WEST:
+            look_west(server, ai, formatted_message);
+            break;
     }
     formatted_message[strlen(formatted_message) - 1] = '\0';
     add_element_to_message(formatted_message, " ]");
