@@ -8,6 +8,7 @@
 #include "Map.hpp"
 #include <iostream>
 #include "Debug.hpp"
+#include <random>
 
 using namespace Zappy;
 
@@ -44,10 +45,18 @@ void Map::setSize(int width, int height)
     int tileSize = 32;
     _tiles.resize(height);
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+
+    std::uniform_real_distribution<float> freq_dist(0.05f, 0.2f);
+    std::uniform_real_distribution<float> ampl_dist(0.5f, 2.0f);
+    float frequency = freq_dist(gen);
+    float amplitude = ampl_dist(gen);
+
     for (int y = 0; y < height; ++y) {
         _tiles[y].resize(width);
         for (int x = 0; x < width; ++x)
-            _tiles[y][x] = Tile(x, y, tileSize);
+            _tiles[y][x] = Tile(x, y, tileSize, frequency, amplitude);
     }
     DEBUG_SUCCESS("Map size set to: " + std::to_string(width) + "x" + std::to_string(height));
 }
@@ -97,10 +106,20 @@ void Map::draw(Camera camera)
         for (int x = 0; x < _width; ++x)
             _tiles[y][x].draw(x, y, _resourcesModel, getPlayers());
     }
-    for (auto& player : _players)
-        player.second->draw(camera);
-    for (auto& egg : _eggs)
-        egg.second->draw(_egsModel);
+    for (auto& player : _players) {
+        float height = getTile(
+            player.second->getPosition().first,
+            player.second->getPosition().second
+        )->getTileHeight();
+        player.second->draw(camera, height);
+    }
+    for (auto& egg : _eggs) {
+        float height = getTile(
+            egg.second->getPosition().first,
+            egg.second->getPosition().second
+        )->getTileHeight();
+        egg.second->draw(_egsModel, height);
+    }
 }
 
 void Map::setTeams(const std::vector<std::string>& teams)

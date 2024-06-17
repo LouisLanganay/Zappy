@@ -95,6 +95,7 @@ namespace Zappy {
             Model3D _egsModel;
             std::queue<ServerMessage> _serverMessages;
             std::map<Resources::Type, Model3D> _resourcesModel;
+            Model3D _grassTexture;
             std::mutex _messageMutex;
             std::mutex _teamMutex;
             std::string _winer;
