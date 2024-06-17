@@ -16,6 +16,18 @@ int displayHelp(int return_value)
     std::cout << "\tmachine\t is the hostname of the server" << std::endl;
     std::cout << "" << std::endl;
     std::cout << "EXAMPLE: ./zappy_gui -p 4242 -h 192.0.0.1" << std::endl;
+    std::cout << "" << std::endl;
+    std::cout << "KEYBINDINGS:" << std::endl;
+    std::cout << "\tZ\tMove forward" << std::endl;
+    std::cout << "\tQ\tTurn left" << std::endl;
+    std::cout << "\tS\tMove backward" << std::endl;
+    std::cout << "\tD\tTurn right" << std::endl;
+    std::cout << "\tO\tScroll up player list" << std::endl;
+    std::cout << "\tP\tScroll down player list" << std::endl;
+    std::cout << "\tENTER\tSelect player" << std::endl;
+    std::cout << "\tI\tIncrease time unit" << std::endl;
+    std::cout << "\tU\tDecrease time unit" << std::endl;
+
 
     return return_value;
 }
