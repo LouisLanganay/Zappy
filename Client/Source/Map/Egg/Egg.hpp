@@ -26,7 +26,7 @@ namespace Zappy {
             void setHatched(bool hatched);
             bool isHatched() const;
 
-            void draw(Model3D model);
+            void draw(Model3D model, float height);
             void startHatchingAnimation();
             void update(float deltaTime);
 

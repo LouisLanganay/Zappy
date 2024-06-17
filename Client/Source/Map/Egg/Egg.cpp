@@ -29,7 +29,6 @@ Egg::Egg(
 {
 }
 
-
 int Egg::getEggNumber() const
 {
     return _eggNumber;
@@ -55,23 +54,30 @@ bool Egg::isHatched() const
     return _hatched;
 }
 
-void Egg::draw(Model3D model)
+void Egg::draw(Model3D model, float height)
 {
     if (_hatched)
         return;
+
+    Vector3 position = {(float)_position.first, 0.5f + height, (float)_position.second};
+    float scale = 0.05f;
+
     if (_isHatching) {
-        // TODO: Hatching annimation
-        _animationFrame++;
-        if (_animationFrame > _animationFrameMax) {
+        float progress = (float)_animationFrame / (float)_animationFrameMax;
+        scale += progress * 0.05f;
+
+        if (_animationFrame >= _animationFrameMax) {
             _isHatching = false;
             _hatched = true;
         }
-    } else {
-        Vector3 position = {(float)_position.first, 0.5f, (float)_position.second};
-        model.setPosition(position.x, position.y, position.z);
-        model.setSize(0.05);
-        model.draw();
     }
+
+    Vector3 topSpherePosition = {position.x, position.y + scale * 0.5f, position.z};
+    Vector3 bottomSpherePosition = {position.x, position.y - scale * 0.5f, position.z};
+    DrawSphere(topSpherePosition, scale, _team->getColor());
+    DrawSphere(bottomSpherePosition, scale * 1.5, _team->getColor());
+    DrawSphereWires(topSpherePosition, scale, 16, 16, BLACK);
+    DrawSphereWires(bottomSpherePosition, scale * 1.5, 16, 16, BLACK);
 }
 
 const Team* Egg::getTeam() const
