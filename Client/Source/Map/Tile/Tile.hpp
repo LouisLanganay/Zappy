@@ -25,7 +25,7 @@
 namespace Zappy {
     class Tile {
         public:
-            Tile(int x = 0, int y = 0, int size = 32);
+            Tile(int x = 0, int y = 0, int size = 32, float frequency = 0.1f, float amplitude = 1.0f);
             void setResources(const std::vector<int>& resources);
             void draw(
                 int x,
@@ -42,6 +42,8 @@ namespace Zappy {
             void endIncantation(int result);
             const std::vector<int>& getIncantationPlayers() const;
 
+            float getTileHeight() const;
+
         private:
             std::unordered_map<Zappy::Resources::Type, int> _resources;
             int _x;
@@ -51,6 +53,13 @@ namespace Zappy {
             std::vector<int> _incantationPlayers;
             int _incantationLevel;
             bool _incantationInProgress = false;
+            float _tileHeight = 0.00f;
+
+            Color interpolateColor(
+                const Color& colorLow,
+                const Color& colorHigh,
+                float height
+            ) const;
     };
 };
 

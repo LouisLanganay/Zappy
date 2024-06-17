@@ -9,10 +9,12 @@
 #include "Debug.hpp"
 #include "../../../Exceptions.hpp"
 #include <unordered_map>
+#include <cmath>
+#include <random>
 
 using namespace Zappy;
 
-Tile::Tile(int x, int y, int size)
+Tile::Tile(int x, int y, int size, float frequency, float amplitude)
     : _x(x), _y(y), _size(size)
 {
     _resources[Zappy::Resources::Type::FOOD] = 0;
@@ -22,6 +24,24 @@ Tile::Tile(int x, int y, int size)
     _resources[Zappy::Resources::Type::MENDIANE] = 0;
     _resources[Zappy::Resources::Type::PHIRAS] = 0;
     _resources[Zappy::Resources::Type::THYSTAME] = 0;
+
+    _tileHeight = amplitude * sin(frequency * x) * cos(frequency * y);
+}
+
+Color Tile::interpolateColor(
+    const Color& colorLow,
+    const Color& colorHigh,
+    float height
+) const
+{
+    float t = std::clamp(height, 0.0f, 1.0f);
+
+    unsigned char r = static_cast<unsigned char>((1.0f - t) * colorLow.r + t * colorHigh.r);
+    unsigned char g = static_cast<unsigned char>((1.0f - t) * colorLow.g + t * colorHigh.g);
+    unsigned char b = static_cast<unsigned char>((1.0f - t) * colorLow.b + t * colorHigh.b);
+    unsigned char a = static_cast<unsigned char>((1.0f - t) * colorLow.a + t * colorHigh.a);
+
+    return { r, g, b, a };
 }
 
 void Tile::setResources(const std::vector<int>& resources)
@@ -42,7 +62,10 @@ void Tile::draw(
     const std::vector<Zappy::Player*>& players
 ) const
 {
-    Color tileColor = LIGHTGRAY;
+    Color colorLow = GRAY;
+    Color colorHigh = LIGHTGRAY;
+
+    Color tileColor = interpolateColor(colorLow, colorHigh, _tileHeight);
 
     if (_incantationInProgress && !_incantationPlayers.empty()) {
         int playerId = _incantationPlayers.front();
@@ -63,31 +86,31 @@ void Tile::draw(
         }
     }
 
-    DrawCube((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, tileColor);
-    DrawCubeWires((Vector3){ (float)x, 0.0f, (float)y }, 1.0f, 0.1f, 1.0f, GRAY);
+    DrawCube((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, tileColor);
+    DrawCubeWires((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, GRAY);
 
     Vector3 positions[] = {
-        {(float)x - 0.4f, 0.05f, (float)y - 0.3f}, // FOOD
-        {(float)x + 0.4f, 0.05f, (float)y - 0.3f}, // LINEMATE
-        {(float)x - 0.4f, 0.05f, (float)y + 0.3f}, // DERAUMERE
-        {(float)x + 0.4f, 0.05f, (float)y + 0.3f}, // SIBUR
-        {(float)x, 0.05f, (float)y},               // MENDIANE
-        {(float)x - 0.4f, 0.05f, (float)y},        // PHIRAS
-        {(float)x + 0.4f, 0.05f, (float)y}         // THYSTAME
+        {(float)x - 0.4f, _tileHeight + 0.05f, (float)y - 0.3f}, // FOOD
+        {(float)x + 0.4f, _tileHeight + 0.05f, (float)y - 0.3f}, // LINEMATE
+        {(float)x - 0.4f, _tileHeight + 0.05f, (float)y + 0.3f}, // DERAUMERE
+        {(float)x + 0.4f, _tileHeight + 0.05f, (float)y + 0.3f}, // SIBUR
+        {(float)x, _tileHeight + 0.05f, (float)y},               // MENDIANE
+        {(float)x - 0.4f, _tileHeight + 0.05f, (float)y},        // PHIRAS
+        {(float)x + 0.4f, _tileHeight + 0.05f, (float)y}         // THYSTAME
     };
 
     for (int i = 0; i < 7; ++i) {
         auto resourceType = static_cast<Zappy::Resources::Type>(i);
         int resourceCount = _resources.at(resourceType);
         for (int j = 0; j < resourceCount; ++j) {
-            float offset = 0.05f * j;
+            float offset = 0.040f * j;
             if (resourceType == Resources::Type::FOOD) {
-                DrawSphere(positions[i], 0.08, WHITE);
+                DrawSphere(positions[i], 0.05, WHITE);
                 continue;
             }
             auto model = resources.at(resourceType);
             model.setPosition(positions[i].x, positions[i].y + offset, positions[i].z);
-            model.setSize(0.3);
+            model.setSize(0.2);
             model.draw();
         }
     }
@@ -125,4 +148,9 @@ void Tile::endIncantation(int result)
 const std::vector<int>& Tile::getIncantationPlayers() const
 {
     return _incantationPlayers;
+}
+
+float Tile::getTileHeight() const
+{
+    return _tileHeight;
 }
