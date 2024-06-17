@@ -23,6 +23,11 @@ void fill_map(
             quantities[i] = 1;
         }
     }
+    for (uint16_t y = 0; y < server->height; ++y) {
+        for (uint16_t x = 0; x < server->width; ++x) {
+            server->map[y][x] = (inventory_t){0};
+        }
+    }
     for (size_t res_index = 0; res_index < num_resources; ++res_index) {
         for (size_t count = 0; count < quantities[res_index]; ++count) {
             x = rand() % server->width;
