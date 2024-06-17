@@ -55,6 +55,11 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					right.c											\
 				)
 
+DIR			+=	src/game
+SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
+					game_update.c									\
+				)
+
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
 
