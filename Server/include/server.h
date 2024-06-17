@@ -83,6 +83,8 @@ typedef struct {
     uint16_t freq;
     bool verbose;
 
+    struct timespec last_update;
+
     protocol_server_t *socket;
 
     TAILQ_HEAD(, ai_s) ais;
