@@ -77,6 +77,7 @@ bool zappy_server(zappy_server_t *server)
         || !server_init(server))
         return false;
     display_server(server);
+    trigger_meteor(server);
     while (protocol_server_is_open()) {
         game_update(server);
         protocol_server_listen(server->socket);
