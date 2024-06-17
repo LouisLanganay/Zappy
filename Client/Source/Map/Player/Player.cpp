@@ -29,7 +29,8 @@ Player::Player(
     _targetY(0),
     _isMoving(false),
     _movementSpeed(1.0f),
-    _timeAccumulator(0.0f)
+    _timeAccumulator(0.0f),
+    _isLayingEgg(false)
 {
     _inventory[Zappy::Resources::Type::FOOD] = 0;
     _inventory[Zappy::Resources::Type::LINEMATE] = 0;
@@ -166,11 +167,16 @@ std::string Player::getBroadcast()
     return _broadcasts.front().message;
 }
 
-void Player::draw(Camera camera) {
-    Vector3 position = {_x + _drawPosition.x, 0.3f, _y + _drawPosition.y};
+void Player::draw(Camera camera, float height)
+{
+    Vector3 position = {_x + _drawPosition.x, 0.2f + height, _y + _drawPosition.y};
 
-    DrawCube(position, 0.3f, 0.3f, 0.3f, _team->getColor());
-    DrawCubeWires(position, 0.3f, 0.3f, 0.3f, BLACK);
+    DrawCube(position, 0.2f, 0.2f, 0.2f, _team->getColor());
+
+    if (_isLayingEgg)
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+    else
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, BLACK);
 
     Vector3 spherePosition = position;
     if (_orientation == Orientation::NORTH)
@@ -184,7 +190,7 @@ void Player::draw(Camera camera) {
 
     spherePosition.y += 0.1f;
 
-    DrawSphere(spherePosition, 0.1f, BLACK);
+    DrawSphere(spherePosition, 0.07f, BLACK);
 
     if (!_isSelected)
         return;
@@ -209,8 +215,8 @@ std::unordered_map<Zappy::Resources::Type, int> Player::getInventory() const
 
 void Player::layEgg()
 {
-    DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " laid an egg");
-    // TODO: Implement laying egg animation
+    _isLayingEgg = _isLayingEgg ? false : true;
+    DEBUG_SUCCESS("Player " + std::to_string(_playerNumber) + " is laying an egg");
 }
 
 void Player::setSelected(bool selected)

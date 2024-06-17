@@ -60,7 +60,7 @@ namespace Zappy {
             void addBroadcast(const std::string& message);
             std::string getBroadcast();
 
-            void draw(Camera camera);
+            void draw(Camera camera, float height);
 
             void layEgg();
 
@@ -94,6 +94,7 @@ namespace Zappy {
             Vector2 _drawPosition;
             float _movementSpeed; // Speed of movement per second
             float _timeAccumulator; // Time accumulator for interpolation
+            bool _isLayingEgg = false;
 
     };
 
