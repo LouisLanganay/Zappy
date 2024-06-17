@@ -204,6 +204,8 @@ class AI:
 
         if self.has_all_resources():
             return True
+        
+        resources_to_get['food'] = 1000
         for resource, amount_needed in resources_to_get.items():
             if self.inventory[resource] < amount_needed:
                 amount_to_collect = amount_needed - self.inventory[resource]
@@ -232,14 +234,15 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-        if not self.take_resources('food'):
-            self.queue.append('Forward')
-            self.queue.append('Forward')
-            self.queue.append('Forward')
-
-        if self.inventory['food'] > 20:
-            if not self.take_resources_to_get():
+        if self.inventory['food'] < 15:
+            if not self.take_resources('food'):
+                self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
+                self.queue.append('Forward')
+        
+        else:
+            if not self.take_resources_to_get():
+                self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
                 self.queue.append('Forward')
 
@@ -265,28 +268,46 @@ class Client:
     def send(self, data):
         self.socket.send(data.encode() + b'\n')
 
-    def receive(self, sock):
-        data = sock.recv(1024).decode().strip()
+    def receive(self):
+        data = self.socket.recv(1024).decode().strip()
+        
         if not data:
             print("Server closed the connection")
             sys.exit(0)
         return data
 
-    def send_queue(self):
-        for elt in self.queue:
-            self.send(elt)
-            data = self.receive(self.socket)
-        self.queue.clear()
+    def update_inventory(self):
+        self.send('Inventory')
+        data = self.receive()
+        self.ai.update_state(data)
 
     def update_vision(self):
         self.send('Look')
-        data = self.receive(self.socket)
+        data = self.receive()
         self.ai.update_state(data)
-    
-    def update_inventory(self):
-        self.send('Inventory')
-        data = self.receive(self.socket)
-        self.ai.update_state(data)
+
+    def send_movement_queue(self):
+        for elt in self.queue:
+            self.send(elt)
+            data = self.receive()
+            if data.startswith('dead'):
+                print("Dead")
+                sys.exit(0)
+            self.ai.update_state(data)
+        self.queue.clear()
+
+    def send_broadcast(self, message):
+        self.send(f"Broadcast {message}")
+        data = self.receive()
+        # Optionally handle response to broadcast if needed
+
+    def handle_broadcast(self, message):
+        # Logic to handle incoming broadcast messages
+        if message.startswith('Broadcast'):
+            _, content = message.split(' ', 1)
+            # Example: Handle broadcast content here
+            print(f"Received broadcast: {content}")
+            # Add logic to respond or update internal state based on the broadcast
 
     def close(self):
         self.selector.unregister(self.socket)
@@ -297,25 +318,35 @@ class Client:
     
     def run(self):
         self.connect()
-        self.receive(self.socket)
-        self.receive(self.socket)
+        self.receive()  # Initial connection response
+        self.receive()  # Additional server response (if any)
         while True:
-            self.update_vision()
             self.update_inventory()
-            if self.has_all_resources == False and self.ai.has_all_resources() == True:
-                self.has_all_resources = True
-                print("Got every resources!")
-                # self.send("Broadcast Group")
-                # data = self.receive(self.socket)
-                # if data == "ok":
-                #     print("Broadcasted Group")
-                time.sleep(0.5)
-                continue
-            
+            self.update_vision()
             self.queue = self.ai.algorithm()
-            self.send_queue()
-            
-            
+            self.send_movement_queue()
+
+            # Check for broadcasts
+            events = self.selector.select(timeout=0)
+            for key, mask in events:
+                callback = key.data
+                data = callback()
+                if data.startswith('message'):
+                    print(data)
+                    self.handle_broadcast(data)
+                else:
+                    self.ai.update_state(data)
+
+
+def main():
+    args = sys.argv[1:]
+    parser = ParseArgs()
+    host, port, name = parser.parse(args)
+    client = Client(host, port, name)
+    client.run()
+
+if __name__ == "__main__":
+    main()
 
 def main():
     args = sys.argv[1:]
