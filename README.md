@@ -4,6 +4,8 @@
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
 
+![GameImage](Documentation/Image/Game.png)
+
 # Zappy
 
 <b>binary name:</b> `zappy_server`, `zappy_gui`, `zappy_ai`  
@@ -22,6 +24,13 @@ The following pages describe all the details and constraints.
 ## Requirements
 
 - [raylib](https://www.raylib.com/)
+
+## Documentation
+
+For more detailed information, you can consult the PDF documentation:
+
+- [Zappy.pdf](Documentation/Zappy.pdf)
+- [Zappy-Graphical.pdf](Documentation/Zappy-Graphical.pdf)
 
 ## Usage
 
