@@ -69,6 +69,7 @@ namespace Zappy {
             void sbp();
 
             void stop();
+            void adjustTimeUnit(int value);
     };
 
 }

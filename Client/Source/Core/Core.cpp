@@ -74,6 +74,11 @@ void Core::run() {
         _map->loadModels();
 
         while (!WindowShouldClose() && _running) {
+            if (IsKeyPressed(KEY_I))
+                adjustTimeUnit(1);
+            if (IsKeyPressed(KEY_U))
+                adjustTimeUnit(-1);
+
             for (auto &player : _map->getPlayers())
                 player->update(GetFrameTime());
             for (auto &egg : _map->getEggs())
@@ -246,6 +251,16 @@ void Core::handleServerMessages() {
     } catch (const std::exception& e) {
         throw MainException(e.what());
     }
+}
+
+void Core::adjustTimeUnit(int value)
+{
+    int timeUnit = _map->getTimeUnit();
+    timeUnit += value;
+    if (timeUnit < 1)
+        timeUnit = 1;
+    _map->setTimeUnit(timeUnit);
+    _api->modifyTimeUnit(timeUnit);
 }
 
 void Core::msz(std::string message)
@@ -571,6 +586,8 @@ void Core::enw(std::string message)
         DEBUG_ERROR("Team not found for player: " + std::to_string(playerNumber));
         return;
     }
+
+    player->layEgg();
 
     _map->addEgg(std::make_unique<Egg>(
         eggNumber,
