@@ -39,6 +39,8 @@ namespace Zappy {
             void draw();
 
             void unload();
+
+            void setColor(Color color);
         protected:
             Model _model;
             Texture2D _texture;

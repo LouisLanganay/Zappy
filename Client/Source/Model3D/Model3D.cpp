@@ -73,3 +73,8 @@ void Model3D::unload()
     UnloadTexture(_texture);
     UnloadModel(_model);
 }
+
+void Model3D::setColor(Color color)
+{
+    _model.materials[0].maps[MATERIAL_MAP_DIFFUSE].color = color;
+}
