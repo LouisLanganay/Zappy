@@ -44,6 +44,10 @@ namespace Zappy {
 
             float getTileHeight() const;
 
+            void drawParticles(float x, float y, float z) const;
+
+            void update(float deltaTime);
+
         private:
             std::unordered_map<Zappy::Resources::Type, int> _resources;
             int _x;
@@ -54,6 +58,8 @@ namespace Zappy {
             int _incantationLevel;
             bool _incantationInProgress = false;
             float _tileHeight = 0.00f;
+
+            float _animationTime = 0.0f;
 
             Color interpolateColor(
                 const Color& colorLow,

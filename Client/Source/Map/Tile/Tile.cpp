@@ -55,6 +55,18 @@ void Tile::setResources(const std::vector<int>& resources)
     _resources[Zappy::Resources::Type::THYSTAME] = resources[6];
 }
 
+void Tile::drawParticles(float x, float y, float z) const
+{
+    int numParticles = 20;
+    for (int i = 0; i < numParticles; ++i) {
+        float angle = (2 * M_PI / numParticles) * i;
+        float radius = 0.4f;
+        float particleX = x + radius * cos(angle);
+        float particleZ = z + radius * sin(angle);
+        DrawSphere((Vector3){particleX, y + 0.03f / 2, particleZ}, 0.03f, (Color){255, 255, 255, 255});
+    }
+}
+
 void Tile::draw(
     int x,
     int y,
@@ -68,8 +80,8 @@ void Tile::draw(
     Color colorDirt = {136, 93, 42, 255};
     Color colorDirtWire = {159, 108, 47, 255};
 
-    Color tileUpColor = interpolateColor(colorLowGreen, colorHighGreen, _tileHeight);
-    Color tileUpWireColor = interpolateColor(colorHighGreen, colorLowGreen, _tileHeight);
+    Color tileUpColor = interpolateColor(colorLowGreen, colorHighGreen, getTileHeight());
+    Color tileUpWireColor = interpolateColor(colorHighGreen, colorLowGreen, getTileHeight());
 
     if (_incantationInProgress && !_incantationPlayers.empty()) {
         int playerId = _incantationPlayers.front();
@@ -84,26 +96,26 @@ void Tile::draw(
 
         if (player) {
             auto team = player->getTeam();
-            if (team) {
+            if (team)
                 tileUpColor = team->getColor();
-            }
+            drawParticles((float)x, getTileHeight(), (float)y);
         }
     }
 
-    DrawCube((Vector3){ (float)x, _tileHeight, (float)y }, 1.0f, 0.1f, 1.0f, tileUpColor);
-    DrawCube((Vector3){ (float)x, _tileHeight - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirt);
+    DrawCube((Vector3){ (float)x, getTileHeight(), (float)y }, 1.0f, 0.1f, 1.0f, tileUpColor);
+    DrawCube((Vector3){ (float)x, getTileHeight() - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirt);
 
-    DrawCubeWires((Vector3){ (float)x, _tileHeight, (float)y }, 1.0f, 0.1f, 1.0f, tileUpWireColor);
-    DrawCubeWires((Vector3){ (float)x, _tileHeight - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirtWire);
+    DrawCubeWires((Vector3){ (float)x, getTileHeight(), (float)y }, 1.0f, 0.1f, 1.0f, tileUpWireColor);
+    DrawCubeWires((Vector3){ (float)x, getTileHeight() - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirtWire);
 
     Vector3 positions[] = {
-        {(float)x - 0.4f, _tileHeight + 0.05f, (float)y - 0.3f}, // FOOD
-        {(float)x + 0.4f, _tileHeight + 0.05f, (float)y - 0.3f}, // LINEMATE
-        {(float)x - 0.4f, _tileHeight + 0.05f, (float)y + 0.3f}, // DERAUMERE
-        {(float)x + 0.4f, _tileHeight + 0.05f, (float)y + 0.3f}, // SIBUR
-        {(float)x, _tileHeight + 0.05f, (float)y},               // MENDIANE
-        {(float)x - 0.4f, _tileHeight + 0.05f, (float)y},        // PHIRAS
-        {(float)x + 0.4f, _tileHeight + 0.05f, (float)y}         // THYSTAME
+        {(float)x - 0.4f, getTileHeight() + 0.05f, (float)y - 0.3f}, // FOOD
+        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y - 0.3f}, // LINEMATE
+        {(float)x - 0.4f, getTileHeight() + 0.05f, (float)y + 0.3f}, // DERAUMERE
+        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y + 0.3f}, // SIBUR
+        {(float)x, getTileHeight() + 0.05f, (float)y},               // MENDIANE
+        {(float)x - 0.4f, getTileHeight() + 0.05f, (float)y},        // PHIRAS
+        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y}         // THYSTAME
     };
 
     for (int i = 0; i < 7; ++i) {
@@ -145,6 +157,7 @@ void Tile::startIncantation(int level, const std::vector<int>& players)
     _incantationLevel = level;
     _incantationPlayers = players;
     _incantationInProgress = true;
+    _animationTime = 0.0f;
 }
 
 void Tile::endIncantation(int result)
@@ -159,5 +172,13 @@ const std::vector<int>& Tile::getIncantationPlayers() const
 
 float Tile::getTileHeight() const
 {
-    return _tileHeight;
+    float incantationHeightOffset = _incantationInProgress ? 0.1f * sin(_animationTime) : 0.0f;
+    return _tileHeight + incantationHeightOffset;
+}
+
+void Tile::update(float deltaTime)
+{
+    _animationTime += deltaTime;
+    if (_animationTime > 2 * M_PI)
+        _animationTime -= 2 * M_PI;
 }
