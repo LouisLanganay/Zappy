@@ -64,6 +64,8 @@ static void update_data(
             strcmp(n_ai->team->name, ai->team->name) == 0 &&
             n_ai->level == ai->level) {
             n_ai->level++;
+            protocol_server_send(server->socket, n_ai->fd,
+                "Elevation underway\nCurrent level: %i", n_ai->level);
         }
     }
 }
