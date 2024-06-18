@@ -19,7 +19,6 @@ static uint8_t get_same_player_nb(
 
     TAILQ_FOREACH(n_ai, &server->ais, entries) {
         if ((n_ai->pos.x == ai->pos.x && n_ai->pos.y == ai->pos.y) &&
-            strcmp(n_ai->team->name, ai->team->name) == 0 &&
             n_ai->level == ai->level) {
             same_player++;
         }
@@ -62,7 +61,6 @@ static void update_data(
     clean_ressources(server, ai);
     TAILQ_FOREACH(n_ai, &server->ais, entries) {
         if ((n_ai->pos.x == ai->pos.x && n_ai->pos.y == ai->pos.y) &&
-            strcmp(n_ai->team->name, ai->team->name) == 0 &&
             n_ai->level == ai->level) {
             n_ai->level++;
             protocol_server_send(server->socket, n_ai->fd,
