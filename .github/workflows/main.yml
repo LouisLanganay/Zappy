@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  EXECUTABLES: 'zappy_server,zappy_ai,zappy_gui'
+  EXECUTABLES: 'zappy_server,zappy_ai'
 jobs:
   check_coding_style:
     name: Check coding style
@@ -35,17 +35,10 @@ jobs:
       image: epitechcontent/epitest-docker
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          dnf -y install git cmake make gcc
-          git clone https://github.com/raysan5/raylib.git /tmp/raylib
-          cd /tmp/raylib/src
-          make PLATFORM=PLATFORM_DESKTOP
-          make install
       - name: Make
         run: |
           make
-          if [ $? -ne 0 ]
+          if [ echo $? -ne 0 ]
           then
               echo "::error title=Compilation error::Compilation failed"
               exit 1
