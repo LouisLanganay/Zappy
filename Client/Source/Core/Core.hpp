@@ -24,6 +24,14 @@
 #include "../Map/Resources/AResources.hpp"
 
 namespace Zappy {
+
+    struct Cloud {
+        Vector3 position;
+        Vector3 size;
+        Color color;
+        Vector3 speed;
+    };
+
     class Core {
         public:
             Core(const std::string& host, int port);
@@ -69,6 +77,13 @@ namespace Zappy {
 
             void stop();
             void adjustTimeUnit(int value);
+
+            void _initClouds(int count);
+            void _drawClouds(const std::vector<Cloud>& clouds);
+            void _moveClouds(std::vector<Cloud>& clouds, float deltaTime);
+            void _setCloudsPosition(std::vector<Cloud>& clouds);
+
+            std::vector<Cloud> _clouds;
     };
 
 }
