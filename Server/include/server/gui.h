@@ -195,6 +195,19 @@ void sbp(
     const zappy_server_t *server,
     int interlocutor);
 /**
+ * @brief Send when a player broadcast a message
+ *
+ * @param server The server_t struct
+ * @param ai The player
+ * @param message The message
+ *
+ * @note Send pbc with the player number and the message
+ */
+void pbc(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    const char *message);
+/**
  * @brief Start an incantation
  *
  * @param server The server_t struct
