@@ -80,6 +80,10 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					gui.c											\
 					team.c											\
 				)
+UT_DIR		+=	../tests/server/gui
+UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
+					bct.c											\
+				)
 
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
