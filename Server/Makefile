@@ -11,6 +11,60 @@ EXT			:=	.c
 DIR			:=	src
 SRC			:=	$(addprefix $(DIR)/,								\
 					main.c											\
+					server.c										\
+					payload.c										\
+					verbose.c										\
+					ai.c											\
+					gui.c											\
+					team.c											\
+				)
+
+DIR			+=	src/gui
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					msz.c											\
+					bct.c											\
+					mct.c											\
+					tna.c											\
+					pnw.c											\
+					ppo.c											\
+					plv.c											\
+					pin.c											\
+					pex.c											\
+					pbc.c											\
+					sgt.c											\
+					sst.c											\
+					smg.c											\
+					suc.c											\
+					sbp.c											\
+					pic.c											\
+					pie.c											\
+					pfk.c											\
+					pdr.c											\
+					pgt.c											\
+					pdi.c											\
+					enw.c											\
+					ebo.c											\
+					edi.c											\
+					sgt.c											\
+					sst.c											\
+					seg.c											\
+				)
+
+DIR         +=	src/ai
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					broadcast.c										\
+					connect_nbr.c									\
+					death.c											\
+					eject.c											\
+					fork.c											\
+					forward.c										\
+					incantation.c									\
+					inventory.c										\
+					left.c											\
+					look.c											\
+					right.c											\
+					set.c											\
+					take.c											\
 				)
 
 DIR_BUILD	:=	build
@@ -23,6 +77,8 @@ DEP			:=	$(OBJ:.o=.d)
 DG_DIR_OBJ	:=	$(DIR_BUILD)/debug
 DG_OBJ		:=	$(patsubst %$(EXT),$(DG_DIR_OBJ)/%.o,$(SRC))
 DG_DEP		:=	$(DG_OBJ:.o=.d)
+
+DEBUG		:=	$(DIR_BIN)/$(NAME)_debug
 
 RM			:=	rm -rf
 

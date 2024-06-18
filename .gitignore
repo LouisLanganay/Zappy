@@ -71,3 +71,9 @@ server
 !server/
 
 zappy_ref-2-0-2/
+# Logs
+vgcore.*
+*.log
+
+
+Client/Server

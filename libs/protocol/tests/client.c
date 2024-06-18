@@ -5,10 +5,10 @@
 ** protocol/test/client
 */
 
-#include <errno.h>
+#include <stdio.h>
 #include <signal.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <unistd.h>
 
 #include "protocol/client.h"
 
@@ -26,6 +26,7 @@ static void handle_signal(const int sig)
 {
     if (sig != SIGINT)
         return;
+    write(1, "\r", 1);
     is_open(true);
 }
 
@@ -47,13 +48,13 @@ int main(void)
         return EXIT_FAILURE;
     printf("Client started\n");
     setup_signal();
-    protocol_client_send_message(client, "Hello from client!");
+    protocol_client_send(client, "GRAPHIC");
     while (is_open(false) && protocol_client_is_connected(client)) {
         protocol_client_listen(client);
         while (!TAILQ_EMPTY(&client->payloads)) {
             payload = TAILQ_FIRST(&client->payloads);
             TAILQ_REMOVE(&client->payloads, payload, entries);
-            printf("Received packet: %s\n", (char *)payload->packet.data);
+            printf("Received packet: %s\n", payload->message);
             free(payload);
         }
     }

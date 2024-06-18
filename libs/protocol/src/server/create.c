@@ -110,6 +110,8 @@ protocol_server_t *protocol_server_create(
         return NULL;
     TAILQ_INIT(&server->clients);
     TAILQ_INIT(&server->payloads);
+    TAILQ_INIT(&server->new_connections);
+    TAILQ_INIT(&server->lost_connections);
     if (!server_listen(server))
         return NULL;
     signal(SIGPIPE, SIG_IGN);
