@@ -84,6 +84,7 @@ UT_DIR		+=	../tests/server/gui
 UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					bct.c											\
 					ebo.c											\
+					edi.c											\
 				)
 
 DIR_BUILD	:=	build
