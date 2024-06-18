@@ -31,5 +31,10 @@ namespace Zappy {
         public:
             ApiException(const std::string &message) : Exception(message) {}
     };
+
+    class GraphicException : public Exception {
+        public:
+            GraphicException(const std::string &message) : Exception(message) {}
+    };
 }
 #endif /* !EXCEPTIONS_HPP_ */
