@@ -23,7 +23,7 @@
  * @note Move the player one tile up
  */
 void forward(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -38,7 +38,7 @@ void forward(
  * @note Turn player 90° right
  */
 void right(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -53,7 +53,7 @@ void right(
  * @note Turn player 90° left
  */
 void left(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -68,7 +68,7 @@ void left(
  * @note Look tiles arround player
  */
 void look(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -83,7 +83,7 @@ void look(
  * @note Display player inventory
  */
 void inventory(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -98,7 +98,7 @@ void inventory(
  * @note Broadcast player text
  */
 void broadcast_text(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -113,7 +113,7 @@ void broadcast_text(
  * @note Display number of team with unused slot
  */
 void connect_nbr(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -128,7 +128,7 @@ void connect_nbr(
  * @note Fork the player
  */
 void exec_fork(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -143,7 +143,7 @@ void exec_fork(
  * @note Eject players from this tile
  */
 void eject(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -156,7 +156,7 @@ void eject(
  *
  */
 void death(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -169,7 +169,7 @@ void death(
  *
  */
 void take(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -182,7 +182,7 @@ void take(
  *
  */
 void set(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -195,7 +195,7 @@ void set(
  *
  */
 void incantation(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 

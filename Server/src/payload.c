@@ -92,7 +92,7 @@ static void add_graphic(
 }
 
 static void handle_ai_event(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const protocol_payload_t *payload)
 {
     uint8_t cmd_lenght;
