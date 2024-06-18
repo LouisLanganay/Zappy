@@ -42,7 +42,7 @@ static void look_tile(
 }
 
 void look(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {

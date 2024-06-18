@@ -19,7 +19,7 @@ static orientation_t convert_orientation(
 // NORTH  | 2   | 4  | 6   | 8
 // EAST   | 8   | 2  | 4   | 6
 void eject(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {

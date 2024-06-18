@@ -10,7 +10,7 @@
 #include "server/ai_header.h"
 
 void forward(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {

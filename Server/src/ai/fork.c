@@ -10,7 +10,7 @@
 #include "server/ai_header.h"
 
 void exec_fork(
-    UNUSED const zappy_server_t *server,
+    UNUSED zappy_server_t *server,
     UNUSED ai_t *ai,
     UNUSED const char *message)
 {

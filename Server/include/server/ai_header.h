@@ -202,7 +202,7 @@ void incantation(
 static const struct {
     const char *cmd;
     void (*func)(
-        const zappy_server_t *server,
+        zappy_server_t *server,
         ai_t *ai,
         const char *message);
 } ai_cmds[] = {
@@ -219,6 +219,24 @@ static const struct {
     {"Set", set},
     {"Incantation", incantation},
     {NULL, NULL}
+};
+
+static const struct {
+    uint16_t players;
+    uint16_t linemate;
+    uint16_t deraumere;
+    uint16_t sibur;
+    uint16_t mendiane;
+    uint16_t phiras;
+    uint16_t thystame;
+} level_t [] = {
+    {1, 1, 0, 0, 0, 0, 0},
+    {2, 1, 1, 1, 0, 0, 0},
+    {2, 2, 0, 1, 0, 2, 0},
+    {4, 1, 1, 2, 0, 1, 0},
+    {4, 1, 2, 1, 3, 0, 0},
+    {6, 1, 2, 3, 0, 1, 0},
+    {6, 2, 2, 2, 2, 2, 1}
 };
 
 #endif //AI_H
