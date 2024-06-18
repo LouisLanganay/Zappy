@@ -15,7 +15,6 @@
 #include <queue>
 #include <mutex>
 #include <chrono>
-#include <SFML/Graphics.hpp>
 #include "IResources.hpp"
 #include "Player/Player.hpp"
 #include "Resources/IResources.hpp"
