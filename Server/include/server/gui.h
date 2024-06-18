@@ -211,8 +211,6 @@ void pbc(
  * @brief Start an incantation
  *
  * @param server The server_t struct
- * @param nb_players The number of players
- * @param ai The player
  * @param ais The players
  *
  * @note Send pic with the position of the tile, the level of the incantation
@@ -220,8 +218,6 @@ void pbc(
 */
 void pic(
     const zappy_server_t *server,
-    int nb_players,
-    const ai_t *ai,
     const ai_t *ais[]);
 /**
  * @brief End an incantation
