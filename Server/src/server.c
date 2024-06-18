@@ -22,12 +22,16 @@ void server_create(
     TAILQ_INIT(&server->guis);
 }
 
-static bool server_init(
+static bool server_set_socket(
     zappy_server_t *server)
 {
     server->socket = protocol_server_create(server->port);
-    if (!server->socket)
-        return false;
+    return server->socket;
+}
+
+static bool server_set_map(
+    zappy_server_t *server)
+{
     server->map = calloc(server->height, sizeof(inventory_t *));
     if (!server->map)
         return false;
@@ -74,7 +78,7 @@ bool zappy_server(zappy_server_t *server)
     if (!server || server->port < 1024
         || server->width <= 0 || server->height <= 0
         || server->clients_nb <= 0 || server->freq <= 0
-        || !server_init(server))
+        || !server_set_socket(server) || !server_set_map(server))
         return false;
     display_server(server);
     trigger_meteor(server);

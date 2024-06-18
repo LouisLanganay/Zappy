@@ -13,6 +13,7 @@
     #include "protocol/server.h"
 
     #define UNUSED __attribute__((unused))
+    #define TEAM_NAME_SIZE 64
 
 typedef enum {
     CONNECTION_AI,
@@ -44,7 +45,7 @@ typedef struct {
 
 typedef struct team_s {
     uint16_t id;
-    char name[64];
+    char name[TEAM_NAME_SIZE];
 
     TAILQ_ENTRY(team_s) entries;
 } team_t;
@@ -103,6 +104,9 @@ void verbose(
     const zappy_server_t *server,
     const char *format,
     ...);
+ai_t *get_ai_by_fd(
+    const zappy_server_t *server,
+    int fd);
 ai_t *get_ai_by_id(
     const zappy_server_t *server,
     uint16_t id);

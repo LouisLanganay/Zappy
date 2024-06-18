@@ -14,7 +14,7 @@ SRC			:=	$(addprefix $(DIR)/,								\
 					server.c										\
 					payload.c										\
 					verbose.c										\
-					get_ai_by_id.c									\
+					get_ai_by.c										\
 					gui_send_to_all.c								\
 				)
 
@@ -53,6 +53,17 @@ DIR         +=	src/ai
 SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					forward.c										\
 					right.c											\
+					left.c											\
+					look.c											\
+					inventory.c										\
+					broadcast_text.c								\
+					connect_nbr.c									\
+					fork.c											\
+					eject.c											\
+					death.c											\
+					take_object.c									\
+					set_object.c									\
+					incantation.c									\
 				)
 
 DIR			+=	src/game
