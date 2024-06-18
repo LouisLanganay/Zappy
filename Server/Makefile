@@ -70,6 +70,7 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 UT_DIR		:=	../tests/server
 UT_SRC		:=	$(filter-out src/main.c, $(SRC))
 UT_SRC		+=	$(addprefix $(UT_DIR)/,								\
+					verbose.c										\
 					team.c											\
 				)
 
