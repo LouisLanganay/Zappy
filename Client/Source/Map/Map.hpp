@@ -85,6 +85,8 @@ namespace Zappy {
 
             void loadModels();
 
+            void update(float deltaTime);
+
         protected:
         private:
             std::unordered_map<int, std::unique_ptr<Player>> _players;

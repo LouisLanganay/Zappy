@@ -324,3 +324,15 @@ std::vector<Player*> Map::getPlayersOnTile(int x, int y)
     }
     return playersOnTile;
 }
+
+void Map::update(float deltaTime)
+{
+    for (int y = 0; y < _height; ++y) {
+        for (int x = 0; x < _width; ++x)
+            _tiles[y][x].update(deltaTime);
+    }
+    for (auto& player : _players)
+        player.second->update(deltaTime);
+    for (auto& egg : _eggs)
+        egg.second->update(deltaTime);
+}
