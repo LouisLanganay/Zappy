@@ -49,7 +49,8 @@ static void clean_ressources(
     const ai_t *ai)
 {
     for (uint8_t i = 1; i < 7; i++)
-        server->map[ai->pos.x][ai->pos.y].resources[i] -= level_need[ai->level - 1].resources[i];
+        server->map[ai->pos.x][ai->pos.y].resources[i] -=
+            level_need[ai->level - 1].resources[i];
 }
 
 static void update_data(
