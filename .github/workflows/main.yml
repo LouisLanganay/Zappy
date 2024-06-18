@@ -35,22 +35,6 @@ jobs:
       image: epitechcontent/epitest-docker
     steps:
       - uses: actions/checkout@v4
-      - name: Install CMake
-        run: |
-          wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0-Linux-x86_64.sh
-          chmod +x cmake-3.20.0-Linux-x86_64.sh
-          ./cmake-3.20.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
-      - name: Build and install Raylib
-        run: |
-          git clone https://github.com/raysan5/raylib.git
-          cd raylib
-          mkdir build
-          cd build
-          /usr/local/bin/cmake ..
-          make
-          make install
-          cd ../..
-          rm -rf raylib
       - name: Make
         run: |
           make
