@@ -23,5 +23,5 @@ void gui_send_to_all(
     vsnprintf(formatted_message, DATA_SIZE, message, args);
     va_end(args);
     TAILQ_FOREACH(gui, &server->guis, entries)
-        protocol_server_send(server->socket, gui->fd, message);
+        protocol_server_send(server->socket, gui->fd, formatted_message);
 }

@@ -12,7 +12,7 @@
 
 bool mock_protocol_server_send(
     UNUSED protocol_server_t *server,
-    UNUSED const int client_fd,
+    const int client_fd,
     const char *format,
     ...)
 {
