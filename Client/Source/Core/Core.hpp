@@ -16,7 +16,6 @@
 
 #include "../API/Api.hpp"
 #include "../Map/Map.hpp"
-#include "../API/Events.h"
 #include "../Hud/Left/HudLeft.hpp"
 #include "../Hud/Right/HudRight.hpp"
 #include "../Particle/ParticleSystem.hpp"

@@ -73,3 +73,6 @@ server
 # Logs
 vgcore.*
 *.log
+
+
+Client/Server

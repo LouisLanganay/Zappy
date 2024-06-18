@@ -66,6 +66,7 @@ void Tile::draw(
     Color colorHigh = LIGHTGRAY;
 
     Color tileColor = interpolateColor(colorLow, colorHigh, _tileHeight);
+    Color tileWireColor = interpolateColor(colorHigh, colorLow, _tileHeight);
 
     if (_incantationInProgress && !_incantationPlayers.empty()) {
         int playerId = _incantationPlayers.front();
@@ -87,7 +88,7 @@ void Tile::draw(
     }
 
     DrawCube((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, tileColor);
-    DrawCubeWires((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, GRAY);
+    DrawCubeWires((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, tileWireColor);
 
     Vector3 positions[] = {
         {(float)x - 0.4f, _tileHeight + 0.05f, (float)y - 0.3f}, // FOOD

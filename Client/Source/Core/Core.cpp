@@ -16,7 +16,6 @@
 #include <cstring>
 #include <iostream>
 #include "../Exceptions.hpp"
-#include "../API/Events.h"
 #include "../Particle/ParticleSystem.hpp"
 #include "../Model3D/Model3D.hpp"
 

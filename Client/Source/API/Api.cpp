@@ -13,7 +13,6 @@
 #include <thread>
 #include "Debug.hpp"
 #include "../Exceptions.hpp"
-#include "Events.h"
 #include <cstring>
 
 using namespace Zappy;
