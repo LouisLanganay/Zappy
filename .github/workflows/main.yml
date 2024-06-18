@@ -37,18 +37,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential
-          sudo apt-get install -y cmake
-          sudo apt-get install -y git
-          git clone https://github.com/raysan5/raylib.git
-          cd raylib/src
+          dnf -y install git cmake make gcc
+          git clone https://github.com/raysan5/raylib.git /tmp/raylib
+          cd /tmp/raylib/src
           make PLATFORM=PLATFORM_DESKTOP
-          sudo make install
+          make install
       - name: Make
         run: |
           make
-          if [ echo $? -ne 0 ]
+          if [ $? -ne 0 ]
           then
               echo "::error title=Compilation error::Compilation failed"
               exit 1
