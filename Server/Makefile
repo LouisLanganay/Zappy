@@ -67,10 +67,16 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					take.c											\
 				)
 
-UT_DIR		:=	../tests/server
-UT_SRC		:=	$(filter-out src/main.c, $(SRC))
-UT_SRC		+=	$(addprefix $(UT_DIR)/,								\
+UT_DIR		:=	../tests/mock
+UT_SRC		:=	$(addprefix $(UT_DIR)/,								\
+					protocol.c										\
+				)
+
+UT_DIR		+=	../tests/server
+UT_SRC		+=	$(filter-out src/main.c, $(SRC))
+UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					verbose.c										\
+					ai.c											\
 					team.c											\
 				)
 
@@ -138,7 +144,8 @@ $(DEBUG):			$(DG_OBJ); 	$(COMPILE)
 debug:				$(DEBUG)
 
 -include $(UT_DEP)
-$(UT_TEST):			CFLAGS += --coverage
+$(UT_TEST):			CFLAGS += --coverage	 						\
+							  -Dprotocol_server_send=mock_protocol_server_send
 $(UT_TEST):			LDFLAGS += -lcriterion --coverage
 $(UT_TEST):			$(UT_OBJ);	$(COMPILE)
 tests_unit:			$(UT_TEST)
