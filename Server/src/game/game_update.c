@@ -34,4 +34,5 @@ void game_update(zappy_server_t *server)
     if (!handle_time(server))
         return;
     trigger_meteor(server);
+    handle_ai_cmds(server);
 }

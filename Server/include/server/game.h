@@ -32,4 +32,13 @@ void game_update(zappy_server_t *server);
  */
 void trigger_meteor(zappy_server_t *server);
 
+/**
+ * @brief handle ai cmds
+ *
+ * @param server The server_t struct
+ *
+ * @note Function that is here to handle the ai cmds
+ */
+void handle_ai_cmds(zappy_server_t *server);
+
 #endif /* !GAME_H_ */
