@@ -77,6 +77,7 @@ UT_SRC		+=	$(filter-out src/main.c, $(SRC))
 UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					verbose.c										\
 					ai.c											\
+					gui.c											\
 					team.c											\
 				)
 
