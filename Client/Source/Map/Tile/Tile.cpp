@@ -29,17 +29,17 @@ Tile::Tile(int x, int y, int size, float frequency, float amplitude)
 }
 
 Color Tile::interpolateColor(
-    const Color& colorLow,
-    const Color& colorHigh,
+    const Color& colorLowGreen,
+    const Color& colorHighGreen,
     float height
 ) const
 {
     float t = std::clamp(height, 0.0f, 1.0f);
 
-    unsigned char r = static_cast<unsigned char>((1.0f - t) * colorLow.r + t * colorHigh.r);
-    unsigned char g = static_cast<unsigned char>((1.0f - t) * colorLow.g + t * colorHigh.g);
-    unsigned char b = static_cast<unsigned char>((1.0f - t) * colorLow.b + t * colorHigh.b);
-    unsigned char a = static_cast<unsigned char>((1.0f - t) * colorLow.a + t * colorHigh.a);
+    unsigned char r = static_cast<unsigned char>((1.0f - t) * colorLowGreen.r + t * colorHighGreen.r);
+    unsigned char g = static_cast<unsigned char>((1.0f - t) * colorLowGreen.g + t * colorHighGreen.g);
+    unsigned char b = static_cast<unsigned char>((1.0f - t) * colorLowGreen.b + t * colorHighGreen.b);
+    unsigned char a = static_cast<unsigned char>((1.0f - t) * colorLowGreen.a + t * colorHighGreen.a);
 
     return { r, g, b, a };
 }
@@ -62,11 +62,14 @@ void Tile::draw(
     const std::vector<Zappy::Player*>& players
 ) const
 {
-    Color colorLow = GRAY;
-    Color colorHigh = LIGHTGRAY;
+    Color colorLowGreen = { 28, 159, 50, 255 };
+    Color colorHighGreen = { 42, 203, 69, 255 };
 
-    Color tileColor = interpolateColor(colorLow, colorHigh, _tileHeight);
-    Color tileWireColor = interpolateColor(colorHigh, colorLow, _tileHeight);
+    Color colorDirt = {136, 93, 42, 255};
+    Color colorDirtWire = {159, 108, 47, 255};
+
+    Color tileUpColor = interpolateColor(colorLowGreen, colorHighGreen, _tileHeight);
+    Color tileUpWireColor = interpolateColor(colorHighGreen, colorLowGreen, _tileHeight);
 
     if (_incantationInProgress && !_incantationPlayers.empty()) {
         int playerId = _incantationPlayers.front();
@@ -82,13 +85,16 @@ void Tile::draw(
         if (player) {
             auto team = player->getTeam();
             if (team) {
-                tileColor = team->getColor();
+                tileUpColor = team->getColor();
             }
         }
     }
 
-    DrawCube((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, tileColor);
-    DrawCubeWires((Vector3){ (float)x, _tileHeight - 0.2f, (float)y }, 1.0f, 0.5f, 1.0f, tileWireColor);
+    DrawCube((Vector3){ (float)x, _tileHeight, (float)y }, 1.0f, 0.1f, 1.0f, tileUpColor);
+    DrawCube((Vector3){ (float)x, _tileHeight - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirt);
+
+    DrawCubeWires((Vector3){ (float)x, _tileHeight, (float)y }, 1.0f, 0.1f, 1.0f, tileUpWireColor);
+    DrawCubeWires((Vector3){ (float)x, _tileHeight - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirtWire);
 
     Vector3 positions[] = {
         {(float)x - 0.4f, _tileHeight + 0.05f, (float)y - 0.3f}, // FOOD
