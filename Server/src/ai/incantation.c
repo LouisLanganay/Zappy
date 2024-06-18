@@ -17,15 +17,11 @@ bool can_incantation(
 }
 
 static void clean_ressources(
-    zappy_server_t *server,
-    ai_t *ai)
+    const zappy_server_t *server,
+    const ai_t *ai)
 {
-    server->map[ai->pos.x][ai->pos.y].deraumere -= level_t[ai->level - 1].deraumere;
-    server->map[ai->pos.x][ai->pos.y].linemate -= level_t[ai->level - 1].linemate;
-    server->map[ai->pos.x][ai->pos.y].mendiane -= level_t[ai->level - 1].mendiane;
-    server->map[ai->pos.x][ai->pos.y].phiras -= level_t[ai->level - 1].phiras;
-    server->map[ai->pos.x][ai->pos.y].sibur -= level_t[ai->level - 1].sibur;
-    server->map[ai->pos.x][ai->pos.y].thystame -= level_t[ai->level - 1].thystame;
+    for (uint8_t i = 1; i < 7; i++)
+        server->map[ai->pos.x][ai->pos.y].resources[i] -= level_need[ai->level - 1].resources[i];
 }
 
 static void update_data(
