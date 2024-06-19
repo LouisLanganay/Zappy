@@ -81,7 +81,7 @@ namespace Zappy {
             void _initClouds(int count);
             void _drawClouds(const std::vector<Cloud>& clouds);
             void _moveClouds(std::vector<Cloud>& clouds, float deltaTime);
-            void _setCloudsPosition(std::vector<Cloud>& clouds);
+            void _setCloudsPosition();
 
             std::vector<Cloud> _clouds;
     };

@@ -120,10 +120,15 @@ void Core::_moveClouds(std::vector<Cloud>& clouds, float timeUnit)
     }
 }
 
-void Core::_setCloudsPosition(std::vector<Cloud>& clouds)
+void Core::_setCloudsPosition()
 {
     float mapWidth = _map->getWidth();
     float mapHeight = _map->getHeight();
+
+    if (mapWidth || mapHeight < 10) {
+        _clouds.clear();
+        _initClouds(3);
+    }
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -136,17 +141,17 @@ void Core::_setCloudsPosition(std::vector<Cloud>& clouds)
         return std::sqrt(dx * dx + dz * dz);
     };
 
-    for (Cloud& cloud : clouds) {
+    for (Cloud& cloud : _clouds) {
         cloud.position.x = distribX(gen);
         cloud.position.z = distribZ(gen);
 
         bool validPosition = false;
         while (!validPosition) {
             validPosition = true;
-            for (const Cloud& otherCloud : clouds) {
+            for (const Cloud& otherCloud : _clouds) {
                 if (&cloud != &otherCloud) {
                     float distance = calculateDistance(cloud, otherCloud);
-                    if (distance < 15.0f) {
+                    if (distance < 5.0f) {
                         cloud.position.x = distribX(gen);
                         cloud.position.z = distribZ(gen);
                         validPosition = false;
@@ -376,7 +381,7 @@ void Core::msz(std::string message)
     int x, y;
     sscanf(message.c_str(), "msz %d %d", &x, &y);
     _map->setSize(x, y);
-    _setCloudsPosition(_clouds);
+    _setCloudsPosition();
 }
 
 void Core::bct(std::string message) {
