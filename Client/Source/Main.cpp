@@ -32,24 +32,54 @@ int displayHelp(int return_value)
     return return_value;
 }
 
-int main(int ac, char **av)
-{
+int main(int ac, char **av) {
     try {
-        if (ac == 2 && (std::string(av[1]) == "--help" || std::string(av[1]) == "-h"))
+        if (ac == 2 && (std::string(av[1]) == "--help" || std::string(av[1]) == "-h")) {
             return displayHelp(0);
-        if (ac != 5)
+        }
+
+        if (ac != 5) {
             return displayHelp(84);
-        if (std::string(av[1]) != "-p" || std::string(av[3]) != "-h")
+        }
+
+        std::string portStr, hostStr;
+        for (int i = 1; i < ac; i += 2) {
+            std::string arg(av[i]);
+            if (arg == "-p") {
+                if (i + 1 < ac) {
+                    portStr = av[i + 1];
+                } else {
+                    return displayHelp(84);
+                }
+            } else if (arg == "-h") {
+                if (i + 1 < ac) {
+                    hostStr = av[i + 1];
+                } else {
+                    return displayHelp(84);
+                }
+            } else {
+                return displayHelp(84);
+            }
+        }
+
+        if (portStr.empty() || hostStr.empty()) {
             return displayHelp(84);
-        if (std::string(av[2]).find_first_not_of("0123456789") != std::string::npos)
+        }
+
+        if (portStr.find_first_not_of("0123456789") != std::string::npos) {
             return displayHelp(84);
-        if (std::string(av[4]).find_first_not_of("0123456789.") != std::string::npos)
+        }
+
+        if (hostStr.find_first_not_of("0123456789.") != std::string::npos) {
             return displayHelp(84);
-        Zappy::Core core(av[4], std::stoi(av[2]));
+        }
+
+        Zappy::Core core(hostStr, std::stoi(portStr));
         core.run();
     } catch (const std::exception &e) {
         std::cerr << "An error occurred: " << e.what() << std::endl;
         return 84;
     }
+
     return 0;
 }
