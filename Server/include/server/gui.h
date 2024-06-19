@@ -218,7 +218,7 @@ void pbc(
 */
 void pic(
     const zappy_server_t *server,
-    const ai_t *ais[]);
+    const ai_t **ais);
 /**
  * @brief End an incantation
  *

@@ -12,7 +12,7 @@
 
 void pic(
     const zappy_server_t *server,
-    const ai_t *ais[])
+    const ai_t **ais)
 {
     char formatted_message[DATA_SIZE] = {0};
 
