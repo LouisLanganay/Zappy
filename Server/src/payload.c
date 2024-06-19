@@ -98,10 +98,6 @@ static void handle_ai_event(
     uint8_t cmd_lenght;
     ai_t *ai = ai_get_by_fd(server, payload->fd);
 
-    if (!ai) {
-        printf("\033[31m[ERROR]\033[0m AI not found\n");
-        return;
-    }
     for (uint8_t i = 0; ai_cmds[i].func; ++i) {
         cmd_lenght = strlen(ai_cmds[i].cmd);
         if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
@@ -163,8 +159,6 @@ static void handle_event(
                 add_graphic(server, payload->fd);
             else
                 add_ai(server, payload);
-            break;
-        default:
             break;
     }
 }
