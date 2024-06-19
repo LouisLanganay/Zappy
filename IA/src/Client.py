@@ -16,6 +16,16 @@ levels = [
     {"linemate": 2, "deraumere": 2, "sibur": 2, "mendiane": 2, "phiras": 2, "thystame": 1}
 ]
 
+"""
+Rarity (based on resources needed to get)
+    Linemate: 0.0333
+    Deraumere: 0.01875
+    Sibur: 0.01
+    Mendiane: 0.02​
+    Phiras: 0.0133
+    Thystame: 0.05​
+"""
+
 resources_to_get = {"linemate": 0, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0}
 
 for level in levels:
@@ -195,6 +205,8 @@ class AI:
     
     def has_all_resources(self):
         for resource, amount_needed in resources_to_get.items():
+            if resource == 'food':
+                continue
             if self.inventory[resource] < amount_needed:
                 return False
         return True
@@ -232,9 +244,8 @@ class AI:
         self.y = 0
         self.x = len(self.vision[0]) // 2
         self.reset_direction()
-
         # Prioritize taking food first
-        if self.inventory['food'] < 15:
+        if self.inventory['food'] < 20:
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
@@ -270,10 +281,14 @@ class Client:
 
     def receive(self):
         data = self.socket.recv(1024).decode().strip()
-        
         if not data:
             print("Server closed the connection")
             sys.exit(0)
+        count = 0
+        while data.startswith('message') and count < 3:
+            self.handle_broadcast(data)
+            data = self.socket.recv(1024).decode().strip()
+            count += 1
         return data
 
     def update_inventory(self):
@@ -286,7 +301,7 @@ class Client:
         data = self.receive()
         self.ai.update_state(data)
 
-    def send_movement_queue(self):
+    def send_queue(self):
         for elt in self.queue:
             self.send(elt)
             data = self.receive()
@@ -299,12 +314,13 @@ class Client:
     def send_broadcast(self, message):
         self.send(f"Broadcast {message}")
         data = self.receive()
-        # Optionally handle response to broadcast if needed
+
 
     def handle_broadcast(self, message):
-        if message.startswith('Broadcast'):
-            _, content = message.split(' ', 1)
-            print(f"Received broadcast: {content}")
+        return
+        if message.startswith('message'):
+            print(f"Received broadcast: {message}")
+
 
     def close(self):
         self.selector.unregister(self.socket)
@@ -312,28 +328,29 @@ class Client:
 
     def connect(self):
         self.send(self.name)
-    
+
     def run(self):
         self.connect()
         self.receive()  # Initial connection response (welcome message)
         self.receive()  # Additional server response (map size)
+        start = time.time()
         while True:
-            self.update_inventory()
-            self.update_vision()
+            self.queue = ['Look', 'Inventory']
+            self.send_queue()
             self.queue = self.ai.algorithm()
-            self.send_movement_queue()
+            self.send_queue()
 
-            # Check for broadcasts from other clients
-            events = self.selector.select(timeout=0)
+            if self.ai.has_all_resources():
+                self.send_broadcast('Group')
+
+            # allow the client to receive broadcast messages while waiting for server response
+            events = self.selector.select(timeout=0.1)
             for key, mask in events:
                 callback = key.data
                 data = callback()
-                if data.startswith('message'):
-                    print(data)
+                if data.startswith('message') and data.endswith('Group'):
                     self.handle_broadcast(data)
-                else:
-                    self.ai.update_state(data)
-
+                self.ai.update_state(data)
 
 def main():
     args = sys.argv[1:]
@@ -341,16 +358,8 @@ def main():
     host, port, name = parser.parse(args)
     client = Client(host, port, name)
     client.run()
+    client.close()
 
 if __name__ == "__main__":
     main()
 
-def main():
-    args = sys.argv[1:]
-    parser = ParseArgs()
-    host, port, name = parser.parse(args)
-    client = Client(host, port, name)
-    client.run()
-
-if __name__ == "__main__":
-    main()
