@@ -106,6 +106,7 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					smg.c											\
 					sst.c											\
 					suc.c											\
+					tna.c											\
 				)
 
 DIR_BUILD	:=	build
