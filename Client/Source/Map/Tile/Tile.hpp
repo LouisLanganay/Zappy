@@ -66,6 +66,8 @@ namespace Zappy {
                 const Color& colorHigh,
                 float height
             ) const;
+
+            Vector3 _generateRandomOffset(float maxOffset);
     };
 };
 

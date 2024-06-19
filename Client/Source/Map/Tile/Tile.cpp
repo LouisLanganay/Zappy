@@ -109,28 +109,40 @@ void Tile::draw(
     DrawCubeWires((Vector3){ (float)x, getTileHeight() - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirtWire);
 
     Vector3 positions[] = {
-        {(float)x - 0.4f, getTileHeight() + 0.05f, (float)y - 0.3f}, // FOOD
-        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y - 0.3f}, // LINEMATE
-        {(float)x - 0.4f, getTileHeight() + 0.05f, (float)y + 0.3f}, // DERAUMERE
-        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y + 0.3f}, // SIBUR
+        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y - 0.31f}, // FOOD
+        {(float)x + 0.41f, getTileHeight() + 0.05f, (float)y - 0.304f}, // LINEMATE
+        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y + 0.3f}, // DERAUMERE
+        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y + 0.34f}, // SIBUR
         {(float)x, getTileHeight() + 0.05f, (float)y},               // MENDIANE
-        {(float)x - 0.4f, getTileHeight() + 0.05f, (float)y},        // PHIRAS
-        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y}         // THYSTAME
+        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y + 0.01f},        // PHIRAS
+        {(float)x + 0.41f, getTileHeight() + 0.05f, (float)y + 0.05f}         // THYSTAME
     };
 
     for (int i = 0; i < 7; ++i) {
         auto resourceType = static_cast<Zappy::Resources::Type>(i);
         int resourceCount = _resources.at(resourceType);
-        for (int j = 0; j < resourceCount; ++j) {
-            float offset = 0.040f * j;
+        if (resourceCount > 0) {
+            Vector3 basePosition = positions[i];
             if (resourceType == Resources::Type::FOOD) {
-                DrawSphere(positions[i], 0.05, WHITE);
-                continue;
+                DrawSphere(basePosition, 0.05, WHITE);
+            } else {
+                auto model = resources.at(resourceType);
+                if (resourceCount == 1) {
+                    model.setPosition(basePosition.x, basePosition.y, basePosition.z);
+                    model.setSize(0.2);
+                    model.draw();
+                } else {
+                    // Bottom two lingots
+                    model.setPosition(basePosition.x - 0.04f, basePosition.y, basePosition.z);
+                    model.setSize(0.2);
+                    model.draw();
+                    model.setPosition(basePosition.x + 0.04f, basePosition.y, basePosition.z);
+                    model.draw();
+                    // Top lingot
+                    model.setPosition(basePosition.x, basePosition.y + 0.04f, basePosition.z);
+                    model.draw();
+                }
             }
-            auto model = resources.at(resourceType);
-            model.setPosition(positions[i].x, positions[i].y + offset, positions[i].z);
-            model.setSize(0.2);
-            model.draw();
         }
     }
 }

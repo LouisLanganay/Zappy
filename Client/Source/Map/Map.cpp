@@ -144,7 +144,7 @@ Color Map::generateUniqueColor()
     Color teamColor;
     bool isUnique;
     do {
-        teamColor = {(unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), 255};
+        teamColor = {(unsigned char)GetRandomValue(100, 255), (unsigned char)GetRandomValue(100, 255), (unsigned char)GetRandomValue(100, 255), 255};
         isUnique = true;
         for (const auto& team : _teams) {
             Color color = team.second->getColor();
