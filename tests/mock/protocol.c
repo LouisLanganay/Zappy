@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "server.h"
 
@@ -25,4 +26,18 @@ bool mock_protocol_server_send(
     printf("To client %i: %s\n", client_fd, message);
     fflush(stdout);
     return true;
+}
+
+protocol_server_t *mock_protocol_server_create(
+    UNUSED const int port)
+{
+    protocol_server_t *server = calloc(1, sizeof(protocol_server_t));
+
+    if (!server)
+        return NULL;
+    TAILQ_INIT(&server->clients);
+    TAILQ_INIT(&server->payloads);
+    TAILQ_INIT(&server->new_connections);
+    TAILQ_INIT(&server->lost_connections);
+    return server;
 }
