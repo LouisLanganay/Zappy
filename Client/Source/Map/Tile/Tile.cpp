@@ -63,7 +63,7 @@ void Tile::drawParticles(float x, float y, float z) const
         float radius = 0.4f;
         float particleX = x + radius * cos(angle);
         float particleZ = z + radius * sin(angle);
-        DrawSphere((Vector3){particleX, y + 0.03f / 2, particleZ}, 0.03f, (Color){255, 255, 255, 255});
+        DrawSphere((Vector3){particleX, y + 0.03f, particleZ}, 0.03f, (Color){255, 255, 255, 255});
     }
 }
 
