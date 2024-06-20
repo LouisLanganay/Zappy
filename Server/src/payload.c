@@ -91,6 +91,22 @@ static void add_graphic(
     tna(server, interlocutor, NULL);
 }
 
+static void update_cmd_action_time(
+    const zappy_server_t *server,
+    const char message[1024]
+)
+{
+    uint8_t cmd_lenght;
+
+    for (int i = 0; server->cmd[i] != NULL; i++) {
+        cmd_lenght = strlen(server->cmd[i]->cmd);
+        if (strncmp(message, server->cmd[i]->cmd, cmd_lenght) == 0) {
+            server->cmd[i]->active = true;
+            return;
+        }
+    }
+}
+
 static void handle_ai_event(
     const zappy_server_t *server,
     const protocol_payload_t *payload)
@@ -106,6 +122,7 @@ static void handle_ai_event(
         cmd_lenght = strlen(ai_cmds[i].cmd);
         if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
             ai_cmds[i].func(server, ai, payload->message + cmd_lenght + 1);
+            update_cmd_action_time(server, payload->message);
             return;
         }
     }
