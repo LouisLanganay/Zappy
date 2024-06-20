@@ -41,7 +41,6 @@ static void look_tile(
         add_element_to_message(formatted_message, " thystame");
 }
 
-
 static void look_north(
     const zappy_server_t *server,
     const ai_t *ai,

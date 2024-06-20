@@ -18,8 +18,29 @@ static incantation_t *create_inc_elm(
 
     if (!new_elm)
         return NULL;
+    ai->is_incantate = true;
     new_elm->ai = ai;
     return new_elm;
+}
+
+static bool send_gui_start(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    const uint16_t ai_nb)
+{
+    incantation_t *elm;
+    uint16_t index = 0;
+    ai_t **ais = calloc(ai_nb, sizeof(ai_t *));
+
+    if (!ais)
+        return false;
+    for (elm = (&ai->incantation_list)->tqh_first; elm;
+        elm = elm->entries.tqe_next) {
+        ais[index] = elm->ai;
+        index++;
+    }
+    pic(server, ais);
+    free(ais);
 }
 
 static bool send_start_message(
@@ -27,25 +48,15 @@ static bool send_start_message(
     const ai_t *ai)
 {
     incantation_t *elm;
-    ai_t **ais;
     uint16_t count = 0;
-    uint16_t index = 0;
 
-    TAILQ_FOREACH(elm, &ai->incantation_list, entries) {
+    for (elm = (&ai->incantation_list)->tqh_first; elm;
+        elm = elm->entries.tqe_next) {
         protocol_server_send(server->socket, elm->ai->fd,
             "Elevation underway");
         count++;
     }
-    ais = calloc(count, sizeof(ai_t *));
-    if (!ais)
-        return false;
-    TAILQ_FOREACH(elm, &ai->incantation_list, entries) {
-        ais[index] = elm->ai;
-        index++;
-    }
-    //pic(server, count, ai, ais);
-    free(ais);
-    return true;
+    return send_gui_start(server, ai, count);
 }
 
 static void clean_incantation_list(
@@ -68,12 +79,11 @@ static bool create_incantation_list(
     int count = level_need[ai->level - 1].resources[0] - 1;
 
     TAILQ_INSERT_TAIL(&ai->incantation_list, create_inc_elm(ai), entries);
-    ai->is_incantate = true;
-    TAILQ_FOREACH(n_ai, &server->ais, entries) {
+    for (n_ai = (&server->ais)->tqh_first; n_ai;
+        n_ai = n_ai->entries.tqe_next) {
         if (n_ai->fd != ai->fd && n_ai->level == ai->level &&
             n_ai->pos.x == ai->pos.x && n_ai->pos.y == ai->pos.y &&
             n_ai->is_incantate == false) {
-            n_ai->is_incantate = true;
             TAILQ_INSERT_TAIL(&ai->incantation_list, create_inc_elm(n_ai),
                 entries);
             count--;
@@ -122,20 +132,6 @@ bool can_incantation(
         }
     }
     return true;
-}
-
-void notify_failed_incantation(
-    const zappy_server_t *server,
-    ai_t *ai)
-{
-    incantation_t *node;
-
-    if (TAILQ_EMPTY(&ai->incantation_list)) {
-        protocol_server_send(server->socket, ai->fd, "ko");
-        return;
-    }
-    TAILQ_FOREACH(node, &ai->incantation_list, entries)
-        protocol_server_send(server->socket, node->ai->fd, "ko");
 }
 
 static void clean_ressources(
