@@ -187,6 +187,19 @@ void set(
     const char *message);
 
 /**
+ * @brief Check if incantation can be started
+ *
+ * @param server The server_t struct
+ * @param ai The associated ai struct
+ * @param message The message of the command
+ *
+ */
+bool can_incantation(
+    const zappy_server_t *server,
+    ai_t *ai,
+    const char *message);
+
+/**
  * @brief Start incantation
  *
  * @param server The server_t struct
@@ -198,18 +211,6 @@ void incantation(
     zappy_server_t *server,
     ai_t *ai,
     const char *message);
-
-/**
- * @brief Start incantation
- *
- * @param server The server_t struct
- * @param ai The associated ai struct
- *
- * @note Notify AIs when an incantation fail
- */
-void notify_failed_incantation(
-    const zappy_server_t *server,
-    ai_t *ai);
 
 static const struct {
     const char *cmd;

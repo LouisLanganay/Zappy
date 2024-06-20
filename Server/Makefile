@@ -58,7 +58,6 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					eject.c											\
 					fork.c											\
 					forward.c										\
-					notify.c										\
 					incantation.c									\
 					inventory.c										\
 					left.c											\

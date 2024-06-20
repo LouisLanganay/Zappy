@@ -57,7 +57,7 @@ static ai_t *init_ai(
 
     if (!ai)
         return NULL;
-    TAILQ_INIT(&ai->incantation_list);
+    TAILQ_INIT(&ai->incantations);
     TAILQ_INIT(&ai->commands);
     *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
     TAILQ_FOREACH(team, &server->teams, entries)

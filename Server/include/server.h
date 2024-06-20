@@ -70,8 +70,6 @@ typedef struct ai_cmd_s {
     TAILQ_ENTRY(ai_cmd_s) entries;
 } ai_cmd_t;
 
-typedef struct incantation_s incantation_t;
-
 typedef struct ai_s {
     int fd;
 
@@ -87,7 +85,7 @@ typedef struct ai_s {
 
     TAILQ_ENTRY(ai_s) entries;
     TAILQ_HEAD(, ai_cmd_s) commands;
-    TAILQ_HEAD(, incantation_s) incantation_list;
+    TAILQ_HEAD(, incantation_s) incantations;
 } ai_t;
 
 typedef struct incantation_s {
