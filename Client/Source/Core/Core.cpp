@@ -125,9 +125,13 @@ void Core::_setCloudsPosition()
     float mapWidth = _map->getWidth();
     float mapHeight = _map->getHeight();
 
-    if (mapWidth || mapHeight < 10) {
+    if (mapWidth <= 10 || mapHeight <= 10) {
         _clouds.clear();
-        _initClouds(3);
+        _initClouds(5);
+    }
+    if (mapWidth <= 5 || mapHeight <= 5) {
+        _clouds.clear();
+        _initClouds(2);
     }
 
     std::random_device rd;
@@ -374,6 +378,7 @@ void Core::adjustTimeUnit(int value)
         timeUnit = 1;
     _map->setTimeUnit(timeUnit);
     _api->modifyTimeUnit(timeUnit);
+    _api->requestTimeUnit();
 }
 
 void Core::msz(std::string message)
@@ -570,14 +575,14 @@ void Core::pic(std::string message)
     _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
 
     tile->startIncantation(level, players);
-//
-    //for (int playerId : players) {
-    //    Player* player = _map->getPlayer(playerId);
-    //    if (player)
-    //        player->startIncantation();
-    //    else
-    //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
-    //}
+
+    for (int playerId : players) {
+        Player* player = _map->getPlayer(playerId);
+        if (player)
+            player->startIncantation();
+        else
+            DEBUG_ERROR("Player not found: " + std::to_string(playerId));
+    }
     DEBUG_INFO("Incantation started at (" + std::to_string(x) + ", " + std::to_string(y) + ") with level " + std::to_string(level) + " and players: " + std::to_string(players.size()));
 }
 
@@ -595,15 +600,15 @@ void Core::pie(std::string message)
     _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
 
     tile->endIncantation(result);
-//
-    //const std::vector<int>& players = tile->getIncantationPlayers();
-    //for (int playerId : players) {
-    //    Player* player = _map->getPlayer(playerId);
-    //    if (player)
-    //        player->endIncantation(result);
-    //    else
-    //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
-    //}
+
+    const std::vector<int>& players = tile->getIncantationPlayers();
+    for (int playerId : players) {
+        Player* player = _map->getPlayer(playerId);
+        if (player)
+            player->endIncantation(result);
+        else
+            DEBUG_ERROR("Player not found: " + std::to_string(playerId));
+    }
     _api->requestTileContent(x, y);
     DEBUG_INFO("Incantation ended at (" + std::to_string(x) + ", " + std::to_string(y) + ") with result: " + std::to_string(result));
 }
