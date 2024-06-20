@@ -5,6 +5,7 @@ import selectors
 import random
 import time
 from ParseArgs import ParseArgs
+import subprocess
 
 levels = [
     {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
@@ -52,8 +53,11 @@ class AI:
         self.x = 0
         self.y = 0
         self.queue = []
+        self.start = time.time()
 
     def parse_inventory(self, response):
+        if self.detect_type_of_response(response) != 'inventory':
+            return None
         inventory = {}
         response = response.strip('[]')
         list_of_items = response.split(', ')
@@ -130,16 +134,37 @@ class AI:
         final_list = self._convert_elements_to_dicts(padded_list)
         return final_list
     
+    def get_type_inventory_look(self, response):
+        try:
+            inventory_string = response.strip("[] ")
+            items = inventory_string.split(", ")
+            inventory_dict = {}
+
+            for item in items:
+                key, value = item.split(" ")
+                inventory_dict[key] = int(value)
+
+            return 'inventory'
+        except:
+            return 'look'
+        
+    
     def detect_type_of_response(self, response):
         if response.startswith('ok'):
             return 'ok'
         if response.startswith('ko'):
             return 'ko'
         if response.startswith('['):
-            if len(response.strip('[]').split(', ')) == 7: # there is 7 key in an inventory
-                return 'inventory'
-            else:
-                return 'look'
+            return self.get_type_inventory_look(response)
+        if response.startswith('message'):
+            return 'broadcast'
+        if response.startswith('dead'):
+            return 'dead'
+        if response.startswith('Elevation underway'):
+            return 'elevation'
+        if response.startswith('Current level:'):
+            return 'level up'
+        
         return 'unknown'
     
     def update_state(self, response):
@@ -148,6 +173,9 @@ class AI:
             self.inventory = self.parse_inventory(response)
         if type_of_response == 'look':
             self.vision = self.parse_vision(response)
+        if type_of_response == 'level up':
+            self.level = int(response.split()[-1])
+            print(f"Level up! New level: {self.level}")
     
     def set_direction(self, goal_direction):
         if self.direction == goal_direction:
@@ -239,6 +267,47 @@ class AI:
     def reset_direction(self):
         self.direction = 'Down'
 
+    def linemate_level1(self):
+        state = False
+        for i, row in enumerate(self.vision):
+            for j, cell in enumerate(row):
+                try:
+                    if cell['linemate'] > 0:
+                        self.move_to(j, i)
+                        self.queue.append('Incantation')
+                        state = True
+                        return state
+                except:
+                    print(f"linemate doesn't exist")
+        return state
+
+    def get_coordinates_from_direction(self, direction):
+        # Map direction number to relative coordinates
+        direction_map = {
+            0: (0, 0),
+            1: (0, -1),
+            2: (-1, -1),
+            3: (-1, 0),
+            4: (-1, 1),
+            5: (0, 1),
+            6: (1, 1),
+            7: (1, 0),
+            8: (1, -1)
+        }
+        return direction_map.get(direction, (0, 0))
+
+    def move_to_broadcaster(self, direction):
+        # Get the relative coordinates from the direction
+        rel_x, rel_y = self.get_coordinates_from_direction(direction)
+        
+        # Calculate the target position
+        goal_x = self.x + rel_x
+        goal_y = self.y + rel_y
+        
+        # Move to the target position
+        self.move_to(goal_x, goal_y)
+        self.queue.append('Forward')  # Move to the final position
+
     def algorithm(self):
         # Set initial position and direction of the player in the vision grid
         self.y = 0
@@ -250,14 +319,35 @@ class AI:
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
                 self.queue.append('Forward')
+            return self.queue
         
-        else:
-            if not self.take_resources_to_get():
-                self.queue.append(random.choice(['Left', 'Right', 'Forward']))
-                self.queue.append('Forward')
-                self.queue.append('Forward')
-
+        if self.level == 1:
+            if not self.linemate_level1():
+                self.take_resources('food')
+            return self.queue
+        
+        # if self.inventory['food'] > 100:
+            # print(f'Elapsed time: {time.time() - self.start}')
+            # self.start = time.time()
+            # self.queue.append('Fork')
+        # else:
+        if not self.take_resources('food'):
+            self.queue.append(random.choice(['Left', 'Right', 'Forward']))
+            self.queue.append('Forward')
+            self.queue.append('Forward')
         return self.queue
+                
+
+            
+
+        
+        # self.take_resources('food')
+        
+        # else:
+        #     if not self.take_resources_to_get():
+        #         self.queue.append(random.choice(['Left', 'Right', 'Forward']))
+        #         self.queue.append('Forward')
+        #         self.queue.append('Forward')
 
 
 class Client:
@@ -280,16 +370,37 @@ class Client:
         self.socket.send(data.encode() + b'\n')
 
     def receive(self):
-        data = self.socket.recv(1024).decode().strip()
-        if not data:
-            print("Server closed the connection")
-            sys.exit(0)
-        count = 0
-        while data.startswith('message') and count < 3:
-            self.handle_broadcast(data)
+        buffer = ""
+        
+        while True:
+            # Receive data from the socket
             data = self.socket.recv(1024).decode().strip()
+            
+            # Check if connection is closed
+            if not data:
+                print("Server closed the connection")
+                sys.exit(0)
+            
+            buffer += data
+            # Split messages on newline
+            while '\n' in buffer:
+                message, buffer = buffer.split('\n', 1)
+                if message.startswith('message'):
+                    self.handle_broadcast(message)
+                else:
+                    self.ai.update_state(message)
+            
+            # If there's no complete message, keep the buffer for next recv
+            if '\n' not in buffer:
+                break
+        
+        count = 0
+        while buffer.startswith('message') and count < 3:
+            self.handle_broadcast(buffer)
+            buffer = self.socket.recv(1024).decode().strip()
             count += 1
-        return data
+        
+        return buffer
 
     def update_inventory(self):
         self.send('Inventory')
@@ -305,6 +416,8 @@ class Client:
         for elt in self.queue:
             self.send(elt)
             data = self.receive()
+            if elt == 'Incantation':
+                time.sleep(1.5)
             if data.startswith('dead'):
                 print("Dead")
                 sys.exit(0)
@@ -317,9 +430,16 @@ class Client:
 
 
     def handle_broadcast(self, message):
-        return
-        if message.startswith('message'):
-            print(f"Received broadcast: {message}")
+        print(f"Received broadcast: {message}")
+        temp = message[8:]
+        temp = temp.split(', ')
+
+        direction = int(temp[0])
+        data = temp[1]
+        
+        if self.ai.inventory['food'] > 40:
+            print(f"Moving to broadcaster in direction: {direction}")
+            self.ai.move_to_broadcaster(direction)
 
 
     def close(self):
@@ -333,24 +453,24 @@ class Client:
         self.connect()
         self.receive()  # Initial connection response (welcome message)
         self.receive()  # Additional server response (map size)
-        start = time.time()
+        i = 0
         while True:
             self.queue = ['Look', 'Inventory']
             self.send_queue()
             self.queue = self.ai.algorithm()
             self.send_queue()
-
-            if self.ai.has_all_resources():
+        
+            if i % 10 == 0:
                 self.send_broadcast('Group')
-
+            i += 1
             # allow the client to receive broadcast messages while waiting for server response
-            events = self.selector.select(timeout=0.1)
-            for key, mask in events:
-                callback = key.data
-                data = callback()
-                if data.startswith('message') and data.endswith('Group'):
-                    self.handle_broadcast(data)
-                self.ai.update_state(data)
+            # events = self.selector.select(timeout=0)
+            # for key, mask in events:
+            #     callback = key.data
+            #     data = callback()
+            #     if data.startswith('message') and data.endswith('Group'):
+            #         self.handle_broadcast(data)
+            #     self.ai.update_state(data)
 
 def main():
     args = sys.argv[1:]
