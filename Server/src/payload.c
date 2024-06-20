@@ -48,7 +48,7 @@ static void handle_lost_connection(
     }
 }
 
-static void add_ai(
+static ai_t *init_ai(
     zappy_server_t *server,
     const protocol_payload_t *payload)
 {
@@ -56,7 +56,9 @@ static void add_ai(
     team_t *team;
 
     if (!ai)
-        return;
+        return NULL;
+    TAILQ_INIT(&ai->incantations);
+    TAILQ_INIT(&ai->commands);
     *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
@@ -64,8 +66,19 @@ static void add_ai(
     if (!ai->team) {
         free(ai);
         printf("\033[31m[ERROR]\033[0m Team not found\n");
-        return;
+        return NULL;
     }
+    return ai;
+}
+
+static void add_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload)
+{
+    ai_t *ai = init_ai(server, payload);
+
+    if (!ai)
+        return;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
     protocol_server_send(server->socket, payload->fd,
@@ -92,7 +105,7 @@ static void add_graphic(
 }
 
 static void handle_ai_event(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const protocol_payload_t *payload)
 {
     uint8_t cmd_lenght;

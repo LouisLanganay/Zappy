@@ -81,9 +81,17 @@ typedef struct ai_s {
     uint16_t level;
     inventory_t inventory;
 
+    bool is_incantate;
+
     TAILQ_ENTRY(ai_s) entries;
-    TAILQ_HEAD(, ai_cmd_t) commands;
+    TAILQ_HEAD(, ai_cmd_s) commands;
+    TAILQ_HEAD(, incantation_s) incantations;
 } ai_t;
+
+typedef struct incantation_s {
+    ai_t *ai;
+    TAILQ_ENTRY(incantation_s) entries;
+} incantation_t;
 
 typedef struct gui_s {
     int fd;
