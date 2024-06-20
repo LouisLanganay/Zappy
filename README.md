@@ -4,7 +4,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
 
-![GameImage](Documentation/Image/Game.png)
+![GameImage](Documentation/Image/game.png)
 
 # Zappy
 
@@ -31,6 +31,28 @@ For more detailed information, you can consult the PDF documentation:
 
 - [Zappy.pdf](Documentation/Zappy.pdf)
 - [Zappy-Graphical.pdf](Documentation/Zappy-Graphical.pdf)
+
+### Global Architecture
+
+```mermaid
+graph TD
+    A[Serveur] <-->|Communication via lib network| B[Client Graphique]
+    A <-->|Communication via lib network| C[Client IA]
+    A <-->|Communication via lib network| D[Client IA]
+    A <-->|Communication via lib network| E[Client IA]
+
+    subgraph Clients IA
+      C
+      D
+      E
+    end
+
+    class A server;
+    class B client;
+    class C client;
+    class D client;
+    class E client;
+```
 
 ## Usage
 
