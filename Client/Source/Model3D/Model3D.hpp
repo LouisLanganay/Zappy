@@ -16,6 +16,7 @@ namespace Zappy {
         public:
             Model3D();
             Model3D(std::string model_path, std::string texture_path);
+            Model3D(std::string model_path);
             Model3D(
                 std::string model_path,
                 std::string texture_path,
