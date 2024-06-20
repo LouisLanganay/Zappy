@@ -40,8 +40,12 @@ uint16_t team_get_empty_slots(
     uint16_t used_slots = 0;
     ai_t *ai;
 
+    if (!team)
+        return 0;
     TAILQ_FOREACH(ai, &server->ais, entries)
         if (ai->team == team)
             used_slots++;
-    return server->clients_nb - used_slots;
+    return server->clients_nb - used_slots > 0
+        ? server->clients_nb - used_slots
+        : 0;
 }

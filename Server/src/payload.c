@@ -29,7 +29,7 @@ static void handle_new_connection(
 }
 
 static void handle_lost_connection(
-    zappy_server_t *server)
+    zappy_server_t *server)macintoch
 {
     protocol_connection_t *connection;
     ai_t *ai;
@@ -59,7 +59,7 @@ static ai_t *init_ai(
         return NULL;
     TAILQ_INIT(&ai->incantation_list);
     TAILQ_INIT(&ai->commands);
-    *ai = (ai_t){.fd = payload->fd, .level = 1};
+    *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
             ai->team = team;
@@ -111,10 +111,6 @@ static void handle_ai_event(
     uint8_t cmd_lenght;
     ai_t *ai = ai_get_by_fd(server, payload->fd);
 
-    if (!ai) {
-        printf("\033[31m[ERROR]\033[0m AI not found\n");
-        return;
-    }
     for (uint8_t i = 0; ai_cmds[i].func; ++i) {
         cmd_lenght = strlen(ai_cmds[i].cmd);
         if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
@@ -176,8 +172,6 @@ static void handle_event(
                 add_graphic(server, payload->fd);
             else
                 add_ai(server, payload);
-            break;
-        default:
             break;
     }
 }
