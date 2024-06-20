@@ -42,6 +42,17 @@ inventory = {
     "thystame": 0
 }
 
+inventory_team = {
+    "food": 0,
+    "linemate": 0,
+    "deraumere": 0,
+    "sibur": 0,
+    "mendiane": 0,
+    "phiras": 0,
+    "thystame": 0
+}
+
+
 class AI:
     def __init__(self):
         self.level = 1
@@ -261,10 +272,13 @@ class AI:
 
 
 class Client:
-    def __init__(self, host, port, name):
+    def __init__(self, host, port, name, id):
+        self.nbr_msg = 0
         self.host = host
         self.port = int(port)
         self.name = name
+        self.id = id
+        self.num_msg = 0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
         self.queue = []
@@ -314,12 +328,37 @@ class Client:
     def send_broadcast(self, message):
         self.send(f"Broadcast {message}")
         data = self.receive()
+        partie_msg = data.split(":")
+        if (partie_msg[0] == "I"):
+            self.broadcast_Inventory_receive(data)
 
+    def broadcast_Inventory_send(self):
+        custom_inventory = []
+        print(f"MON ID = {self.id}")
+        self.update_inventory()
+        for resource, amount in inventory.items():
+            my_tuple = (resource, str(amount))
+            custom_inventory.append(my_tuple)
+        msg_to_send = f"I {self.id}:{self.nbr_msg}:{custom_inventory}*"
+        msg_res = ''
+        for i in range(len(msg_to_send)):
+            if msg_to_send[i] == ' ':
+                msg_res += ''
+                continue
+            msg_res += msg_to_send[i]
+        self.send_broadcast(msg_res)
+        print(msg_res)
+        self.nbr_msg += 1
+
+    def broadcast_Inventory_receive(self,data):
+        print(f"JULLLLLLLLLL {data}")
 
     def handle_broadcast(self, message):
-        return
         if message.startswith('message'):
             print(f"Received broadcast: {message}")
+        return
+
+    #def handle_inventory_broadcast(self, message):
 
 
     def close(self):
@@ -340,9 +379,8 @@ class Client:
             self.queue = self.ai.algorithm()
             self.send_queue()
 
-            if self.ai.has_all_resources():
-                self.send_broadcast('Group')
-
+            self.broadcast_Inventory_send()
+            self
             # allow the client to receive broadcast messages while waiting for server response
             events = self.selector.select(timeout=0.1)
             for key, mask in events:
@@ -355,8 +393,8 @@ class Client:
 def main():
     args = sys.argv[1:]
     parser = ParseArgs()
-    host, port, name = parser.parse(args)
-    client = Client(host, port, name)
+    host, port, name, id = parser.parse(args)
+    client = Client(host, port, name, id)
     client.run()
     client.close()
 
