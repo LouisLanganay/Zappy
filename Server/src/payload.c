@@ -29,7 +29,7 @@ static void handle_new_connection(
 }
 
 static void handle_lost_connection(
-    zappy_server_t *server)macintoch
+    zappy_server_t *server)
 {
     protocol_connection_t *connection;
     ai_t *ai;
