@@ -131,8 +131,11 @@ void incantation(
     TAILQ_FOREACH(elm, &ai->incantations, entries)
         if (elm->ai->fd != ai->fd
             && elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
-            && elm->ai->level == ai->level && ai->inventory.food > 0)
+            && elm->ai->level == ai->level && ai->inventory.food > 0) {
             elm->ai->level++;
+            protocol_server_send(server->socket, elm->ai->fd,
+                "Current level: %d", elm->ai->level);
+        }
     pie(server, ai);
     clean_incantations(ai);
 }
