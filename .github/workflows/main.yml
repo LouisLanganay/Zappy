@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  EXECUTABLES: 'zappy_server,zappy_ai,zappy_gui'
+  EXECUTABLES: 'zappy_server,zappy_ai'
 jobs:
   check_coding_style:
     name: Check coding style
