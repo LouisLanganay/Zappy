@@ -80,7 +80,9 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					gui.c											\
 					team.c											\
 					payload.c										\
+					server.c										\
 				)
+
 UT_DIR		+=	../tests/server/gui
 UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					bct.c											\
@@ -174,9 +176,10 @@ $(DEBUG):			$(DG_OBJ); 	$(COMPILE)
 debug:				$(DEBUG)
 
 -include $(UT_DEP)
-$(UT_TEST):			CFLAGS += --coverage	 						\
-				  -Dprotocol_server_send=mock_protocol_server_send	\
-				  -Dprotocol_server_create=mock_protocol_server_create
+$(UT_TEST):			CFLAGS += --coverage	 							\
+				  -Dprotocol_server_send=mock_protocol_server_send		\
+				  -Dprotocol_server_create=mock_protocol_server_create	\
+				  -Dprotocol_server_is_open=mock_protocol_server_is_open
 $(UT_TEST):			LDFLAGS += -lcriterion --coverage
 $(UT_TEST):			$(UT_OBJ);	$(COMPILE)
 tests_unit:			$(UT_TEST)

@@ -41,3 +41,8 @@ protocol_server_t *mock_protocol_server_create(
     TAILQ_INIT(&server->lost_connections);
     return server;
 }
+
+bool mock_protocol_server_is_open(void)
+{
+    return false;
+}
