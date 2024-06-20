@@ -4,7 +4,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
 
-![GameImage](Documentation/Image/game.png)
+![GameImage](Documentation/Image/Game.png)
 
 # Zappy
 
