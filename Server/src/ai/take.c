@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 void take(
     zappy_server_t *server,
@@ -23,5 +24,6 @@ void take(
         server->map[ai->pos.y][ai->pos.x].resources[i] -= 1;
         ai->inventory.resources[i] += 1;
         protocol_server_send(server->socket, ai->fd, "ok");
+        pgt(server, ai, ai->inventory.resources[i]);
     }
 }

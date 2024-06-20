@@ -6,6 +6,7 @@
 */
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 static orientation_t convert_orientation(
     const orientation_t orientation)
@@ -24,6 +25,7 @@ void eject(
     UNUSED const char *message)
 {
     ai_t *target;
+    bool ejected = false;
 
     TAILQ_FOREACH(target, &server->ais, entries)
         if (target->fd != ai->fd
@@ -31,8 +33,11 @@ void eject(
             protocol_server_send(server->socket, ai->fd, "eject: %i",
                 (uint8_t[]){ 8, 6, 4, 2 }[(convert_orientation(WEST)
                     + convert_orientation(NORTH) - 1) % 4]);
-            protocol_server_send(server->socket, ai->fd, "ok");
-            return;
+            ejected = true;
+            pex(server, target);
         }
-    protocol_server_send(server->socket, ai->fd, "ko");
+    if (ejected)
+        protocol_server_send(server->socket, ai->fd, "ok");
+    else
+        protocol_server_send(server->socket, ai->fd, "ko");
 }
