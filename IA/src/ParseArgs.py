@@ -6,14 +6,14 @@ class ParseArgs:
         self.host = 'localhost'
         self.port = -1
         self.name = ''
-
+        self.id = ''
     def check_type(self):
         try:
             self.port = int(self.port)
         except ValueError:
             self.print_invalid_argument()
             sys.exit(84)
-        
+
         if self.port == -1 or self.name == '':
             self.print_usage()
             sys.exit(84)
@@ -47,12 +47,14 @@ class ParseArgs:
                 self.name = args[i + 1]
             elif args[i] == '-h':
                 self.host = args[i + 1]
+            elif args[i] == '-id':
+                self.id = args[i + 1]
             else:
                 self.print_invalid_argument()
                 sys.exit(84)
 
         self.check_type()
-        return self.host, self.port, self.name
+        return self.host, self.port, self.name, self.id
 
     def print_usage(self):
         print("USAGE: ./zappy_ai -p port -n name -h machine")
