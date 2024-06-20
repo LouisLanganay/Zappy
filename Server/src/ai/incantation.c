@@ -167,12 +167,10 @@ void incantation(
     ai_t *ai,
     UNUSED const char *message)
 {
-    if (!can_incantation(server, ai)) {
+    if (!can_incantation(server, ai))
         notify_failed_incantation(server, ai);
-        clean_incantation_list(ai);
-        pie(server, ai);
-        return;
-    }
-    update_data(server, ai);
+    else
+        update_data(server, ai);
     pie(server, ai);
+    clean_incantation_list(ai);
 }
