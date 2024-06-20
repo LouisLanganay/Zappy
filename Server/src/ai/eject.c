@@ -6,6 +6,7 @@
 */
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 static orientation_t convert_orientation(
     const orientation_t orientation)
@@ -32,6 +33,7 @@ void eject(
                 (uint8_t[]){ 8, 6, 4, 2 }[(convert_orientation(WEST)
                     + convert_orientation(NORTH) - 1) % 4]);
             protocol_server_send(server->socket, ai->fd, "ok");
+            pex(server, ai);
             return;
         }
     protocol_server_send(server->socket, ai->fd, "ko");

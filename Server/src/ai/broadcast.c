@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 static int get_broadcast_direction(
     const ai_t *emitter,
@@ -62,4 +63,5 @@ void broadcast_text(
     }
     notify_users(server, ai, message + 1);
     protocol_server_send(server->socket, ai->fd, "ok");
+    pbc(server, ai, message + 1);
 }
