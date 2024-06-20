@@ -9,11 +9,13 @@
     #define SERVER_H
 
     #include <stdbool.h>
+    #include <time.h>
 
     #include "protocol/server.h"
 
     #define UNUSED __attribute__((unused))
     #define TEAM_NAME_SIZE 64
+    #define FOOD_SATURATION 126
 
 typedef enum {
     CONNECTION_AI,
@@ -60,6 +62,7 @@ typedef struct ai_s {
 
     uint16_t id;
     team_t *team;
+    double player_life;
 
     vector2_t pos;
     orientation_t orientation;
@@ -76,7 +79,13 @@ typedef struct gui_s {
     TAILQ_ENTRY(gui_s) entries;
 } gui_t;
 
-typedef struct {
+typedef struct cmd_s {
+    bool active;
+    char *cmd;
+    double action_time;
+} cmd_t;
+
+typedef struct zappy_server_s {
     uint16_t port;
     uint16_t width;
     uint16_t height;
@@ -85,7 +94,7 @@ typedef struct {
     bool verbose;
 
     struct timespec last_update;
-
+    cmd_t **cmd;
     protocol_server_t *socket;
 
     TAILQ_HEAD(, ai_s) ais;
