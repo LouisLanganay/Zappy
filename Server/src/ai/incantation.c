@@ -84,7 +84,7 @@ static bool create_incantation_list(
         n_ai = n_ai->entries.tqe_next) {
         if (n_ai->fd != ai->fd && n_ai->level == ai->level &&
             n_ai->pos.x == ai->pos.x && n_ai->pos.y == ai->pos.y &&
-            n_ai->is_incantate == false) {
+            n_ai->is_incantate == false && n_ai->inventory.food > 0) {
             TAILQ_INSERT_TAIL(&ai->incantation_list, create_inc_elm(n_ai),
                 entries);
             count--;
@@ -104,7 +104,8 @@ static bool verify_incantation_list(ai_t *ai)
 
     TAILQ_FOREACH(node, &ai->incantation_list, entries) {
         if (node->ai->fd != ai->fd && node->ai->pos.x == ai->pos.x &&
-            node->ai->pos.y == ai->pos.y && node->ai->level == ai->level) {
+            node->ai->pos.y == ai->pos.y && node->ai->level == ai->level &&
+            ai->inventory.food > 0) {
             count++;
         }
     }
@@ -153,7 +154,8 @@ static void update_data(
     clean_ressources(server, ai);
     TAILQ_FOREACH(node, &ai->incantation_list, entries) {
         if (node->ai->fd != ai->fd && node->ai->pos.x == ai->pos.x &&
-            node->ai->pos.y == ai->pos.y && node->ai->level == ai->level) {
+            node->ai->pos.y == ai->pos.y && node->ai->level == ai->level &&
+            ai->inventory.food > 0) {
             node->ai->level++;
         }
     }
