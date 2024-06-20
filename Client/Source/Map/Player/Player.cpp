@@ -192,6 +192,12 @@ void Player::draw(Camera camera, float height)
 
     DrawSphere(spherePosition, 0.07f, BLACK);
 
+    if (_incantationStarted) {
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+    }
+
     if (!_isSelected)
         return;
 
@@ -231,10 +237,10 @@ bool Player::isSelected() const
 
 void Player::startIncantation()
 {
-
+    _incantationStarted = true;
 }
 
 void Player::endIncantation(int result)
 {
-
+    _incantationStarted = false;
 }
