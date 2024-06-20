@@ -36,5 +36,8 @@ void eject(
             ejected = true;
             pex(server, target);
         }
-    protocol_server_send(server->socket, ai->fd, ejected ? "ok" : "ko");
+    if (ejected)
+        protocol_server_send(server->socket, ai->fd, "ok");
+    else
+        protocol_server_send(server->socket, ai->fd, "ko");
 }
