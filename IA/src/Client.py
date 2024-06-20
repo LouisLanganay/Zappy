@@ -328,9 +328,7 @@ class Client:
     def send_broadcast(self, message):
         self.send(f"Broadcast {message}")
         data = self.receive()
-        partie_msg = data.split(":")
-        if (partie_msg[0] == "I"):
-            self.broadcast_Inventory_receive(data)
+
 
     def broadcast_Inventory_send(self):
         custom_inventory = []
@@ -339,7 +337,7 @@ class Client:
         for resource, amount in inventory.items():
             my_tuple = (resource, str(amount))
             custom_inventory.append(my_tuple)
-        msg_to_send = f"I {self.id}:{self.nbr_msg}:{custom_inventory}*"
+        msg_to_send = f"I:{self.id}:{self.nbr_msg}:{custom_inventory}*"
         msg_res = ''
         for i in range(len(msg_to_send)):
             if msg_to_send[i] == ' ':
@@ -350,10 +348,18 @@ class Client:
         print(msg_res)
         self.nbr_msg += 1
 
-    def broadcast_Inventory_receive(self,data):
-        print(f"JULLLLLLLLLL {data}")
+    def broadcast_Inventory_receive(self,msg):
+        print(f"JULLLLLLLLLL {msg}")
+
 
     def handle_broadcast(self, message):
+
+        partie_msg = message.split(":")
+        #if (partie_msg[0] == "I"):
+        #    self.broadcast_Inventory_receive(message)
+        msg_begin = partie_msg[0].split(" ")
+        print(f"LAAAA {msg_begin[2]}")
+
         if message.startswith('message'):
             print(f"Received broadcast: {message}")
         return
@@ -378,9 +384,8 @@ class Client:
             self.send_queue()
             self.queue = self.ai.algorithm()
             self.send_queue()
-
             self.broadcast_Inventory_send()
-            self
+
             # allow the client to receive broadcast messages while waiting for server response
             events = self.selector.select(timeout=0.1)
             for key, mask in events:
