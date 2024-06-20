@@ -31,7 +31,8 @@ namespace Zappy {
                 int x,
                 int y,
                 std::map<Zappy::Resources::Type, Model3D> resources,
-                const std::vector<Zappy::Player*>& players
+                const std::vector<Zappy::Player*>& players,
+                Model3D eolienne
             ) const;
 
             void addResource(Zappy::Resources::Type type, int quantity);
@@ -67,7 +68,7 @@ namespace Zappy {
                 float height
             ) const;
 
-            Vector3 _generateRandomOffset(float maxOffset);
+            bool _incantationSuccess = false;
     };
 };
 

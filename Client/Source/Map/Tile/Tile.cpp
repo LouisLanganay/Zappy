@@ -71,7 +71,8 @@ void Tile::draw(
     int x,
     int y,
     std::map<Zappy::Resources::Type, Model3D> resources,
-    const std::vector<Zappy::Player*>& players
+    const std::vector<Zappy::Player*>& players,
+    Model3D eolienne
 ) const
 {
     Color colorLowGreen = { 28, 159, 50, 255 };
@@ -109,13 +110,13 @@ void Tile::draw(
     DrawCubeWires((Vector3){ (float)x, getTileHeight() - 0.2f - 0.1f, (float)y }, 1.0f, 0.5f, 1.0f, colorDirtWire);
 
     Vector3 positions[] = {
-        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y - 0.31f}, // FOOD
+        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y - 0.31f},  // FOOD
         {(float)x + 0.41f, getTileHeight() + 0.05f, (float)y - 0.304f}, // LINEMATE
-        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y + 0.3f}, // DERAUMERE
-        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y + 0.34f}, // SIBUR
-        {(float)x, getTileHeight() + 0.05f, (float)y},               // MENDIANE
-        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y + 0.01f},        // PHIRAS
-        {(float)x + 0.41f, getTileHeight() + 0.05f, (float)y + 0.05f}         // THYSTAME
+        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y + 0.3f},   // DERAUMERE
+        {(float)x + 0.4f, getTileHeight() + 0.05f, (float)y + 0.34f},   // SIBUR
+        {(float)x, getTileHeight() + 0.05f, (float)y},                  // MENDIANE
+        {(float)x - 0.42f, getTileHeight() + 0.05f, (float)y + 0.01f},  // PHIRAS
+        {(float)x + 0.41f, getTileHeight() + 0.05f, (float)y + 0.05f}   // THYSTAME
     };
 
     for (int i = 0; i < 7; ++i) {
@@ -144,6 +145,12 @@ void Tile::draw(
                 }
             }
         }
+    }
+
+    if (_incantationSuccess) {
+        eolienne.setPosition(x, getTileHeight(), y);
+        eolienne.setSize(0.03);
+        eolienne.draw();
     }
 }
 
@@ -175,6 +182,14 @@ void Tile::startIncantation(int level, const std::vector<int>& players)
 void Tile::endIncantation(int result)
 {
     _incantationInProgress = false;
+
+    if (result == 1)
+        _incantationSuccess = true;
+    else {
+        if (_incantationSuccess)
+            _incantationSuccess = false;
+    }
+    _incantationPlayers.clear();
 }
 
 const std::vector<int>& Tile::getIncantationPlayers() const
