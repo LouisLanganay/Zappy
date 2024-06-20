@@ -33,7 +33,7 @@ void eject(
                 (uint8_t[]){ 8, 6, 4, 2 }[(convert_orientation(WEST)
                     + convert_orientation(NORTH) - 1) % 4]);
             protocol_server_send(server->socket, ai->fd, "ok");
-            pex(server, ai);
+            pex(server, target);
             return;
         }
     protocol_server_send(server->socket, ai->fd, "ko");
