@@ -30,7 +30,7 @@ static bool send_gui_start(
 {
     incantation_t *elm;
     uint16_t index = 0;
-    ai_t **ais = calloc(ai_nb, sizeof(ai_t *));
+    const ai_t **ais = calloc(ai_nb, sizeof(ai_t *));
 
     if (!ais)
         return false;
@@ -41,6 +41,7 @@ static bool send_gui_start(
     }
     pic(server, ais);
     free(ais);
+    return true;
 }
 
 static bool send_start_message(
