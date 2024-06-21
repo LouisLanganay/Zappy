@@ -13,6 +13,22 @@
 
 #include "protocol/server.h"
 
+void protocol_server_close_client(
+    protocol_server_t *server,
+    const int fd)
+{
+    for (protocol_client_t *client = TAILQ_FIRST(&server->clients); client;
+        client = TAILQ_NEXT(client, entries)) {
+        if (client->network_data.sockfd != fd)
+            continue;
+        TAILQ_REMOVE(&server->clients, client, entries);
+        if (close(client->network_data.sockfd) == -1)
+            fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
+        free(client);
+        return;
+    }
+}
+
 void protocol_server_close(
     protocol_server_t *server)
 {
