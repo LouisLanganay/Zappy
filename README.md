@@ -94,4 +94,4 @@ Project members:
 [stars-shield]: https://img.shields.io/github/stars/LouisLanganay/Zappy.svg?style=for-the-badge
 [stars-url]: https://github.com/LouisLanganay/Zappy/stargazers
 [license-shield]: https://img.shields.io/github/license/LouisLanganay/Zappy.svg?style=for-the-badge
-[license-url]: https://github.com/LouisLanganay/Zappy/blob/master/LICENSE.txt
+[license-url]: https://github.com/LouisLanganay/Zappy/blob/master/LICENSE
