@@ -25,13 +25,13 @@ static int get_broadcast_direction(
         return (uint8_t[]){2, 4, 6, 8}[target->orientation - 1];
     if (x < 0 && y < 0)
         return (uint8_t[]){8, 2, 4, 6}[target->orientation - 1];
-    if (x > 0 && y == 0)
+    if (x > 0)
         return (uint8_t[]){5, 7, 1, 3}[target->orientation - 1];
-    if (x < 0 && y == 0)
+    if (x < 0)
         return (uint8_t[]){1, 3, 5, 7}[target->orientation - 1];
-    if (x == 0 && y > 0)
+    if (y > 0)
         return (uint8_t[]){3, 5, 7, 1}[target->orientation - 1];
-    if (x == 0 && y < 0)
+    if (y < 0)
         return (uint8_t[]){7, 1, 3, 5}[target->orientation - 1];
     return 0;
 }
