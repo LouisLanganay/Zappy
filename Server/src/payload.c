@@ -11,6 +11,7 @@
 
 #include "server/ai_header.h"
 #include "server/gui.h"
+#include "server/game.h"
 #include "server.h"
 
 static void handle_new_connection(
@@ -59,7 +60,10 @@ static ai_t *init_ai(
         return NULL;
     TAILQ_INIT(&ai->incantations);
     TAILQ_INIT(&ai->commands);
-    *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
+    *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH,
+    .inventory = {.food = 10, .linemate = 0, .deraumere = 0, .sibur = 0,
+    .mendiane = 0, .phiras = 0, .thystame = 0}, .is_incantate = false,
+    .player_life = 126};
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
             ai->team = team;
@@ -104,24 +108,8 @@ static void add_graphic(
     tna(server, interlocutor, NULL);
 }
 
-static void update_cmd_action_time(
-    const zappy_server_t *server,
-    const char message[1024]
-)
-{
-    uint8_t cmd_lenght;
-
-    for (int i = 0; server->cmd[i] != NULL; i++) {
-        cmd_lenght = strlen(server->cmd[i]->cmd);
-        if (strncmp(message, server->cmd[i]->cmd, cmd_lenght) == 0) {
-            server->cmd[i]->active = true;
-            return;
-        }
-    }
-}
-
 static void handle_ai_event(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const protocol_payload_t *payload)
 {
     uint8_t cmd_lenght;
