@@ -116,6 +116,7 @@ DIR			+=	src/game
 SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
 					game_update.c									\
 					map_handling.c									\
+					update_cmd_action_time.c						\
 				)
 
 DIR			+=	src/game/ressources

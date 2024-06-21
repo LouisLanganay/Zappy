@@ -33,6 +33,19 @@ void game_update(zappy_server_t *server);
 void trigger_meteor(zappy_server_t *server);
 
 /**
+ * @brief Update the action time of a command
+ *
+ * @param server The server_t struct
+ * @param message The message to update
+ *
+ * @note Update the action time of a command
+ */
+void update_cmd_action_time(
+    const zappy_server_t *server,
+    const char message[1024]
+);
+
+/**
  * @brief Add food to the map
  *
  * @param server The server_t struct
