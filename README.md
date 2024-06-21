@@ -82,9 +82,8 @@ USAGE: ./zappy_ai -p port -n name -h machine
 ## Contributions
 
 Project members:
-<a href="https://github.com/LouisLanganay/Zappy/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=LouisLanganay/Zappy" />
-</a>
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
