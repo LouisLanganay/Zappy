@@ -82,6 +82,7 @@ void server_create(
     };
     server->last_update = (struct timespec){ .tv_sec = 0, .tv_nsec = 0 };
     fill_cmd(server);
+    TAILQ_INIT(&server->eggs);
     TAILQ_INIT(&server->ais);
     TAILQ_INIT(&server->teams);
     TAILQ_INIT(&server->guis);

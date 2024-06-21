@@ -16,6 +16,7 @@
     #define UNUSED __attribute__((unused))
     #define TEAM_NAME_SIZE 64
     #define FOOD_SATURATION 126
+    #define EGG_LAY_TIME 600
 
 typedef enum {
     CONNECTION_AI,
@@ -102,6 +103,14 @@ typedef struct gui_s {
     TAILQ_ENTRY(gui_s) entries;
 } gui_t;
 
+typedef struct egg_s {
+    uint16_t id;
+    team_t *team;
+    double lay_time;
+
+    TAILQ_ENTRY(egg_s) entries;
+} egg_t;
+
 typedef struct cmd_s {
     bool active;
     char *cmd;
@@ -122,6 +131,7 @@ typedef struct zappy_server_s {
 
     TAILQ_HEAD(, ai_s) ais;
     TAILQ_HEAD(teamhead, team_s) teams;
+    TAILQ_HEAD(, egg_s) eggs;
     inventory_t **map;
     TAILQ_HEAD(, gui_s) guis;
 } zappy_server_t;

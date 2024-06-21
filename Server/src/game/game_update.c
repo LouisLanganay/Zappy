@@ -68,7 +68,6 @@ static void player_nutrition(
         ai->inventory.food -= 1;
     } else {
         TAILQ_REMOVE(&server->ais, ai, entries);
-        pdi(server, ai);
     }
 }
 
@@ -88,9 +87,24 @@ static void handle_players_food(zappy_server_t *server)
     }
 }
 
+static void handle_eggs(zappy_server_t *server)
+{
+    egg_t *egg;
+    double egg_life = 0;
+
+    TAILQ_FOREACH(egg, &server->eggs, entries) {
+        egg_life = (double)((clock() - egg->lay_time)) / CLOCKS_PER_SEC;
+        if (egg_life >= (double)((EGG_LAY_TIME / server->freq))) {
+            TAILQ_REMOVE(&server->eggs, egg, entries);
+            free(egg);
+        }
+    }
+}
+
 void game_update(zappy_server_t *server)
 {
     if (handle_time(server))
         trigger_meteor(server);
     handle_players_food(server);
+    handle_eggs(server);
 }
