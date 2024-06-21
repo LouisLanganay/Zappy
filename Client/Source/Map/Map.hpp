@@ -85,6 +85,8 @@ namespace Zappy {
 
             void loadModels();
 
+            void update(float deltaTime);
+
         protected:
         private:
             std::unordered_map<int, std::unique_ptr<Player>> _players;
@@ -94,6 +96,7 @@ namespace Zappy {
             Model3D _egsModel;
             std::queue<ServerMessage> _serverMessages;
             std::map<Resources::Type, Model3D> _resourcesModel;
+            Model3D _eolienneModel;
             Model3D _grassTexture;
             std::mutex _messageMutex;
             std::mutex _teamMutex;
