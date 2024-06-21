@@ -119,17 +119,6 @@ SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
 					update_cmd_action_time.c						\
 				)
 
-DIR			+=	src/game/ressources
-SRC			+=	$(addprefix $(lastword $(DIR))/,					\
-					add_food.c										\
-					add_linemate.c									\
-					add_deraumere.c									\
-					add_sibur.c										\
-					add_mendiane.c									\
-					add_phiras.c									\
-					add_thystame.c									\
-				)
-
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
 
