@@ -12,50 +12,65 @@
 #include "server/game.h"
 #include "server.h"
 
-
-static void fill_cmds(zappy_server_t *server)
+static void fill_cmds2(zappy_server_t *server)
 {
-    server->cmd[6]->active = false;
-    server->cmd[6]->cmd = "Connect_nbr";
-    server->cmd[6]->action_time = 0;
-    server->cmd[7]->active = false;
-    server->cmd[7]->cmd = "Fork";
-    server->cmd[7]->action_time = 42;
+    server->cmd[8] = calloc(1, sizeof(cmd_t));
     server->cmd[8]->active = false;
     server->cmd[8]->cmd = "Eject";
     server->cmd[8]->action_time = 7;
+    server->cmd[9] = calloc(1, sizeof(cmd_t));
     server->cmd[9]->active = false;
     server->cmd[9]->cmd = "Take";
     server->cmd[9]->action_time = 7;
+    server->cmd[10] = calloc(1, sizeof(cmd_t));
     server->cmd[10]->active = false;
     server->cmd[10]->cmd = "Set";
     server->cmd[10]->action_time = 7;
+    server->cmd[11] = calloc(1, sizeof(cmd_t));
     server->cmd[11]->active = false;
     server->cmd[11]->cmd = "Incantation";
     server->cmd[11]->action_time = 300;
 }
 
-static void fill_cmd(zappy_server_t *server)
+static void fill_cmds(zappy_server_t *server)
 {
-    server->cmd = malloc(sizeof(cmd_t *) * 12);
-    server->cmd[0]->active = false;
-    server->cmd[0]->cmd = "Forward";
-    server->cmd[0]->action_time = 7;
-    server->cmd[1]->active = false;
-    server->cmd[1]->cmd = "Right";
-    server->cmd[1]->action_time = 7;
-    server->cmd[2]->active = false;
-    server->cmd[2]->cmd = "Left";
-    server->cmd[2]->action_time = 7;
-    server->cmd[3]->active = false;
-    server->cmd[3]->cmd = "Look";
-    server->cmd[3]->action_time = 7;
+    server->cmd[4] = calloc(1, sizeof(cmd_t));
     server->cmd[4]->active = false;
     server->cmd[4]->cmd = "Inventory";
     server->cmd[4]->action_time = 1;
+    server->cmd[5] = calloc(1, sizeof(cmd_t));
     server->cmd[5]->active = false;
     server->cmd[5]->cmd = "Broadcast";
     server->cmd[5]->action_time = 7;
+    server->cmd[6] = calloc(1, sizeof(cmd_t));
+    server->cmd[6]->active = false;
+    server->cmd[6]->cmd = "Connect_nbr";
+    server->cmd[6]->action_time = 0;
+    server->cmd[7] = calloc(1, sizeof(cmd_t));
+    server->cmd[7]->active = false;
+    server->cmd[7]->cmd = "Fork";
+    server->cmd[7]->action_time = 42;
+    fill_cmds2(server);
+}
+
+static void fill_cmd(zappy_server_t *server)
+{
+    server->cmd[0] = calloc(1, sizeof(cmd_t));
+    server->cmd[0]->active = false;
+    server->cmd[0]->cmd = "Forward";
+    server->cmd[0]->action_time = 7;
+    server->cmd[1] = calloc(1, sizeof(cmd_t));
+    server->cmd[1]->active = false;
+    server->cmd[1]->cmd = "Right";
+    server->cmd[1]->action_time = 7;
+    server->cmd[2] = calloc(1, sizeof(cmd_t));
+    server->cmd[2]->active = false;
+    server->cmd[2]->cmd = "Left";
+    server->cmd[2]->action_time = 7;
+    server->cmd[3] = calloc(1, sizeof(cmd_t));
+    server->cmd[3]->active = false;
+    server->cmd[3]->cmd = "Look";
+    server->cmd[3]->action_time = 7;
     fill_cmds(server);
 }
 
