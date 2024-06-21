@@ -48,6 +48,16 @@ void protocol_server_close(
     protocol_server_t *server);
 
 /**
+ * @brief Disconnect a client
+ *
+ * @param server The server to close the client with
+ * @param fd The client to close
+ */
+void protocol_server_close_client(
+    protocol_server_t *server,
+    int fd);
+
+/**
  * @brief Check if the server is open
  *
  * @return true If the server is open

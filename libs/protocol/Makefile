@@ -33,6 +33,7 @@ UF_SRC		:=	$(addprefix $(UF_DIR)/,								\
 UT_DIR		:=	../../tests/protocol
 UT_SRC		:=	$(SRC)
 UT_SRC		+=	$(addprefix $(UT_DIR)/,								\
+					client.c										\
 					server.c										\
 				)
 
