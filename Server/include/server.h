@@ -94,7 +94,7 @@ typedef struct zappy_server_s {
     bool verbose;
 
     struct timespec last_update;
-    cmd_t **cmd;
+    cmd_t *cmd[12];
     protocol_server_t *socket;
 
     TAILQ_HEAD(, ai_s) ais;
