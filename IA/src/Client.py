@@ -8,7 +8,7 @@ from ParseArgs import ParseArgs
 import subprocess
 
 levels = [
-    {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
+    # {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
     {"linemate": 1, "deraumere": 1, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0},
     {"linemate": 2, "deraumere": 0, "sibur": 1, "mendiane": 0, "phiras": 2, "thystame": 0},
     {"linemate": 1, "deraumere": 1, "sibur": 2, "mendiane": 0, "phiras": 1, "thystame": 0},
@@ -16,16 +16,6 @@ levels = [
     {"linemate": 1, "deraumere": 2, "sibur": 3, "mendiane": 0, "phiras": 1, "thystame": 0},
     {"linemate": 2, "deraumere": 2, "sibur": 2, "mendiane": 2, "phiras": 2, "thystame": 1}
 ]
-
-"""
-Rarity (based on resources needed to get)
-    Linemate: 0.0333
-    Deraumere: 0.01875
-    Sibur: 0.01
-    Mendiane: 0.02​
-    Phiras: 0.0133
-    Thystame: 0.05​
-"""
 
 resources_to_get = {"linemate": 0, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0}
 
@@ -44,8 +34,9 @@ inventory = {
 }
 
 class AI:
-    def __init__(self):
+    def __init__(self, id=0):
         self.level = 1
+        self.id = id
         self.inventory = inventory
         self.vision = []
         self.direction = 'Down'
@@ -179,8 +170,6 @@ class AI:
         if type_of_response == 'level up':
             self.level = int(response.split()[-1])
             print(f"Level up! New level: {self.level}")
-        if type_of_response == 'broadcast':
-            print(response)
     
     def set_direction(self, goal_direction):
         if self.direction == goal_direction:
@@ -237,10 +226,10 @@ class AI:
         return state
     
     def has_all_resources(self):
-        for resource, amount_needed in resources_to_get.items():
+        for resource, amount in self.inventory.items():
             if resource == 'food':
                 continue
-            if self.inventory[resource] < amount_needed:
+            if amount < resources_to_get[resource]:
                 return False
         return True
 
@@ -250,25 +239,30 @@ class AI:
         if self.has_all_resources():
             self.take_resources('food')
             return True
-        
-        resources_to_get['food'] = 1000
-        for resource, amount_needed in resources_to_get.items():
-            if self.inventory[resource] < amount_needed:
-                amount_to_collect = amount_needed - self.inventory[resource]
-                for i, row in enumerate(self.vision):
-                    for j, cell in enumerate(row):
-                        if cell[resource] > 0:
-                            self.move_to(j, i)
-                            for _ in range(min(amount_to_collect, cell[resource])):
-                                self.queue.append(f'Take {resource}')
-                                amount_to_collect -= 1
-                            if amount_to_collect == 0:
-                                state = True
-                                break
-                    if amount_to_collect == 0:
-                        break
-        
+
+        goal_inventory = resources_to_get
+        resources_to_collect = {k: v for k, v in goal_inventory.items() if v > self.inventory[k]}
+        resources_to_collect['food'] = 50
+
+        for resource, amount_needed in resources_to_collect.items():
+            amount_to_collect = amount_needed - self.inventory[resource]
+            if amount_to_collect <= 0:
+                continue
+
+            for i, row in enumerate(self.vision):
+                for j, cell in enumerate(row):
+                    if cell.get(resource, 0) > 0:
+                        self.move_to(j, i)
+                        for _ in range(min(amount_to_collect, cell[resource])):
+                            self.queue.append(f'Take {resource}')
+                            amount_to_collect -= 1
+                        if amount_to_collect <= 0:
+                            state = True
+                            break
+                if amount_to_collect <= 0:
+                    break
         return state
+
 
     def reset_direction(self):
         self.direction = 'Down'
@@ -289,7 +283,11 @@ class AI:
 
     def drop_resources(self):
         for resource, amount in self.inventory.items():
-            if resource == 'food':
+            # keep only 50 food
+            if resource == 'food' and amount > 50:
+                self.queue.append(f'Set {resource}')
+                for _ in range(amount - 50):
+                    self.queue.append(f'Take {resource}')
                 continue
             for _ in range(amount):
                 self.queue.append(f'Set {resource}')
@@ -303,7 +301,8 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-        if self.inventory['food'] < 50:
+
+        if self.inventory['food'] < 15:
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
@@ -311,21 +310,27 @@ class AI:
             return self.queue
         
         if self.level == 1:
-            if not self.linemate_level1():
-                self.take_resources('food')
+            self.linemate_level1()
             return self.queue
-        
-        if not self.take_resources_to_get():
-            self.queue.append(random.choice(['Left', 'Right', 'Forward']))
-            self.queue.append('Forward')
-            self.queue.append('Forward')
-        return self.queue
+        else:
+            if self.id == 5:
+                if not self.take_resources('food'):
+                    self.queue.append(random.choice(['Left', 'Right', 'Forward']))
+                    self.queue.append('Forward')
+                    self.queue.append('Forward')
+                return self.queue
+            if not self.take_resources_to_get():
+                self.queue.append(random.choice(['Left', 'Right', 'Forward']))
+                self.queue.append('Forward')
+                self.queue.append('Forward')
+            return self.queue
 
 class Client:
-    def __init__(self, host, port, name):
+    def __init__(self, host, port, name, id):
         self.host = host
         self.port = int(port)
         self.name = name
+        self.id = id
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((self.host, self.port))
         self.queue = []
@@ -333,7 +338,7 @@ class Client:
         self.selector = selectors.DefaultSelector()
         self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
 
-        self.ai = AI()
+        self.ai = AI(self.id)
         self.command_queue = []
         self.has_all_resources = False
 
@@ -363,7 +368,7 @@ class Client:
         count = 0
         while buffer.startswith('message'): #FIXME add this additionnal condition if needed and count < 3:
             self.handle_broadcast(buffer)
-            buffer = self.socket.recv(2048).decode().strip()
+            buffer = self.socket.recv(512).decode().strip()
             count += 1
         
         return buffer
@@ -454,7 +459,6 @@ class Client:
                     self.handle_broadcast(data)
                     break
 
-
     def close(self):
         self.selector.unregister(self.socket)
         self.socket.close()
@@ -463,9 +467,13 @@ class Client:
         data = self.receive()  # Initial connection response (welcome message)
         self.send(self.name)
         data = self.receive()  # Additional server response (map size)
+        if data == 'ko':
+            sys.exit(84)
+
     def run(self):
-        # self.send('Fork')
-        # data = self.receive()
+        if self.id == 0:
+            self.send('Fork')
+            data = self.receive()
         while True:
             if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Broadcaster'): 
                 self.queue = self.ai.drop_resources()
@@ -486,10 +494,10 @@ class Client:
                 self.queue = self.ai.drop_resources()
                 self.send_queue()
                 self.send_broadcast('Group')
-                time.sleep(0.5)
+                time.sleep(0.2)
                 continue
 
-            if self.ai.has_all_resources() and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 100:
+            if self.ai.has_all_resources() and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 50:
                 self.ai.mode = 'Broadcaster'
                 self.ai.count_incanter += 1
                 self.ai.drop_resources()
@@ -503,8 +511,8 @@ class Client:
 def main():
     args = sys.argv[1:]
     parser = ParseArgs()
-    host, port, name = parser.parse(args)
-    client = Client(host, port, name)
+    host, port, name, id = parser.parse(args)
+    client = Client(host, port, name, id)
     client.connect()
     client.run()
     client.close()
