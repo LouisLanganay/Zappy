@@ -135,7 +135,6 @@ Test(protocol_client_listen, listen_for_new_client)
     cr_assert_null(protocol_server_listen(server));
     cr_assert_not(TAILQ_EMPTY(&server->new_connections));
 
-
     protocol_client_send(client, "Hello World!");
     cr_assert_not_null(protocol_server_listen(server));
     cr_assert_not(TAILQ_EMPTY(&server->payloads));
@@ -152,5 +151,20 @@ Test(protocol_client_listen, listen_for_new_client)
     cr_assert_null(protocol_server_listen(server));
     cr_assert_not(TAILQ_EMPTY(&server->lost_connections));
 
+    protocol_server_close(server);
+}
+
+Test(protocol_client_listen, disconnect_client) {
+    protocol_server_t *server = protocol_server_create(4009);
+    protocol_client_t *client = protocol_client_create("127.0.0.1", 4009);
+
+    cr_assert_null(protocol_server_listen(server));
+    cr_assert_not(TAILQ_EMPTY(&server->new_connections));
+
+    protocol_server_close_client(server, TAILQ_FIRST(&server->clients)->network_data.sockfd);
+
+    cr_assert(protocol_client_is_connected(client));
+
+    protocol_client_close(client);
     protocol_server_close(server);
 }
