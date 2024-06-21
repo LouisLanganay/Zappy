@@ -148,22 +148,6 @@ void Core::_setCloudsPosition()
     for (Cloud& cloud : _clouds) {
         cloud.position.x = distribX(gen);
         cloud.position.z = distribZ(gen);
-
-        bool validPosition = false;
-        while (!validPosition) {
-            validPosition = true;
-            for (const Cloud& otherCloud : _clouds) {
-                if (&cloud != &otherCloud) {
-                    float distance = calculateDistance(cloud, otherCloud);
-                    if (distance < 5.0f) {
-                        cloud.position.x = distribX(gen);
-                        cloud.position.z = distribZ(gen);
-                        validPosition = false;
-                        break;
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -249,7 +233,10 @@ void Core::handleServerMessages() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
             }
-            DEBUG_INFO("Core received packet: " + message);
+
+            // Print received message only if not start with btc
+            if (message.find("bct") != 0)
+                DEBUG_INFO("Core received packet: " + message);
             if (message.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
@@ -378,7 +365,6 @@ void Core::adjustTimeUnit(int value)
         timeUnit = 1;
     _map->setTimeUnit(timeUnit);
     _api->modifyTimeUnit(timeUnit);
-    _api->requestTimeUnit();
 }
 
 void Core::msz(std::string message)
@@ -389,10 +375,20 @@ void Core::msz(std::string message)
     _setCloudsPosition();
 }
 
-void Core::bct(std::string message) {
-    int x, y, q0, q1, q2, q3, q4, q5, q6;
-    sscanf(message.c_str(), "bct %d %d %d %d %d %d %d %d %d", &x, &y, &q0, &q1, &q2, &q3, &q4, &q5, &q6);
-    _map->updateTile(x, y, {q0, q1, q2, q3, q4, q5, q6});
+void Core::bct(std::string message)
+{
+    int x, y, food, linemate, deraumere, sibur, mendiane, phiras, thystame;
+    sscanf(message.c_str(), "bct %d %d %d %d %d %d %d %d %d %d", &x, &y, &food, &linemate, &deraumere, &sibur, &mendiane, &phiras, &thystame);
+
+    Tile* tile = _map->getTile(x, y);
+    if (!tile) {
+        DEBUG_ERROR("Tile not found at (" + std::to_string(x) + ", " + std::to_string(y) + ")");
+        return;
+    }
+
+    std::vector<int> resources = {food, linemate, deraumere, sibur, mendiane, phiras, thystame};
+
+    tile->setResources(resources);
 }
 
 void Core::tna(std::string message)
@@ -572,7 +568,8 @@ void Core::pic(std::string message)
         return;
     }
 
-    _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
+    float tileHeight = tile->getTileHeight();
+    _particleSystem->emit(ParticleType::INCANTATION, x, tileHeight + 1, y, 15);
 
     tile->startIncantation(level, players);
 
@@ -597,19 +594,11 @@ void Core::pie(std::string message)
         return;
     }
 
-    _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
+    float tileHeight = tile->getTileHeight();
+    _particleSystem->emit(ParticleType::INCANTATION, x, tileHeight + 1, y, 15);
 
     tile->endIncantation(result);
 
-    const std::vector<int>& players = tile->getIncantationPlayers();
-    for (int playerId : players) {
-        Player* player = _map->getPlayer(playerId);
-        if (player)
-            player->endIncantation(result);
-        else
-            DEBUG_ERROR("Player not found: " + std::to_string(playerId));
-    }
-    _api->requestTileContent(x, y);
     DEBUG_INFO("Incantation ended at (" + std::to_string(x) + ", " + std::to_string(y) + ") with result: " + std::to_string(result));
 }
 
