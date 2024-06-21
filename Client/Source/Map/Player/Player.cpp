@@ -103,11 +103,13 @@ void Player::generateRandomDrawPosition()
     _drawPosition.y = GetRandomValue(-30, 30) / 100.0f;
 }
 
-void Player::setPosition(int x, int y) {
+void Player::setPosition(int x, int y)
+{
     _targetX = x;
     _targetY = y;
     _isMoving = true;
     _timeAccumulator = 0.0f;
+    _incantationStarted = false;
     generateRandomDrawPosition();
 }
 
@@ -193,9 +195,9 @@ void Player::draw(Camera camera, float height)
     DrawSphere(spherePosition, 0.07f, BLACK);
 
     if (_incantationStarted) {
-        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
-        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
-        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, WHITE);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, WHITE);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, WHITE);
     }
 
     if (!_isSelected)
