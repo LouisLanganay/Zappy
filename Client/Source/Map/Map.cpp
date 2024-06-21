@@ -68,11 +68,11 @@ void Map::setSize(int width, int height)
 
 void Map::updateTile(int x, int y, const std::vector<int>& resources)
 {
-    DEBUG_SUCCESS("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with " +
-    std::to_string(resources.size()) + " resource(s): " + std::to_string(resources[0]) +
-    " - " + std::to_string(resources[1]) + " - " + std::to_string(resources[2]) +
-    " - " + std::to_string(resources[3]) + " - " + std::to_string(resources[4]) +
-    " - " + std::to_string(resources[5]) + " - " + std::to_string(resources[6]));
+    //DEBUG_SUCCESS("Updating tile at: " + std::to_string(x) + ", " + std::to_string(y) + " with " +
+    //std::to_string(resources.size()) + " resource(s): " + std::to_string(resources[0]) +
+    //" - " + std::to_string(resources[1]) + " - " + std::to_string(resources[2]) +
+    //" - " + std::to_string(resources[3]) + " - " + std::to_string(resources[4]) +
+    //" - " + std::to_string(resources[5]) + " - " + std::to_string(resources[6]));
     if (x >= 0 && x < _width && y >= 0 && y < _height && resources.size() == 7)
         _tiles[y][x].setResources(resources);
 }
@@ -149,7 +149,7 @@ Color Map::generateUniqueColor()
     Color teamColor;
     bool isUnique;
     do {
-        teamColor = {(unsigned char)GetRandomValue(100, 255), (unsigned char)GetRandomValue(100, 255), (unsigned char)GetRandomValue(100, 255), 255};
+        teamColor = {(unsigned char)GetRandomValue(0, 200), (unsigned char)GetRandomValue(0, 200), (unsigned char)GetRandomValue(0, 150), 255};
         isUnique = true;
         for (const auto& team : _teams) {
             Color color = team.second->getColor();
