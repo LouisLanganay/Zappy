@@ -303,7 +303,7 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-        if self.inventory['food'] < 20:
+        if self.inventory['food'] < 50:
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
@@ -342,7 +342,6 @@ class Client:
 
     def receive(self):
         buffer = ""
-        
         while True:
             data = self.socket.recv(4096).decode().strip()
             
@@ -465,6 +464,8 @@ class Client:
         self.send(self.name)
         data = self.receive()  # Additional server response (map size)
     def run(self):
+        # self.send('Fork')
+        # data = self.receive()
         while True:
             if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Broadcaster'): 
                 self.queue = self.ai.drop_resources()
