@@ -35,15 +35,29 @@ typedef struct {
     uint16_t y;
 } vector2_t;
 
-typedef struct {
-    uint16_t food;
-    uint16_t linemate;
-    uint16_t deraumere;
-    uint16_t sibur;
-    uint16_t mendiane;
-    uint16_t phiras;
-    uint16_t thystame;
+typedef union {
+    uint16_t resources[7];
+    struct {
+        uint16_t food;
+        uint16_t linemate;
+        uint16_t deraumere;
+        uint16_t sibur;
+        uint16_t mendiane;
+        uint16_t phiras;
+        uint16_t thystame;
+    };
 } inventory_t;
+
+
+static const char RESSOURCES_NAMES[][10] = {
+    "food",
+    "linemate",
+    "deraumere",
+    "sibur",
+    "mendiane",
+    "phiras",
+    "thystame"
+};
 
 typedef struct team_s {
     uint16_t id;
@@ -54,6 +68,7 @@ typedef struct team_s {
 
 typedef struct ai_cmd_s {
     char *cmd;
+
     TAILQ_ENTRY(ai_cmd_s) entries;
 } ai_cmd_t;
 
@@ -69,9 +84,17 @@ typedef struct ai_s {
     uint16_t level;
     inventory_t inventory;
 
+    bool is_incantate;
+
     TAILQ_ENTRY(ai_s) entries;
-    TAILQ_HEAD(, ai_cmd_t) commands;
+    TAILQ_HEAD(, ai_cmd_s) commands;
+    TAILQ_HEAD(, incantation_s) incantations;
 } ai_t;
+
+typedef struct incantation_s {
+    ai_t *ai;
+    TAILQ_ENTRY(incantation_s) entries;
+} incantation_t;
 
 typedef struct gui_s {
     int fd;
@@ -113,15 +136,34 @@ void verbose(
     const zappy_server_t *server,
     const char *format,
     ...);
-ai_t *get_ai_by_fd(
+
+// ai
+void ai_send_to_all(
+    const zappy_server_t *server,
+    const char *message);
+ai_t *ai_get_by_fd(
     const zappy_server_t *server,
     int fd);
-ai_t *get_ai_by_id(
+ai_t *ai_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
+uint16_t ai_get_nb_by_pos(
+    const zappy_server_t *server,
+    const vector2_t *pos);
+// gui
 void gui_send_to_all(
     const zappy_server_t *server,
     const char *message,
     ...);
+// team
+team_t *team_get_by_name(
+    const zappy_server_t *server,
+    const char *name);
+team_t *team_get_by_id(
+    const zappy_server_t *server,
+    uint16_t id);
+uint16_t team_get_empty_slots(
+    const zappy_server_t *server,
+    const team_t *team);
 
 #endif //SERVER_H

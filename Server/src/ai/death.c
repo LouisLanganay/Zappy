@@ -8,10 +8,13 @@
 #include <stdio.h>
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 void death(
-    UNUSED const zappy_server_t *server,
-    UNUSED ai_t *ai,
+    zappy_server_t *server,
+    ai_t *ai,
     UNUSED const char *message)
 {
+    protocol_server_send(server->socket, ai->fd, "dead");
+    pdi(server, ai);
 }

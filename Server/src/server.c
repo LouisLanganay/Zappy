@@ -77,7 +77,9 @@ static void fill_cmd(zappy_server_t *server)
 void server_create(
     zappy_server_t *server)
 {
-    *server = (zappy_server_t){ .port = 4242, .width = 10, .height = 10 };
+    *server = (zappy_server_t){
+        .port = 4242, .width = 10, .height = 10, .freq = 100, .clients_nb = 5
+    };
     server->last_update = (struct timespec){ .tv_sec = 0, .tv_nsec = 0 };
     fill_cmd(server);
     TAILQ_INIT(&server->ais);
@@ -141,8 +143,8 @@ bool zappy_server(zappy_server_t *server)
     ai_t *ai;
 
     if (!server || server->port < 1024
-        || server->width <= 0 || server->height <= 0
-        || server->clients_nb <= 0 || server->freq <= 0
+        || server->width < 5 || server->height < 5
+        || server->clients_nb < 1 || server->freq < 1
         || !server_set_socket(server) || !server_set_map(server))
         return false;
     display_server(server);
@@ -155,5 +157,6 @@ bool zappy_server(zappy_server_t *server)
         if (!handle_payload(server))
             return false;
     }
+    protocol_server_close(server->socket);
     return true;
 }

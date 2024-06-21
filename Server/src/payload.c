@@ -38,7 +38,7 @@ static void handle_lost_connection(
         connection = TAILQ_FIRST(&server->socket->lost_connections);
         TAILQ_REMOVE(&server->socket->lost_connections, connection, entries);
         verbose(server, "Lost connection from %d\n", connection->fd);
-        ai = get_ai_by_fd(server, connection->fd);
+        ai = ai_get_by_fd(server, connection->fd);
         if (ai) {
             verbose(server, "AI disconnected\n");
             TAILQ_REMOVE(&server->ais, ai, entries);
@@ -48,7 +48,7 @@ static void handle_lost_connection(
     }
 }
 
-static void add_ai(
+static ai_t *init_ai(
     zappy_server_t *server,
     const protocol_payload_t *payload)
 {
@@ -56,16 +56,29 @@ static void add_ai(
     team_t *team;
 
     if (!ai)
-        return;
+        return NULL;
+    TAILQ_INIT(&ai->incantations);
+    TAILQ_INIT(&ai->commands);
+    *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
             ai->team = team;
     if (!ai->team) {
         free(ai);
         printf("\033[31m[ERROR]\033[0m Team not found\n");
-        return;
+        return NULL;
     }
-    ai->fd = payload->fd;
+    return ai;
+}
+
+static void add_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload)
+{
+    ai_t *ai = init_ai(server, payload);
+
+    if (!ai)
+        return;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
     protocol_server_send(server->socket, payload->fd,
@@ -112,12 +125,8 @@ static void handle_ai_event(
     const protocol_payload_t *payload)
 {
     uint8_t cmd_lenght;
-    ai_t *ai = get_ai_by_fd(server, payload->fd);
+    ai_t *ai = ai_get_by_fd(server, payload->fd);
 
-    if (!ai) {
-        printf("\033[31m[ERROR]\033[0m AI not found\n");
-        return;
-    }
     for (uint8_t i = 0; ai_cmds[i].func; ++i) {
         cmd_lenght = strlen(ai_cmds[i].cmd);
         if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
@@ -180,8 +189,6 @@ static void handle_event(
                 add_graphic(server, payload->fd);
             else
                 add_ai(server, payload);
-            break;
-        default:
             break;
     }
 }
