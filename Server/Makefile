@@ -119,6 +119,7 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					connect_nbr.c									\
 					forward.c										\
 					right.c											\
+					left.c											\
 				)
 
 DIR_BUILD	:=	build
