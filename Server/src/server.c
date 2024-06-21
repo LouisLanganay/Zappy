@@ -140,8 +140,6 @@ static bool display_server(
 
 bool zappy_server(zappy_server_t *server)
 {
-    ai_t *ai;
-
     if (!server || server->port < 1024
         || server->width < 5 || server->height < 5
         || server->clients_nb < 1 || server->freq < 1
@@ -149,8 +147,6 @@ bool zappy_server(zappy_server_t *server)
         return false;
     display_server(server);
     trigger_meteor(server);
-    TAILQ_FOREACH(ai, &server->ais, entries)
-        ai->player_life = 126;
     while (protocol_server_is_open()) {
         game_update(server);
         protocol_server_listen(server->socket);
