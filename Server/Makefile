@@ -67,6 +67,14 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					take.c											\
 				)
 
+
+DIR			+=	src/game
+SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
+					game_update.c									\
+					map_handling.c									\
+					update_cmd_action_time.c						\
+				)
+
 UT_DIR		:=	../tests/mock
 UT_SRC		:=	$(addprefix $(UT_DIR)/,								\
 					protocol.c										\
@@ -112,11 +120,14 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					tna.c											\
 				)
 
-DIR			+=	src/game
-SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
-					game_update.c									\
-					map_handling.c									\
-					update_cmd_action_time.c						\
+UT_DIR		+=	../tests/server/ai
+UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
+					death.c											\
+					broadcast.c										\
+					connect_nbr.c									\
+					forward.c										\
+					right.c											\
+					left.c											\
 				)
 
 DIR_BUILD	:=	build
