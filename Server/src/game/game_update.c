@@ -9,6 +9,7 @@
 #include "server/gui.h"
 #include <time.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static void waiting_time(
     zappy_server_t *server,
@@ -77,8 +78,10 @@ static void handle_players_food(zappy_server_t *server)
     double player_life = 0;
 
     TAILQ_FOREACH(ai, &server->ais, entries) {
-        player_life = (double)(clock() - ai->player_life) / CLOCKS_PER_SEC;
-        if (player_life >= (FOOD_SATURATION / server->freq)) {
+        if (ai->team == NULL)
+            continue;
+        player_life = (double)((clock() - ai->player_life)) / CLOCKS_PER_SEC;
+        if (player_life >= (double)((FOOD_SATURATION / server->freq))) {
             player_nutrition(server, ai);
             ai->player_life = clock();
         }
@@ -87,8 +90,7 @@ static void handle_players_food(zappy_server_t *server)
 
 void game_update(zappy_server_t *server)
 {
-    if (!handle_time(server))
-        return;
-    trigger_meteor(server);
+    if (handle_time(server))
+        trigger_meteor(server);
     handle_players_food(server);
 }
