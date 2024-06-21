@@ -72,6 +72,17 @@ SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
 					map_handling.c									\
 				)
 
+DIR			+=	src/game/ressources
+SRC			+=	$(addprefix $(lastword $(DIR))/,					\
+					add_food.c										\
+					add_linemate.c									\
+					add_deraumere.c									\
+					add_sibur.c										\
+					add_mendiane.c									\
+					add_phiras.c									\
+					add_thystame.c									\
+				)
+
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
 
@@ -89,7 +100,7 @@ RM			:=	rm -rf
 
 CC			:=	gcc
 CFLAGS		:=	-iquote./include -iquote../libs/protocol/include	\
-				-Wall -Wextra
+				-Wall -Wextra -g
 LDFLAGS		:=	-L../libs -lmyprotocol
 
 all:				$(NAME)
