@@ -71,7 +71,7 @@ static void add_ai(
     protocol_server_send(server->socket, payload->fd,
         "%i", server->clients_nb);
     protocol_server_send(server->socket, payload->fd,
-        " %i %i", server->width, server->height);
+        "%i %i", server->width, server->height);
 }
 
 static void add_graphic(
