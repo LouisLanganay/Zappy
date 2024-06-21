@@ -5,6 +5,7 @@ import selectors
 import random
 import time
 from ParseArgs import ParseArgs
+import re
 
 levels = [
     {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
@@ -42,15 +43,6 @@ inventory = {
     "thystame": 0
 }
 
-inventory_team = {
-    "food": 0,
-    "linemate": 0,
-    "deraumere": 0,
-    "sibur": 0,
-    "mendiane": 0,
-    "phiras": 0,
-    "thystame": 0
-}
 
 
 class AI:
@@ -76,7 +68,7 @@ class AI:
             else:
                 print(f"Unexpected inventory item format: {item}")
         return inventory
-    
+
     def _parse_input_list(self, row_list):
         removed_brackets = row_list.replace('[', '').replace(']', '')
         converted_list = []
@@ -84,7 +76,7 @@ class AI:
         for elt in list_of_tiles:
             converted_list.append(elt.split())
         return converted_list
-    
+
     def _create_list_of_dicts(self, vision):
         list_of_dicts = []
         i = 0
@@ -94,7 +86,7 @@ class AI:
             vision = vision[width:]
             i += 1
         return list_of_dicts
-    
+
     def _fill_empty_elements(self, list_of_dicts):
         for row in list_of_dicts:
             for i, cell in enumerate(row):
@@ -109,7 +101,7 @@ class AI:
             new_row = [[None]] * nb_spaces + row + [[None]] * nb_spaces
             new_list.append(new_row)
         return new_list
-    
+
     def _list_to_dict(self, tile_list):
         tile = {
             "player": 0,
@@ -126,13 +118,14 @@ class AI:
             if elt in tile:
                 tile[elt] += 1
         return tile
-    
+
     def _convert_elements_to_dicts(self, padded_list):
         for i in range(len(padded_list)):
             for j in range(len(padded_list[i])):
                 padded_list[i][j] = self._list_to_dict(padded_list[i][j])
         return padded_list
-    
+
+
     def parse_vision(self, input_message):
         vision = self._parse_input_list(input_message.strip('[]'))
         list_of_dicts = self._create_list_of_dicts(vision)
@@ -140,7 +133,8 @@ class AI:
         padded_list = self._pad_rows(list_of_dicts)
         final_list = self._convert_elements_to_dicts(padded_list)
         return final_list
-    
+
+
     def detect_type_of_response(self, response):
         if response.startswith('ok'):
             return 'ok'
@@ -152,18 +146,19 @@ class AI:
             else:
                 return 'look'
         return 'unknown'
-    
+
+
     def update_state(self, response):
         type_of_response = self.detect_type_of_response(response)
         if type_of_response == 'inventory':
             self.inventory = self.parse_inventory(response)
         if type_of_response == 'look':
             self.vision = self.parse_vision(response)
-    
+
+
     def set_direction(self, goal_direction):
         if self.direction == goal_direction:
             return
-        
         idx_directions = ['Left', 'Up', 'Right', 'Down']
         idx_goal = idx_directions.index(goal_direction)
         idx_current = idx_directions.index(self.direction)
@@ -182,7 +177,6 @@ class AI:
         self.queue.append('Forward')
 
     def move_to(self, goal_x, goal_y):
-        
         vertical_direction = 'Down' if goal_y > self.y else 'Up'
         horizontal_direction = 'Right' if goal_x > self.x else 'Left'
 
@@ -213,7 +207,7 @@ class AI:
                 except:
                     print(f"{resource} doesn't exist")
         return state
-    
+
     def has_all_resources(self):
         for resource, amount_needed in resources_to_get.items():
             if resource == 'food':
@@ -227,7 +221,7 @@ class AI:
 
         if self.has_all_resources():
             return True
-        
+
         resources_to_get['food'] = 1000
         for resource, amount_needed in resources_to_get.items():
             if self.inventory[resource] < amount_needed:
@@ -244,7 +238,6 @@ class AI:
                                 break
                     if amount_to_collect == 0:
                         break
-        
         return state
 
     def reset_direction(self):
@@ -261,7 +254,6 @@ class AI:
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
                 self.queue.append('Forward')
-        
         else:
             if not self.take_resources_to_get():
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
@@ -283,6 +275,15 @@ class Client:
         self.socket.connect((self.host, self.port))
         self.queue = []
 
+        self.inventory_team = {
+            "food": 0,
+            "linemate": 0,
+            "deraumere": 0,
+            "sibur": 0,
+            "mendiane": 0,
+            "phiras": 0,
+            "thystame": 0
+        }
         self.selector = selectors.DefaultSelector()
         self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
 
@@ -332,12 +333,12 @@ class Client:
 
     def broadcast_Inventory_send(self):
         custom_inventory = []
-        print(f"MON ID = {self.id}")
+        #print(f"MON ID = {self.id}")
         self.update_inventory()
         for resource, amount in inventory.items():
             my_tuple = (resource, str(amount))
             custom_inventory.append(my_tuple)
-        msg_to_send = f"I:{self.id}:{self.nbr_msg}:{custom_inventory}*"
+        msg_to_send = f"I:{self.id}:{self.nbr_msg}:{custom_inventory}"
         msg_res = ''
         for i in range(len(msg_to_send)):
             if msg_to_send[i] == ' ':
@@ -345,26 +346,61 @@ class Client:
                 continue
             msg_res += msg_to_send[i]
         self.send_broadcast(msg_res)
-        print(msg_res)
+        #print(msg_res)
         self.nbr_msg += 1
 
-    def broadcast_Inventory_receive(self,msg):
-        print(f"JULLLLLLLLLL {msg}")
+    def parse_inventory_broadcast(self, response):
+        inventory = {}
+        response = response.strip('[]')
+        list_of_items = response.split(', ')
+        for item in list_of_items:
+            parts = item.split()
+            if len(parts) == 2:
+                key, value = parts
+                inventory[key] = int(value)
+            else:
+                print(f"Unexpected inventory item format: {item}")
+        return inventory
 
+    def broadcast_Inventory_receive(self, msg):
+        # RESPONSE= [ food 9, linemate 0, deraumere 0, sibur 0, mendiane 0, phiras 0, thystame 0 ]
+        msg_parse : list = msg[3]
+        #msg_parse= [('food','0'),('linemate','0'),('deraumere','0'),('sibur','0'),('mendiane','0'),('phiras','0'),('thystame','0')]
+        res_msg = ""
+        res_list = []
+        #[food,0,linemate,0,deraumere,0,sibur,0,mendiane,0,phiras,0,thystame,0]
+
+        for i in range (0, len(msg_parse)):
+            for j in range (0, len(msg_parse[i])):
+                if (msg_parse[i][j] != '\''):
+                    res_msg += msg_parse[i][j]
+
+        # Remove parentheses
+        res_msg = res_msg.replace('(', '')
+        res_msg = res_msg.replace(')', '')
+        mot = ""
+        for i in range (0, len(res_msg)):
+            if (res_msg[i] != '['):
+                mot += res_msg[i]
+        print(f"msg_parse= {res_msg}")
+
+
+        #print(msg_parse)
+        # "[('food','0'),('linemate','0'),('deraumere','0'),('sibur','0'),('mendiane','0'),('phiras','0'),('thystame','0')]""
+        #self.inventory_team = self.parse_inventory_broadcast(msg_parse)
+        #print(f"inventory_team= {self.inventory_team}")
 
     def handle_broadcast(self, message):
 
         partie_msg = message.split(":")
-        #if (partie_msg[0] == "I"):
-        #    self.broadcast_Inventory_receive(message)
         msg_begin = partie_msg[0].split(" ")
-        print(f"LAAAA {msg_begin[2]}")
 
         if message.startswith('message'):
+            if (msg_begin[2] == "I"):
+                self.broadcast_Inventory_receive(partie_msg)
             print(f"Received broadcast: {message}")
         return
 
-    #def handle_inventory_broadcast(self, message):
 
 
     def close(self):
