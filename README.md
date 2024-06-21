@@ -84,64 +84,67 @@ USAGE: ./zappy_ai -p port -n name -h machine
 Project members:
 ## Contributors
 
-<div>
-  <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-    <div style="text-align: center; width: 120px;">
+## Contributors
+
+<table>
+  <tr>
+    <td align="center">
       <a href="https://github.com/LouisLanganay">
-        <img src="https://avatars.githubusercontent.com/u/114762819?v=4" alt="LouisLanganay" style="width: 100px; border-radius: 50%;"/>
+        <img src="https://avatars.githubusercontent.com/u/114762819?v=4" width="100px;" alt="LouisLanganay"/>
         <br/>
-        <span>LouisLanganay</span>
+        <sub><b>LouisLanganay</b></sub>
       </a>
       <br/>
-      <span>Contributions: 147</span>
-    </div>
-    <div style="text-align: center; width: 120px;">
+      Contributions: 147
+    </td>
+    <td align="center">
       <a href="https://github.com/Neo-Diamons">
-        <img src="https://avatars.githubusercontent.com/u/114656699?v=4" alt="Neo-Diamons" style="width: 100px; border-radius: 50%;"/>
+        <img src="https://avatars.githubusercontent.com/u/114656699?v=4" width="100px;" alt="Neo-Diamons"/>
         <br/>
-        <span>Neo-Diamons</span>
+        <sub><b>Neo-Diamons</b></sub>
       </a>
       <br/>
-      <span>Contributions: 52</span>
-    </div>
-    <div style="text-align: center; width: 120px;">
+      Contributions: 52
+    </td>
+    <td align="center">
       <a href="https://github.com/ValentinPeron">
-        <img src="https://avatars.githubusercontent.com/u/71937391?v=4" alt="ValentinPeron" style="width: 100px; border-radius: 50%;"/>
+        <img src="https://avatars.githubusercontent.com/u/71937391?v=4" width="100px;" alt="ValentinPeron"/>
         <br/>
-        <span>ValentinPeron</span>
+        <sub><b>ValentinPeron</b></sub>
       </a>
       <br/>
-      <span>Contributions: 43</span>
-    </div>
-    <div style="text-align: center; width: 120px;">
+      Contributions: 43
+    </td>
+    <td align="center">
       <a href="https://github.com/mlargeot">
-        <img src="https://avatars.githubusercontent.com/u/114756247?v=4" alt="mlargeot" style="width: 100px; border-radius: 50%;"/>
+        <img src="https://avatars.githubusercontent.com/u/114756247?v=4" width="100px;" alt="mlargeot"/>
         <br/>
-        <span>mlargeot</span>
+        <sub><b>mlargeot</b></sub>
       </a>
       <br/>
-      <span>Contributions: 30</span>
-    </div>
-    <div style="text-align: center; width: 120px;">
+      Contributions: 30
+    </td>
+    <td align="center">
       <a href="https://github.com/Gaulaume">
-        <img src="https://avatars.githubusercontent.com/u/114737222?v=4" alt="Gaulaume" style="width: 100px; border-radius: 50%;"/>
+        <img src="https://avatars.githubusercontent.com/u/114737222?v=4" width="100px;" alt="Gaulaume"/>
         <br/>
-        <span>Gaulaume</span>
+        <sub><b>Gaulaume</b></sub>
       </a>
       <br/>
-      <span>Contributions: 11</span>
-    </div>
-    <div style="text-align: center; width: 120px;">
+      Contributions: 11
+    </td>
+    <td align="center">
       <a href="https://github.com/AugustinBst">
-        <img src="https://avatars.githubusercontent.com/u/114652651?v=4" alt="AugustinBst" style="width: 100px; border-radius: 50%;"/>
+        <img src="https://avatars.githubusercontent.com/u/114652651?v=4" width="100px;" alt="AugustinBst"/>
         <br/>
-        <span>AugustinBst</span>
+        <sub><b>AugustinBst</b></sub>
       </a>
       <br/>
-      <span>Contributions: 4</span>
-    </div>
-  </div>
-</div>
+      Contributions: 4
+    </td>
+  </tr>
+</table>
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
