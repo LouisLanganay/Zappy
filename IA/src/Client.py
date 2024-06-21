@@ -9,12 +9,12 @@ import subprocess
 
 levels = [
     {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
-    {"linemate": 1, "deraumere": 1, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0},
-    {"linemate": 2, "deraumere": 0, "sibur": 1, "mendiane": 0, "phiras": 2, "thystame": 0},
-    {"linemate": 1, "deraumere": 1, "sibur": 2, "mendiane": 0, "phiras": 1, "thystame": 0},
-    {"linemate": 1, "deraumere": 2, "sibur": 1, "mendiane": 3, "phiras": 0, "thystame": 0},
-    {"linemate": 1, "deraumere": 2, "sibur": 3, "mendiane": 0, "phiras": 1, "thystame": 0},
-    {"linemate": 2, "deraumere": 2, "sibur": 2, "mendiane": 2, "phiras": 2, "thystame": 1}
+    # {"linemate": 1, "deraumere": 1, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0},
+    # {"linemate": 2, "deraumere": 0, "sibur": 1, "mendiane": 0, "phiras": 2, "thystame": 0},
+    # {"linemate": 1, "deraumere": 1, "sibur": 2, "mendiane": 0, "phiras": 1, "thystame": 0},
+    # {"linemate": 1, "deraumere": 2, "sibur": 1, "mendiane": 3, "phiras": 0, "thystame": 0},
+    # {"linemate": 1, "deraumere": 2, "sibur": 3, "mendiane": 0, "phiras": 1, "thystame": 0},
+    # {"linemate": 2, "deraumere": 2, "sibur": 2, "mendiane": 2, "phiras": 2, "thystame": 1}
 ]
 
 """
@@ -54,6 +54,9 @@ class AI:
         self.y = 0
         self.queue = []
         self.start = time.time()
+        self.mode = 'Normal'
+        self.broadcaster_direction = -1 # default value (no broadcaster)
+        self.count_incanter = 0
 
     def parse_inventory(self, response):
         if self.detect_type_of_response(response) != 'inventory':
@@ -176,6 +179,8 @@ class AI:
         if type_of_response == 'level up':
             self.level = int(response.split()[-1])
             print(f"Level up! New level: {self.level}")
+        if type_of_response == 'broadcast':
+            print(response)
     
     def set_direction(self, goal_direction):
         if self.direction == goal_direction:
@@ -243,6 +248,7 @@ class AI:
         state = False
 
         if self.has_all_resources():
+            self.take_resources('food')
             return True
         
         resources_to_get['food'] = 1000
@@ -281,38 +287,68 @@ class AI:
                     print(f"linemate doesn't exist")
         return state
 
-    def get_coordinates_from_direction(self, direction):
-        # Map direction number to relative coordinates
-        direction_map = {
-            0: (0, 0),
-            1: (0, -1),
-            2: (-1, -1),
-            3: (-1, 0),
-            4: (-1, 1),
-            5: (0, 1),
-            6: (1, 1),
-            7: (1, 0),
-            8: (1, -1)
-        }
-        return direction_map.get(direction, (0, 0))
+    def move_to_broadcaster(self):
+        if self.broadcaster_direction == 0: # broadcaster is in the same tile
+            return
+        
 
-    def move_to_broadcaster(self, direction):
-        # Get the relative coordinates from the direction
-        rel_x, rel_y = self.get_coordinates_from_direction(direction)
+        # if self.broadcaster_direction == 1:
         
-        # Calculate the target position
-        goal_x = self.x + rel_x
-        goal_y = self.y + rel_y
-        
-        # Move to the target position
-        self.move_to(goal_x, goal_y)
-        self.queue.append('Forward')  # Move to the final position
+        # print(f"Moving to broadcaster in direction {self.broadcaster_direction}")
+        # if self.broadcaster_direction == 1:
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 2:
+        #     self.queue.append('Forward')
+        #     self.queue.append('Left')
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 3:
+        #     self.queue.append('Left')
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 4:
+        #     self.queue.append('Left')
+        #     self.queue.append('Forward')
+        #     self.queue.append('Left')
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 5:
+        #     self.queue.append('Right')
+        #     self.queue.append('Right')
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 6:
+        #     self.queue.append('Right')
+        #     self.queue.append('Forward')
+        #     self.queue.append('Right')
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 7:
+        #     self.queue.append('Right')
+        #     self.queue.append('Forward')
+        # if self.broadcaster_direction == 8:
+        #     self.queue.append('Forward')
+        #     self.queue.append('Right')
+        #     self.queue.append('Forward')
+        # # self.broadcaster_direction = -1
+        # return self.queue
+    
+    def drop_resources(self):
+        for resource, amount in self.inventory.items():
+            if resource == 'food':
+                continue
+            for _ in range(amount):
+                self.queue.append(f'Set {resource}')
+        self.inventory = inventory
+
+    def group_algorithm(self):
+        self.queue = []
+        if self.broadcaster_direction == -1:
+            return ['Left', 'Right']
+        self.move_to_broadcaster()
+        return self.queue
 
     def algorithm(self):
         # Set initial position and direction of the player in the vision grid
         self.y = 0
         self.x = len(self.vision[0]) // 2
         self.reset_direction()
+
         # Prioritize taking food first
         if self.inventory['food'] < 20:
             if not self.take_resources('food'):
@@ -326,29 +362,11 @@ class AI:
                 self.take_resources('food')
             return self.queue
         
-        # if self.inventory['food'] > 100:
-            # print(f'Elapsed time: {time.time() - self.start}')
-            # self.start = time.time()
-            # self.queue.append('Fork')
-        # else:
-        if not self.take_resources('food'):
+        if not self.take_resources_to_get():
             self.queue.append(random.choice(['Left', 'Right', 'Forward']))
             self.queue.append('Forward')
             self.queue.append('Forward')
         return self.queue
-                
-
-            
-
-        
-        # self.take_resources('food')
-        
-        # else:
-        #     if not self.take_resources_to_get():
-        #         self.queue.append(random.choice(['Left', 'Right', 'Forward']))
-        #         self.queue.append('Forward')
-        #         self.queue.append('Forward')
-
 
 class Client:
     def __init__(self, host, port, name):
@@ -373,16 +391,13 @@ class Client:
         buffer = ""
         
         while True:
-            # Receive data from the socket
-            data = self.socket.recv(1024).decode().strip()
+            data = self.socket.recv(4096).decode().strip()
             
-            # Check if connection is closed
             if not data:
                 print("Server closed the connection")
                 sys.exit(0)
             
             buffer += data
-            # Split messages on newline
             while '\n' in buffer:
                 message, buffer = buffer.split('\n', 1)
                 if message.startswith('message'):
@@ -390,14 +405,13 @@ class Client:
                 else:
                     self.ai.update_state(message)
             
-            # If there's no complete message, keep the buffer for next recv
             if '\n' not in buffer:
                 break
         
         count = 0
-        while buffer.startswith('message') and count < 3:
+        while buffer.startswith('message'): #FIXME add this additionnal condition if needed and count < 3:
             self.handle_broadcast(buffer)
-            buffer = self.socket.recv(1024).decode().strip()
+            buffer = self.socket.recv(2048).decode().strip()
             count += 1
         
         return buffer
@@ -416,8 +430,8 @@ class Client:
         for elt in self.queue:
             self.send(elt)
             data = self.receive()
-            if elt == 'Incantation':
-                time.sleep(1.5)
+            # if elt == 'Incantation':
+            #     time.sleep(1.5)
             if data.startswith('dead'):
                 print("Dead")
                 sys.exit(0)
@@ -428,18 +442,51 @@ class Client:
         self.send(f"Broadcast {message}")
         data = self.receive()
 
+    def receive_no_data_check(self):
+        data = self.socket.recv(1024).decode().strip()
+        return data
 
     def handle_broadcast(self, message):
-        print(f"Received broadcast: {message}")
         temp = message[8:]
         temp = temp.split(', ')
 
         direction = int(temp[0])
         data = temp[1]
+
+        # print(f"Received broadcast message: {message}")
         
-        if self.ai.inventory['food'] > 40:
-            print(f"Moving to broadcaster in direction: {direction}")
-            self.ai.move_to_broadcaster(direction)
+        if data == 'Group':
+            self.ai.mode = 'Group'
+            self.ai.broadcaster_direction = direction
+        
+        if self.ai.mode == 'Group':
+            if self.ai.broadcaster_direction == 1 or self.ai.broadcaster_direction == 2 or self.ai.broadcaster_direction == 8:
+                self.send('Forward')                
+
+            if self.ai.broadcaster_direction == 3 or self.ai.broadcaster_direction == 4 or self.ai.broadcaster_direction == 5:
+                self.send('Left')
+
+            if self.ai.broadcaster_direction == 6 or self.ai.broadcaster_direction == 7:
+                self.send('Right')
+
+            data = self.receive()
+
+            print(f"Received data: {data}")
+            while True:
+                data = self.receive()
+                if data.startswith('dead'):
+                    print("Dead")
+                    sys.exit(0)
+                if data.startswith('message'):
+                    self.handle_broadcast(data)
+                    break
+            # if self.ai.broadcaster_direction == -1:
+            #     return
+            # if self.ai.broadcaster_direction == 0:
+            #     self.ai.mode = 'Incantation'
+            #     return
+            # self.queue = self.ai.group_algorithm()
+            # self.send_queue()
 
 
     def close(self):
@@ -447,22 +494,101 @@ class Client:
         self.socket.close()
 
     def connect(self):
+        data = self.receive()  # Initial connection response (welcome message)
         self.send(self.name)
-
+        data = self.receive()  # Additional server response (map size)
     def run(self):
-        self.connect()
-        self.receive()  # Initial connection response (welcome message)
-        self.receive()  # Additional server response (map size)
-        i = 0
         while True:
-            self.queue = ['Look', 'Inventory']
-            self.send_queue()
-            self.queue = self.ai.algorithm()
-            self.send_queue()
-        
-            if i % 10 == 0:
+            if self.ai.mode == 'Normal':
+                self.queue = ['Look', 'Inventory']
+                self.send_queue()
+
+            if self.ai.mode == 'Broadcaster':
                 self.send_broadcast('Group')
-            i += 1
+                time.sleep(0.5)
+                continue
+
+            if self.ai.has_all_resources() and self.ai.mode == 'Normal':
+                self.ai.mode = 'Broadcaster'
+                self.ai.drop_resources()
+                self.send_queue()
+                continue
+
+            # if self.ai.mode == 'Group':
+                # print(f"Group mode : {self.ai.broadcaster_direction}")
+                # self.queue = self.ai.group_algorithm()
+                # self.send_queue()
+                
+                # broadcaster_direction = 0 turn into incantation mode
+                # broadcaster_direction = 1, 2, 8 -> Forward
+                # broadcaster_direction = 5, 6, 7 -> Right
+                # broadcaster_direction = 3, 4 -> Left
+
+                # if self.ai.broadcaster_direction == 0:
+                #     self.ai.mode = 'Incantation'
+                #     self.queue.clear()
+                #     continue
+
+                # self.update_inventory()
+                # if self.ai.broadcaster_direction == 1 or self.ai.broadcaster_direction == 2 or self.ai.broadcaster_direction == 8:
+                #     self.send('Forward')
+
+                # if self.ai.broadcaster_direction == 3 or self.ai.broadcaster_direction == 4 or self.ai.broadcaster_direction == 5:
+                #     self.send('Left')
+
+                # if self.ai.broadcaster_direction == 6 or self.ai.broadcaster_direction == 7:
+                #     self.send('Right')
+                # time.sleep(0.5)
+
+                # # clear received messages stack
+                # while True:
+                #     data = self.receive()
+                #     if not data:
+                #         break
+                #     if data.startswith('dead'):
+                #         print("Dead")
+                #     print(data)
+
+                # while True:
+                #     data = self.receive()
+                #     if data.startswith('dead'):
+                #         print("Dead")
+                #         sys.exit(0)
+                #     if data.startswith('message'):
+                #         self.handle_broadcast(data)
+                #         break
+
+
+            if self.ai.mode == 'Normal':
+                self.queue = self.ai.algorithm()
+                self.send_queue()
+            #     self.queue = self.ai.group_algorithm()
+            #     self.send_queue()
+            #     continue
+
+
+            # if self.ai.broadcaster_direction == 0 and self.ai.mode == 'Group':
+            #     self.ai.count_incanter += 1
+            #     self.ai.mode = 'Incantation'
+
+            # if self.ai.count_incanter == 4 and self.ai.mode == 'Broadcaster':
+            #     self.send_broadcast('Incantation')
+            #     self.ai.mode = 'Incantation'
+            #     self.ai.count_incanter += 1
+
+            # if self.ai.count_incanter == 10 and self.ai.mode == 'Incantation':
+
+            # if self.ai.mode == 'Incantation':
+            #     self.queue.append('Incantation')
+            #     self.send_queue()
+            #     continue
+
+            
+
+
+        
+            # if i % 10 == 0:
+            #     self.send_broadcast('Group')
             # allow the client to receive broadcast messages while waiting for server response
             # events = self.selector.select(timeout=0)
             # for key, mask in events:
@@ -477,6 +603,7 @@ def main():
     parser = ParseArgs()
     host, port, name = parser.parse(args)
     client = Client(host, port, name)
+    client.connect()
     client.run()
     client.close()
 
