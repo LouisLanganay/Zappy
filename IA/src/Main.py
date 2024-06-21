@@ -114,4 +114,5 @@ if __name__ == '__main__':
         subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name])
 
     while True:
-        continue
+        time.sleep(1)
+        # subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name])
