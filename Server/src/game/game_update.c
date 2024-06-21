@@ -90,12 +90,14 @@ static void handle_players_food(zappy_server_t *server)
 static void handle_eggs(zappy_server_t *server)
 {
     egg_t *egg;
+    ai_t *ai;
     double egg_life = 0;
 
     TAILQ_FOREACH(egg, &server->eggs, entries) {
         egg_life = (double)((clock() - egg->lay_time)) / CLOCKS_PER_SEC;
         if (egg_life >= (double)((EGG_LAY_TIME / server->freq))) {
             TAILQ_REMOVE(&server->eggs, egg, entries);
+            TAILQ_INSERT_TAIL(&server->ais, ai, entries);
             free(egg);
         }
     }
