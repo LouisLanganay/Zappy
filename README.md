@@ -82,8 +82,66 @@ USAGE: ./zappy_ai -p port -n name -h machine
 ## Contributions
 
 Project members:
-<!-- readme: contributors -start -->
-<!-- readme: contributors -end -->
+## Contributors
+
+<div>
+  <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    <div style="text-align: center; width: 120px;">
+      <a href="https://github.com/LouisLanganay">
+        <img src="https://avatars.githubusercontent.com/u/114762819?v=4" alt="LouisLanganay" style="width: 100px; border-radius: 50%;"/>
+        <br/>
+        <span>LouisLanganay</span>
+      </a>
+      <br/>
+      <span>Contributions: 147</span>
+    </div>
+    <div style="text-align: center; width: 120px;">
+      <a href="https://github.com/Neo-Diamons">
+        <img src="https://avatars.githubusercontent.com/u/114656699?v=4" alt="Neo-Diamons" style="width: 100px; border-radius: 50%;"/>
+        <br/>
+        <span>Neo-Diamons</span>
+      </a>
+      <br/>
+      <span>Contributions: 52</span>
+    </div>
+    <div style="text-align: center; width: 120px;">
+      <a href="https://github.com/ValentinPeron">
+        <img src="https://avatars.githubusercontent.com/u/71937391?v=4" alt="ValentinPeron" style="width: 100px; border-radius: 50%;"/>
+        <br/>
+        <span>ValentinPeron</span>
+      </a>
+      <br/>
+      <span>Contributions: 43</span>
+    </div>
+    <div style="text-align: center; width: 120px;">
+      <a href="https://github.com/mlargeot">
+        <img src="https://avatars.githubusercontent.com/u/114756247?v=4" alt="mlargeot" style="width: 100px; border-radius: 50%;"/>
+        <br/>
+        <span>mlargeot</span>
+      </a>
+      <br/>
+      <span>Contributions: 30</span>
+    </div>
+    <div style="text-align: center; width: 120px;">
+      <a href="https://github.com/Gaulaume">
+        <img src="https://avatars.githubusercontent.com/u/114737222?v=4" alt="Gaulaume" style="width: 100px; border-radius: 50%;"/>
+        <br/>
+        <span>Gaulaume</span>
+      </a>
+      <br/>
+      <span>Contributions: 11</span>
+    </div>
+    <div style="text-align: center; width: 120px;">
+      <a href="https://github.com/AugustinBst">
+        <img src="https://avatars.githubusercontent.com/u/114652651?v=4" alt="AugustinBst" style="width: 100px; border-radius: 50%;"/>
+        <br/>
+        <span>AugustinBst</span>
+      </a>
+      <br/>
+      <span>Contributions: 4</span>
+    </div>
+  </div>
+</div>
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
