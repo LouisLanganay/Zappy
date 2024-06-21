@@ -112,6 +112,11 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					tna.c											\
 				)
 
+UT_DIR		+=	../tests/server/ai
+UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
+					death.c											\
+				)
+
 DIR_BUILD	:=	build
 DIR_BIN		:=	$(DIR_BUILD)/bin
 
