@@ -49,7 +49,7 @@ static void handle_lost_connection(
 }
 
 static ai_t *init_ai(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const protocol_payload_t *payload)
 {
     ai_t *ai = calloc(1, sizeof(ai_t));
@@ -58,7 +58,7 @@ static ai_t *init_ai(
     if (!ai)
         return NULL;
     *ai = (ai_t){
-        .fd = payload->fd, .level = 1, .orientation = NORTH,
+        .id = server->ai_id++, .fd = payload->fd, .level = 1, .orientation = NORTH,
         .is_incantate = false, .life_span = 0, .inventory = { .food = 10 }
     };
     TAILQ_INIT(&ai->commands);
@@ -71,7 +71,6 @@ static ai_t *init_ai(
         printf("\033[31m[ERROR]\033[0m Team not found\n");
         return NULL;
     }
-    pnw(server, ai);
     return ai;
 }
 
@@ -83,7 +82,6 @@ static void add_ai(
 
     if (!ai)
         return;
-    verbose(server, "New AI connected\n");
     protocol_server_send(server->socket, payload->fd,
         "%i", ai->team->slots);
     if (ai->team->slots == 0) {
@@ -91,10 +89,20 @@ static void add_ai(
         free(ai);
         return;
     }
+    egg_t *egg = egg_pop_by_team(server, ai->team);
+    if (!egg) {
+        ai->pos = (vector2_t){rand() % server->width, rand() % server->height};
+    } else {
+        ebo(server, egg->id);
+        ai->pos = egg->pos;
+        free(egg);
+    }
     ai->team->slots--;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     protocol_server_send(server->socket, payload->fd,
         "%i %i", server->width, server->height);
+    verbose(server, "New AI connected\n");
+    pnw(server, ai);
 }
 
 static void add_graphic(
@@ -179,11 +187,11 @@ static void handle_event(
 {
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
-            verbose(server, "AI %d: %s\n", payload->fd, payload->message);
+            verbose(server, "AI [%d]: %s\n", payload->fd, payload->message);
             handle_ai_event(server, payload);
             break;
         case CONNECTION_GUI:
-            verbose(server, "GUI %d: %s\n", payload->fd, payload->message);
+            verbose(server, "GUI [%d]: %s\n", payload->fd, payload->message);
             handle_gui_event(server, payload);
             break;
         case CONNECTION_UNKNOWN:

@@ -142,6 +142,9 @@ typedef struct zappy_server_s {
     struct timespec last_update;
     uint8_t meteor_time;
 
+    uint16_t ai_id;
+    uint16_t egg_id;
+
     TAILQ_HEAD(, ai_s) ais;
     TAILQ_HEAD(teamhead, team_s) teams;
     TAILQ_HEAD(, egg_s) eggs;
@@ -185,5 +188,12 @@ team_t *team_get_by_name(
 team_t *team_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
+// egg
+uint16_t egg_spawn(
+    zappy_server_t *server,
+    const ai_t *ai);
+egg_t *egg_pop_by_team(
+    zappy_server_t *server,
+    const team_t *team);
 
 #endif //SERVER_H

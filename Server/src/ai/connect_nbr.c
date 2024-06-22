@@ -9,7 +9,7 @@
 
 void connect_nbr(
     zappy_server_t *server,
-    UNUSED ai_t *ai,
+    ai_t *ai,
     UNUSED const char *message)
 {
     protocol_server_send(server->socket, ai->fd, "%d", ai->team->slots);

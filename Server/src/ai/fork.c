@@ -6,10 +6,12 @@
 */
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 void exec_fork(
-    UNUSED zappy_server_t *server,
-    UNUSED ai_t *ai,
+    zappy_server_t *server,
+    ai_t *ai,
     UNUSED const char *message)
 {
+    enw(server, ai, egg_spawn(server, ai));
 }
