@@ -155,10 +155,12 @@ class Client:
         while True:
             print(self.ai.mode)
             if self.ai.mode == 'STOP':
+                self.queue = self.ai.drop_resources()
+                self.send_queue()
                 continue
 
             if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Broadcaster'): 
-                self.queue = self.ai.drop_resources()
+                time.sleep(0.5)
                 self.ai.mode = 'Incantation'
                 self.send('Look')
                 data = self.receive()

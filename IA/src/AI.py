@@ -2,6 +2,26 @@
 import time
 import random
 
+"""
+Rarity based on quantity of resources needed:
+
+#### Sorted by Ratio ####
+| Resource  | Ratio   | ID |
+|-----------|---------|----|
+| Sibur     | 0.01    | 0  |
+| Phiras    | 0.0133  | 1  |
+| Deraumere | 0.01875 | 2  |
+| Mendiane  | 0.02    | 3  |
+| Linemate  | 0.0375  | 4  |
+| Thystame  | 0.05    | 5  |
+##########################
+
+Sorted by ratio:
+1. Sibur
+2. Phiras
+
+"""
+
 levels = [
     # {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
     {"linemate": 1, "deraumere": 1, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0},
@@ -43,6 +63,21 @@ class AI:
         self.mode = 'Normal'
         self.broadcaster_direction = -1 # default value (no broadcaster)
         self.count_incanter = 0
+
+        self.resources_to_get = {"linemate": 0, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0}
+        # resource to get is going to be based on the id of the player (first will need to get the linemate, second the deraumere, etc.)
+        if self.id == 0:
+            self.resources_to_get['sibur'] = resources_to_get['sibur']
+        elif self.id == 1:
+            self.resources_to_get['phiras'] = resources_to_get['phiras']
+        elif self.id == 2:
+            self.resources_to_get['deraumere'] = resources_to_get['deraumere']
+        elif self.id == 3:
+            self.resources_to_get['mendiane'] = resources_to_get['mendiane']
+        elif self.id == 4:
+            self.resources_to_get['linemate'] = resources_to_get['linemate']
+        elif self.id == 5:
+            self.resources_to_get['thystame'] = resources_to_get['thystame']
 
     def parse_inventory(self, response):
         if self.detect_type_of_response(response) != 'inventory':
@@ -224,7 +259,7 @@ class AI:
         for resource, amount in self.inventory.items():
             if resource == 'food':
                 continue
-            if amount < resources_to_get[resource]:
+            if amount < self.resources_to_get[resource]:
                 return False
         return True
 
@@ -235,7 +270,7 @@ class AI:
             self.take_resources('food')
             return True
 
-        goal_inventory = resources_to_get
+        goal_inventory = self.resources_to_get
         resources_to_collect = {k: v for k, v in goal_inventory.items() if v > self.inventory[k]}
         resources_to_collect['food'] = 50
 
@@ -292,7 +327,6 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-
         if self.inventory['food'] < 15:
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
@@ -303,18 +337,12 @@ class AI:
         if self.level == 1:
             self.linemate_level1()
             return self.queue
-        else:
-            if self.id == 5:
-                if not self.take_resources('food'):
-                    self.queue.append(random.choice(['Left', 'Right', 'Forward']))
-                    self.queue.append('Forward')
-                    self.queue.append('Forward')
-                return self.queue
-            if not self.take_resources_to_get():
-                self.queue.append(random.choice(['Left', 'Right', 'Forward']))
-                self.queue.append('Forward')
-                self.queue.append('Forward')
-            return self.queue
+
+        if not self.take_resources_to_get():
+            self.queue.append(random.choice(['Left', 'Right', 'Forward']))
+            self.queue.append('Forward')
+            self.queue.append('Forward')
+        return self.queue
         
     def action_to_broadcaster(self):
         if self.broadcaster_direction == 1 or self.broadcaster_direction == 2 or self.broadcaster_direction == 8:
