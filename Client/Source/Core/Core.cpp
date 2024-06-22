@@ -250,13 +250,8 @@ void Core::handleServerMessages() {
                 continue;
             }
 
-            // Print received message only if not start with btc
             if (message.find("bct") != 0)
                 DEBUG_INFO("Core received packet: " + message);
-            if (message.empty()) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                continue;
-            }
 
             if (message.find("WELCOME") == 0) {
                 _api->sendCommand("GRAPHIC");
@@ -264,9 +259,8 @@ void Core::handleServerMessages() {
                     _api->requestMapSize();
                     _api->requestAllTilesContent();
                 }
-                if (_map->getTeams().empty()) {
+                if (_map->getTeams().empty())
                     _api->requestTeamsNames();
-                }
                 continue;
             }
             if (message.find("msz") == 0) {
