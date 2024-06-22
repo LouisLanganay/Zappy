@@ -122,9 +122,9 @@ Test(payload, handle_ai_connection)
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
         "To client 1: WELCOME\n"
-        "New AI connected\n"
         "To client 1: 5\n"
         "To client 1: 3 3\n"
+        "New AI connected\n"
         "Lost connection from 1\n"
         "AI disconnected\n");
 
@@ -214,9 +214,9 @@ Test(payload, handle_ai_command)
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
         "To client 1: WELCOME\n"
-        "New AI connected\n"
         "To client 1: 5\n"
         "To client 1: 3 3\n"
+        "New AI connected\n"
         "AI 1: Forward\n"
         "To client 1: ok\n");
 
@@ -248,9 +248,9 @@ Test(payload, handle_ai_command_unknown)
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
         "To client 1: WELCOME\n"
-        "New AI connected\n"
         "To client 1: 5\n"
         "To client 1: 3 3\n"
+        "New AI connected\n"
         "AI 1: Unknown\n"
         "To client 1: ko\n");
 
@@ -364,25 +364,25 @@ Test(payload, handle_many_ai)
         "To client 4: WELCOME\n"
         "New connection from 5\n"
         "To client 5: WELCOME\n"
-        "New AI connected\n"
         "To client 1: 5\n"
         "To client 1: 3 3\n"
-        "AI 1: Forward\n"
         "New AI connected\n"
+        "AI 1: Forward\n"
         "To client 2: 4\n"
         "To client 2: 3 3\n"
-        "AI 2: Forward\n"
         "New AI connected\n"
+        "AI 2: Forward\n"
         "To client 3: 3\n"
         "To client 3: 3 3\n"
-        "AI 3: Forward\n"
         "New AI connected\n"
+        "AI 3: Forward\n"
         "To client 4: 2\n"
         "To client 4: 3 3\n"
-        "AI 4: Forward\n"
         "New AI connected\n"
+        "AI 4: Forward\n"
         "To client 5: 1\n"
         "To client 5: 3 3\n"
+        "New AI connected\n"
         "AI 5: Forward\n"
         "To client 1: ok\n"
         "To client 2: ok\n"

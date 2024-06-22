@@ -64,7 +64,8 @@ Test(zappy_server, run_server_verbose)
         "Teams [0]:\n"
         "\t0: Team1\n"
         "verbose = true\n"
-        "==================================================\n");
+        "==================================================\n"
+        "Meteor shower\n");
 }
 
 Test(zappy_server, run_server_to_low_port)

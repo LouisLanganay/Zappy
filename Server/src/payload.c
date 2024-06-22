@@ -187,11 +187,11 @@ static void handle_event(
 {
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
-            verbose(server, "AI [%d]: %s\n", payload->fd, payload->message);
+            verbose(server, "AI %d: %s\n", payload->fd, payload->message);
             handle_ai_event(server, payload);
             break;
         case CONNECTION_GUI:
-            verbose(server, "GUI [%d]: %s\n", payload->fd, payload->message);
+            verbose(server, "GUI %d: %s\n", payload->fd, payload->message);
             handle_gui_event(server, payload);
             break;
         case CONNECTION_UNKNOWN:
