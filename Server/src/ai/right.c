@@ -5,8 +5,6 @@
 ** right
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
 
 void right(

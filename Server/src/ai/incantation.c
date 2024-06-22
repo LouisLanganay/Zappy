@@ -52,10 +52,17 @@ static bool notify(
 static void clean_incantations(
     ai_t *ai)
 {
-    for (const incantation_t *elm = TAILQ_FIRST(&ai->incantations); elm;
-        elm = TAILQ_FIRST(&ai->incantations)) {
+    incantation_t *next;
+
+    if (TAILQ_EMPTY(&ai->incantations))
+        return;
+    for (incantation_t *elm = TAILQ_FIRST(&ai->incantations); elm;
+        elm = next) {
+        next = TAILQ_NEXT(elm, entries);
         elm->ai->is_incantate = false;
+        printf("Element %p\n", elm);
         TAILQ_REMOVE(&ai->incantations, elm, entries);
+        free(elm);
     }
 }
 
@@ -64,17 +71,21 @@ static bool create_incantations(
     ai_t *ai)
 {
     uint16_t count = level_need[ai->level - 1].resources[0] - 1;
+    incantation_t *elm = create_incantation(ai);
 
-    TAILQ_INSERT_TAIL(&ai->incantations, create_incantation(ai), entries);
-    for (ai_t *elm = TAILQ_FIRST(&server->ais); elm;
-        elm = TAILQ_NEXT(elm, entries)) {
-        if (elm->fd != ai->fd && elm->level == ai->level &&
-            elm->pos.x == ai->pos.x && elm->pos.y == ai->pos.y &&
-            elm->is_incantate == false && elm->inventory.food > 0) {
-            TAILQ_INSERT_TAIL(&ai->incantations, create_incantation(elm),
-                entries);
-            count--;
-        }
+    if (!elm)
+        return false;
+    TAILQ_INSERT_TAIL(&ai->incantations, elm, entries);
+    for (ai_t *ai_elm = TAILQ_FIRST(&server->ais); ai_elm;
+        ai_elm = TAILQ_NEXT(ai_elm, entries)) {
+        if (ai_elm->fd == ai->fd || ai_elm->level != ai->level
+            || ai_elm->pos.x != ai->pos.x || ai_elm->pos.y != ai->pos.y
+            || ai_elm->is_incantate || !ai_elm->inventory.food)
+            continue;
+        elm = create_incantation(ai_elm);
+        if (!elm)
+            return false;
+        TAILQ_INSERT_TAIL(&ai->incantations, elm, entries);
     }
     if (count > 0) {
         clean_incantations(ai);

@@ -14,4 +14,5 @@ void death(
     protocol_server_send(server->socket, ai->fd, "dead");
     ai->is_dead = true;
     pdi(server, ai);
+    verbose(server, "AI %d died", ai->id);
 }

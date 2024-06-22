@@ -79,13 +79,20 @@ static void add_ai(
     const protocol_payload_t *payload)
 {
     ai_t *ai = init_ai(server, payload);
+    uint16_t empty_slots;
 
     if (!ai)
         return;
-    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
+    empty_slots = team_get_empty_slots(server, ai->team);
     protocol_server_send(server->socket, payload->fd,
-        "%i", server->clients_nb);
+        "%i", empty_slots);
+    if (empty_slots == 0) {
+        protocol_server_send(server->socket, payload->fd, "ko");
+        free(ai);
+        return;
+    }
+    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     protocol_server_send(server->socket, payload->fd,
         "%i %i", server->width, server->height);
 }

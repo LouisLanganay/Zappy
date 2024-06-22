@@ -53,8 +53,9 @@ void update_game(
     uint16_t diff;
 
     clock_gettime(CLOCK_REALTIME, &curr_time);
-    diff = (curr_time.tv_nsec - server->last_update.tv_nsec)
-        / CLOCKS_PER_SEC / server->freq;
+    diff = ((curr_time.tv_sec - server->last_update.tv_sec) * 1000000000L
+        + (curr_time.tv_nsec - server->last_update.tv_nsec))
+        / (1000000000L / server->freq);
     if (diff == 0)
         return;
     server->last_update = curr_time;

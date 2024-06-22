@@ -22,6 +22,7 @@ void server_create(
     TAILQ_INIT(&server->teams);
     TAILQ_INIT(&server->guis);
     srand(time(NULL));
+    clock_gettime(CLOCK_REALTIME, &server->last_update);
 }
 
 static bool init_socket(
