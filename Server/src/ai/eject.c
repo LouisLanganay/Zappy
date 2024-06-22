@@ -5,6 +5,8 @@
 ** eject
 */
 
+#include <stdlib.h>
+
 #include "server/ai_header.h"
 #include "server/gui.h"
 
@@ -12,6 +14,24 @@ static orientation_t convert_orientation(
     const orientation_t orientation)
 {
     return (orientation_t[]){ WEST, SOUTH, EAST, NORTH }[orientation - 1];
+}
+
+static void eject_egg(
+    zappy_server_t *server,
+    const ai_t *ai,
+    bool *ejected)
+{
+    egg_t *next;
+
+    for (egg_t *egg = TAILQ_FIRST(&server->eggs); egg; egg = next) {
+        next = TAILQ_NEXT(egg, entries);
+        if (egg->pos.x != ai->pos.x || egg->pos.y != ai->pos.y)
+            continue;
+        TAILQ_REMOVE(&server->eggs, egg, entries);
+        edi(server, egg->id);
+        free(egg);
+        *ejected = true;
+    }
 }
 
 //        SOUTH WEST NORTH EAST
@@ -36,6 +56,7 @@ void eject(
             ejected = true;
             pex(server, target);
         }
+    eject_egg(server, ai, &ejected);
     if (ejected)
         protocol_server_send(server->socket, ai->fd, "ok");
     else
