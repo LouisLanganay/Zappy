@@ -6,7 +6,7 @@
 Test(inventory, check_inventory_display)
 {
     zappy_server_t server = {.clients_nb = 5};
-    inventory_t player_inventory = {300, 1, 5, 3, 4, 0, 6};
+    const inventory_t player_inventory = {{300, 1, 5, 3, 4, 0, 6}};
     ai_t ai1 = {.fd = 1, .inventory = player_inventory};
 
     TAILQ_INIT(&server.ais);
