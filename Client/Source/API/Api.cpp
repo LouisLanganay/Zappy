@@ -107,6 +107,11 @@ void Api::fetchDataLoop()
     }
 }
 
+bool Api::isConnected() const
+{
+    return protocol_client_is_connected(_client);
+}
+
 void Api::requestMapSize()
 {
     sendCommand("msz\n");

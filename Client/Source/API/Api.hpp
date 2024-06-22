@@ -40,6 +40,7 @@ namespace Zappy {
 
             void stop();
             bool isRunning() const;
+            bool isConnected() const;
 
         private:
             std::queue<std::string> _receivedData;
