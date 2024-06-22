@@ -168,6 +168,8 @@ Color Map::generateUniqueColor()
 void Map::addTeam(std::string name) {
     std::lock_guard<std::mutex> lock(_teamMutex);
     Color teamColor = generateUniqueColor();
+    if (_teams[name])
+        return;
     _teams[name] = std::make_unique<Team>(name, teamColor);
     DEBUG_SUCCESS("Team added: " + name + " with color: " + std::to_string(teamColor.r) + ", " + std::to_string(teamColor.g) + ", " + std::to_string(teamColor.b));
 }
