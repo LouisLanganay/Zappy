@@ -175,7 +175,7 @@ void Core::run() {
         _hudLeft.loadFonts();
         _hudRight.loadFonts();
 
-        while (!WindowShouldClose() && _running) {
+        while (!WindowShouldClose() && _running && _api->isConnected()) {
             if (IsKeyPressed(KEY_I))
                 adjustTimeUnit(1);
             if (IsKeyPressed(KEY_U))
@@ -569,7 +569,7 @@ void Core::pic(std::string message)
     }
 
     float tileHeight = tile->getTileHeight();
-    _particleSystem->emit(ParticleType::INCANTATION, x, tileHeight + 1, y, 15);
+    //_particleSystem->emit(ParticleType::INCANTATION, x, tileHeight + 1, y, 15);
 
     tile->startIncantation(level, players);
 
@@ -595,7 +595,7 @@ void Core::pie(std::string message)
     }
 
     float tileHeight = tile->getTileHeight();
-    _particleSystem->emit(ParticleType::INCANTATION, x, tileHeight + 1, y, 15);
+    //_particleSystem->emit(ParticleType::INCANTATION, x, tileHeight + 1, y, 15);
 
     tile->endIncantation(result);
 
@@ -656,8 +656,8 @@ void Core::pgt(std::string message)
         return;
     }
     tile->removeResource(static_cast<Zappy::Resources::Type>(resource), 1);
-    _api->requestPlayerInventory(playerNumber);
-    _api->requestTileContent(pos.first, pos.second);
+    //_api->requestPlayerInventory(playerNumber);
+    //_api->requestTileContent(pos.first, pos.second);
 }
 
 void Core::pdi(std::string message)
