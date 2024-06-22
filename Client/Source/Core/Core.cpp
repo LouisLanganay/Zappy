@@ -125,11 +125,11 @@ void Core::_setCloudsPosition()
     float mapWidth = _map->getWidth();
     float mapHeight = _map->getHeight();
 
-    if (mapWidth <= 10 || mapHeight <= 10) {
+    if (mapWidth <= 15 || mapHeight <= 15) {
         _clouds.clear();
         _initClouds(5);
     }
-    if (mapWidth <= 5 || mapHeight <= 5) {
+    if (mapWidth <= 10 || mapHeight <= 10) {
         _clouds.clear();
         _initClouds(2);
     }
@@ -160,11 +160,27 @@ void Core::run() {
         DEBUG_INFO("Core is running");
         SetTraceLogLevel(LOG_NONE);
         InitWindow(screenWidth, screenHeight, "Zappy Game");
+        screenWidth = GetScreenWidth();
+        screenHeight = GetScreenHeight();
         DEBUG_INFO("Window initialized with size: " + std::to_string(screenWidth) + "x" + std::to_string(screenHeight));
         SetTargetFPS(60);
         DisableCursor();
 
         _initClouds(10);
+
+        float hudLeftWidthRatio = 650.0f / 3840.0f;
+        int hudLeftWidth = static_cast<int>(hudLeftWidthRatio * screenWidth);
+
+        float hudRightWidthRatio = 1000.0f / 3840.0f;
+        int hudRightWidth = static_cast<int>(hudRightWidthRatio * screenWidth);
+        float hudRightHeightRatio = 500.0f / 2160.0f;
+        int hudRightHeight = static_cast<int>(hudRightHeightRatio * screenHeight);
+
+        _hudLeft.setHudWidth(hudLeftWidth);
+        _hudLeft.setHudHeight(0);
+
+        _hudRight.setHudWidth(hudRightWidth);
+        _hudRight.setHudHeight(hudRightHeight);
 
         _hudRight.setHudPos({
             GetScreenWidth() - _hudRight.getHudWidth() - 20,
