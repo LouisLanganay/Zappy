@@ -54,7 +54,6 @@ class ParseArgs:
             elif args[i] == '-help':
                 self.print_usage()
                 sys.exit(0)
-            
             else:
                 self.print_invalid_argument()
                 sys.exit(84)
@@ -113,7 +112,6 @@ if __name__ == '__main__':
     for i in range(available_slots):
         subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i)])
 
-    
     time.sleep(6.5)
     subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5)])
 
