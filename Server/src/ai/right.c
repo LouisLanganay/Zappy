@@ -6,6 +6,7 @@
 */
 
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 void right(
     zappy_server_t *server,
@@ -27,4 +28,5 @@ void right(
             break;
     }
     protocol_server_send(server->socket, ai->fd, "ok");
+    server_ppo(server, ai);
 }

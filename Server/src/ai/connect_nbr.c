@@ -12,6 +12,5 @@ void connect_nbr(
     UNUSED ai_t *ai,
     UNUSED const char *message)
 {
-    protocol_server_send(server->socket, ai->fd, "%d", team_get_empty_slots(
-        server, ai->team));
+    protocol_server_send(server->socket, ai->fd, "%d", ai->team->slots);
 }

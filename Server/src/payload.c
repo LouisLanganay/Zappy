@@ -71,6 +71,7 @@ static ai_t *init_ai(
         printf("\033[31m[ERROR]\033[0m Team not found\n");
         return NULL;
     }
+    pnw(server, ai);
     return ai;
 }
 
@@ -79,15 +80,13 @@ static void add_ai(
     const protocol_payload_t *payload)
 {
     ai_t *ai = init_ai(server, payload);
-    uint16_t empty_slots;
 
     if (!ai)
         return;
     verbose(server, "New AI connected\n");
-    empty_slots = team_get_empty_slots(server, ai->team);
     protocol_server_send(server->socket, payload->fd,
-        "%i", empty_slots);
-    if (empty_slots == 0) {
+        "%i", ai->team->slots);
+    if (ai->team->slots == 0) {
         protocol_server_send(server->socket, payload->fd, "ko");
         free(ai);
         return;

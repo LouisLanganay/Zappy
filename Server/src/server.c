@@ -62,9 +62,11 @@ bool zappy_server(zappy_server_t *server)
     if (!server || server->port < 1024
         || server->width < 5 || server->height < 5
         || server->clients_nb < 1 || server->freq < 1
-        || !init_map(server) || !init_socket(server))
+        || !init_socket(server))
         return false;
     display_server(server);
+    if (!init_map(server))
+        return false;
     while (protocol_server_is_open()) {
         update_game(server);
         protocol_server_listen(server->socket);

@@ -63,6 +63,7 @@ static const char RESSOURCES_NAMES[][10] = {
 typedef struct team_s {
     uint16_t id;
     char name[TEAM_NAME_SIZE];
+    uint16_t slots;
 
     TAILQ_ENTRY(team_s) entries;
 } team_t;
@@ -116,7 +117,8 @@ typedef struct gui_s {
 typedef struct egg_s {
     uint16_t id;
     team_t *team;
-    double lay_time;
+    uint16_t lay_time;
+    vector2_t pos;
 
     TAILQ_ENTRY(egg_s) entries;
 } egg_t;
@@ -180,8 +182,5 @@ team_t *team_get_by_name(
 team_t *team_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
-uint16_t team_get_empty_slots(
-    const zappy_server_t *server,
-    const team_t *team);
 
 #endif //SERVER_H
