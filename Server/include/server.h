@@ -133,6 +133,9 @@ typedef struct zappy_server_s {
     uint16_t freq;
     bool verbose;
 
+    bool is_game_end;
+    team_t *winner;
+
     inventory_t base_ressources;
     inventory_t ressources;
 

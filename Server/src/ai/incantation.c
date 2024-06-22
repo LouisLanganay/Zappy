@@ -50,6 +50,7 @@ static bool notify(
 }
 
 static void clean_incantations(
+    zappy_server_t *server,
     ai_t *ai)
 {
     incantation_t *next;
@@ -60,6 +61,10 @@ static void clean_incantations(
         elm = next) {
         next = TAILQ_NEXT(elm, entries);
         elm->ai->is_incantate = false;
+        if (elm->ai->level == 8) {
+            server->is_game_end = true;
+            server->winner = elm->ai->team;
+        }
         TAILQ_REMOVE(&ai->incantations, elm, entries);
         free(elm);
     }
@@ -133,7 +138,7 @@ void incantation(
     if (!can_incantation(server, ai, "")) {
         TAILQ_FOREACH(elm, &ai->incantations, entries)
             protocol_server_send(server->socket, elm->ai->fd, "ko");
-        clean_incantations(ai);
+        clean_incantations(server, ai);
         return;
     }
     for (uint8_t i = 1; i < 7; i++)
@@ -147,5 +152,5 @@ void incantation(
                 "Current level: %d", elm->ai->level);
         }
     pie(server, ai);
-    clean_incantations(ai);
+    clean_incantations(server, ai);
 }
