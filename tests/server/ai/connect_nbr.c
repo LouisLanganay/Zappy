@@ -6,7 +6,7 @@
 Test(connect_nbr, check_default_teams_slots_nb)
 {
     zappy_server_t server = {.clients_nb = 5};
-    team_t team = {.name = "Team1"};
+    team_t team = {.name = "Team1", .slots = 5};
 
     TAILQ_INIT(&server.teams);
     TAILQ_INSERT_TAIL(&server.teams, &team, entries);
@@ -18,5 +18,5 @@ Test(connect_nbr, check_default_teams_slots_nb)
 
     cr_redirect_stdout();
     connect_nbr(&server, &ai1, "");
-    cr_assert_stdout_eq_str("To client 1: 4\n");
+    cr_assert_stdout_eq_str("To client 1: 5\n");
 }
