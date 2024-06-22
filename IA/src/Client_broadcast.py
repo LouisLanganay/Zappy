@@ -25,6 +25,7 @@ class Client:
         for elt in self.command_queue:
             self.send(elt)
             data = self.receive(self.socket)
+            print(data)
 
     def receive(self, sock):
         data = sock.recv(1024).decode().strip()

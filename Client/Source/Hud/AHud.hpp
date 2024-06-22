@@ -30,6 +30,8 @@ namespace Zappy {
 
             void setHudPos(std::pair<float, float> pos) override;
 
+            void loadFonts();
+
         protected:
             AHud(
                 std::pair<float, float> hudRes,
@@ -43,10 +45,15 @@ namespace Zappy {
                 float maxWidth,
                 float fontSize,
                 const Color &color,
-                bool underline
+                bool underline,
+                Font font = GetFontDefault()
             );
 
-            void drawSectionTitle(const std::string &title, float &y);
+            void drawSectionTitle(
+                const std::string &title,
+                float &y,
+                const Color &color = RED
+            );
 
             virtual std::string typeToString(Resources::Type type);
             virtual std::string orientationToString(Orientation orientation);
@@ -57,6 +64,9 @@ namespace Zappy {
             float _hudWidth;
             float _hudHeight;
             std::pair<float, float> _hudPos;
+
+            Font _titleFont = GetFontDefault();
+            Font _textFont = GetFontDefault();
 
             int _playerIndex = 0;
             int _selectedPlayer = -1;

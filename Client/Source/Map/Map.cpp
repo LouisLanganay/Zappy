@@ -9,6 +9,7 @@
 #include <iostream>
 #include "Debug.hpp"
 #include <random>
+#include "Exceptions.hpp"
 
 using namespace Zappy;
 
@@ -27,15 +28,19 @@ Map::Map()
 
 void Map::loadModels()
 {
-    _resourcesModel.emplace(Resources::Type::FOOD, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/CopperIngot.png"));
-    _resourcesModel.emplace(Resources::Type::LINEMATE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/CopperIngot.png"));
-    _resourcesModel.emplace(Resources::Type::DERAUMERE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/GoldIngot.png"));
-    _resourcesModel.emplace(Resources::Type::SIBUR, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/IronIngot.png"));
-    _resourcesModel.emplace(Resources::Type::MENDIANE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/MithrilIngot.png"));
-    _resourcesModel.emplace(Resources::Type::PHIRAS, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/SilverIngot.png"));
-    _resourcesModel.emplace(Resources::Type::THYSTAME, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/ThoriumIngot.png"));
+    try {
+        _resourcesModel.emplace(Resources::Type::FOOD, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/CopperIngot.png"));
+        _resourcesModel.emplace(Resources::Type::LINEMATE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/CopperIngot.png"));
+        _resourcesModel.emplace(Resources::Type::DERAUMERE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/GoldIngot.png"));
+        _resourcesModel.emplace(Resources::Type::SIBUR, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/IronIngot.png"));
+        _resourcesModel.emplace(Resources::Type::MENDIANE, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/MithrilIngot.png"));
+        _resourcesModel.emplace(Resources::Type::PHIRAS, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/SilverIngot.png"));
+        _resourcesModel.emplace(Resources::Type::THYSTAME, Model3D("Client/Models/Ingot/Ingot.obj", "Client/Models/Ingot/ThoriumIngot.png"));
 
-    _egsModel = Model3D("Client/Models/Egg/Egg.obj", "Client/Models/Egg/Egg.png");
+        _eolienneModel = Model3D("Client/Models/Eolienne/EolicOBJ.obj");
+    } catch (const std::exception &e) {
+        throw ModelException("Failed to load models: " + std::string(e.what()));
+    }
 }
 
 void Map::setSize(int width, int height)
@@ -104,7 +109,7 @@ void Map::draw(Camera camera)
         players.push_back(player.get());
     for (int y = 0; y < _height; ++y) {
         for (int x = 0; x < _width; ++x)
-            _tiles[y][x].draw(x, y, _resourcesModel, getPlayers());
+            _tiles[y][x].draw(x, y, _resourcesModel, getPlayers(), _eolienneModel);
     }
     for (auto& player : _players) {
         float height = getTile(
@@ -144,7 +149,7 @@ Color Map::generateUniqueColor()
     Color teamColor;
     bool isUnique;
     do {
-        teamColor = {(unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), (unsigned char)GetRandomValue(0, 255), 255};
+        teamColor = {(unsigned char)GetRandomValue(100, 255), (unsigned char)GetRandomValue(100, 255), (unsigned char)GetRandomValue(100, 255), 255};
         isUnique = true;
         for (const auto& team : _teams) {
             Color color = team.second->getColor();
@@ -323,4 +328,16 @@ std::vector<Player*> Map::getPlayersOnTile(int x, int y)
             playersOnTile.push_back(player);
     }
     return playersOnTile;
+}
+
+void Map::update(float deltaTime)
+{
+    for (int y = 0; y < _height; ++y) {
+        for (int x = 0; x < _width; ++x)
+            _tiles[y][x].update(deltaTime);
+    }
+    for (auto& player : _players)
+        player.second->update(deltaTime);
+    for (auto& egg : _eggs)
+        egg.second->update(deltaTime);
 }
