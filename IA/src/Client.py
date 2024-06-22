@@ -38,6 +38,8 @@ class AI:
         self.level = 1
         self.id = id
         self.inventory = inventory
+        self.shared_inventory = inventory
+        self.client_inventory = {}
         self.vision = []
         self.direction = 'Down'
         self.team = ''
@@ -232,6 +234,14 @@ class AI:
             if amount < resources_to_get[resource]:
                 return False
         return True
+    
+    def has_all_resources_shared(self):
+        for resource, amount in self.shared_inventory.items():
+            if resource == 'food':
+                continue
+            if amount < resources_to_get[resource]:
+                return False
+        return True
 
     def take_resources_to_get(self):
         state = False
@@ -302,7 +312,7 @@ class AI:
 
         # Prioritize taking food first
 
-        if self.inventory['food'] < 15:
+        if self.inventory['food'] < 20:
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
@@ -324,6 +334,34 @@ class AI:
                 self.queue.append('Forward')
                 self.queue.append('Forward')
             return self.queue
+        
+    def inventory_to_string(self):
+        return ",".join(f"{key}:{value}" for key, value in self.inventory.items())
+    
+    def string_to_inventory(self, formatted_inventory):
+        inventory = {
+            "food": 0,
+            "linemate": 0,
+            "deraumere": 0,
+            "sibur": 0,
+            "mendiane": 0,
+            "phiras": 0,
+            "thystame": 0
+        }
+        pairs = formatted_inventory.split(',')
+        for pair in pairs:
+            item, quantity = pair.split(':')
+            inventory[item] = int(quantity)
+        return inventory
+    
+    def update_shared_inventory(self, inventory, id):
+        self.client_inventory[id] = inventory
+        # shared_inventory is the sum of all client inventories
+        self.shared_inventory = {k: v for k, v in inventory.items()}
+        for client_inventory in self.client_inventory.values():
+            for resource, amount in client_inventory.items():
+                self.shared_inventory[resource] += amount
+        print(f"Shared inventory: {self.shared_inventory}")
 
 class Client:
     def __init__(self, host, port, name, id):
@@ -341,6 +379,8 @@ class Client:
         self.ai = AI(self.id)
         self.command_queue = []
         self.has_all_resources = False
+        self.test = 0
+
 
     def send(self, data):
         self.socket.send(data.encode() + b'\n')
@@ -348,7 +388,7 @@ class Client:
     def receive(self):
         buffer = ""
         while True:
-            data = self.socket.recv(4096).decode().strip()
+            data = self.socket.recv(1024).decode().strip()
             
             if not data:
                 print("Server closed the connection")
@@ -408,6 +448,10 @@ class Client:
         direction = int(temp[0])
         data = temp[1]
 
+        if data.startswith('Inventory'):
+            self.handle_shared_inventory(data)
+            return
+
         if data == 'Incantation':
             self.ai.count_incanter += 1
             if self.ai.count_incanter == 6:
@@ -449,9 +493,7 @@ class Client:
             data = self.receive()
 
             while True:
-                print(self.ai.mode)
                 data = self.receive()
-                print(data)
                 if data.startswith('dead'):
                     print("Dead")
                     sys.exit(0)
@@ -469,6 +511,22 @@ class Client:
         data = self.receive()  # Additional server response (map size)
         if data == 'ko':
             sys.exit(84)
+
+    def share_inventory(self):
+        string_inventory = self.ai.inventory_to_string()
+        if self.test == 0:
+            self.send_broadcast(f"Inventory:{self.id}:{string_inventory}")
+        self.test += 1
+
+    def handle_shared_inventory(self, data):
+        if '\n' in data:
+            data = data.split('\n')[0]
+        data = data[10:]
+        id = int(data.split(':')[0])
+        formatted_inventory = data.split(':', 1)[1]  # Split only on the first colon
+        temp_inventory = self.ai.string_to_inventory(formatted_inventory)
+        print(f"Received inventory from client {id}: {temp_inventory}")
+        self.ai.update_shared_inventory(temp_inventory, id)
 
     def run(self):
         if self.id == 0:
@@ -507,6 +565,8 @@ class Client:
             if self.ai.mode == 'Normal':
                 self.queue = self.ai.algorithm()
                 self.send_queue()
+                if self.ai.inventory['food'] > 30:
+                    self.share_inventory()
 
 def main():
     args = sys.argv[1:]

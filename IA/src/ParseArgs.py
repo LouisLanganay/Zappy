@@ -6,12 +6,12 @@ class ParseArgs:
         self.host = 'localhost'
         self.port = -1
         self.name = ''
-        self.id = -1  # Initialize the ID attribute
+        self.id = -1
 
     def check_type(self):
         try:
             self.port = int(self.port)
-            self.id = int(self.id)  # Check if ID is an integer
+            self.id = int(self.id)
         except ValueError:
             self.print_invalid_argument()
             sys.exit(84)
@@ -23,7 +23,7 @@ class ParseArgs:
         self.check_host()
         self.check_port()
         self.check_name()
-        self.check_id()  # Check ID
+        self.check_id()
 
     def check_host(self):
         try:
@@ -71,9 +71,3 @@ class ParseArgs:
     def print_invalid_argument(self):
         print("Invalid argument")
         sys.exit(84)
-
-# Example usage
-if __name__ == "__main__":
-    args = ParseArgs()
-    host, port, name, id = args.parse(sys.argv[1:])
-    print(f"Host: {host}, Port: {port}, Name: {name}, ID: {id}")
