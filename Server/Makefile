@@ -130,6 +130,7 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					inventory.c										\
 					look.c											\
 					incantation.c									\
+					take.c											\
 				)
 
 DIR_BUILD	:=	build
