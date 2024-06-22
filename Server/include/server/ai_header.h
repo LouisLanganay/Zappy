@@ -152,13 +152,11 @@ void eject(
  *
  * @param server The server_t struct
  * @param ai The associated ai struct
- * @param message The message of the command
  *
  */
 void death(
-    zappy_server_t *server,
-    ai_t *ai,
-    const char *message);
+    const zappy_server_t *server,
+    ai_t *ai);
 
 /**
  * @brief Take an object
@@ -218,20 +216,21 @@ static const struct {
         zappy_server_t *server,
         ai_t *ai,
         const char *message);
+    uint16_t time;
 } ai_cmds[] = {
-    {"Forward", forward},
-    {"Right", right},
-    {"Left", left},
-    {"Look", look},
-    {"Inventory", inventory},
-    {"Broadcast", broadcast_text},
-    {"Connect_nbr", connect_nbr},
-    {"Fork", exec_fork},
-    {"Eject", eject},
-    {"Take", take},
-    {"Set", set},
-    {"Incantation", incantation},
-    {NULL, NULL}
+    {"Forward", forward, 7},
+    {"Right", right, 7},
+    {"Left", left, 7},
+    {"Look", look, 7},
+    {"Inventory", inventory, 1},
+    {"Broadcast", broadcast_text, 7},
+    {"Connect_nbr", connect_nbr, 0},
+    {"Fork", exec_fork, 42},
+    {"Eject", eject, 7},
+    {"Take", take, 7},
+    {"Set", set, 7},
+    {"Incantation", incantation, 300},
+    {NULL, NULL, 0}
 };
 
 static const union {

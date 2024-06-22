@@ -5,16 +5,13 @@
 ** death
 */
 
-#include <stdio.h>
-
-#include "server/ai_header.h"
 #include "server/gui.h"
 
 void death(
-    zappy_server_t *server,
-    ai_t *ai,
-    UNUSED const char *message)
+    const zappy_server_t *server,
+    ai_t *ai)
 {
     protocol_server_send(server->socket, ai->fd, "dead");
+    ai->is_dead = true;
     pdi(server, ai);
 }

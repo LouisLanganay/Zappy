@@ -67,8 +67,15 @@ typedef struct team_s {
     TAILQ_ENTRY(team_s) entries;
 } team_t;
 
+typedef struct zappy_server_s zappy_server_t;
+typedef struct ai_s ai_t;
 typedef struct ai_cmd_s {
-    char *cmd;
+    char cmd[DATA_SIZE];
+    void (*func)(
+        zappy_server_t *server,
+        ai_t *ai,
+        const char *message);
+    uint16_t time;
 
     TAILQ_ENTRY(ai_cmd_s) entries;
 } ai_cmd_t;
@@ -78,22 +85,25 @@ typedef struct ai_s {
 
     uint16_t id;
     team_t *team;
-    double player_life;
 
     vector2_t pos;
     orientation_t orientation;
     uint16_t level;
     inventory_t inventory;
 
+    uint16_t life_span;
     bool is_incantate;
+    bool is_dead;
 
-    TAILQ_ENTRY(ai_s) entries;
     TAILQ_HEAD(, ai_cmd_s) commands;
     TAILQ_HEAD(, incantation_s) incantations;
+
+    TAILQ_ENTRY(ai_s) entries;
 } ai_t;
 
 typedef struct incantation_s {
     ai_t *ai;
+
     TAILQ_ENTRY(incantation_s) entries;
 } incantation_t;
 
@@ -111,13 +121,9 @@ typedef struct egg_s {
     TAILQ_ENTRY(egg_s) entries;
 } egg_t;
 
-typedef struct cmd_s {
-    bool active;
-    char *cmd;
-    double action_time;
-} cmd_t;
-
 typedef struct zappy_server_s {
+    protocol_server_t *socket;
+
     uint16_t port;
     uint16_t width;
     uint16_t height;
@@ -125,9 +131,11 @@ typedef struct zappy_server_s {
     uint16_t freq;
     bool verbose;
 
+    inventory_t base_ressources;
+    inventory_t ressources;
+
     struct timespec last_update;
-    cmd_t *cmd[12];
-    protocol_server_t *socket;
+    uint8_t meteor_time;
 
     TAILQ_HEAD(, ai_s) ais;
     TAILQ_HEAD(teamhead, team_s) teams;

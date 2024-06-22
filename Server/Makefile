@@ -67,12 +67,10 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					take.c											\
 				)
 
-
 DIR			+=	src/game
 SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
-					game_update.c									\
-					map_handling.c									\
-					update_cmd_action_time.c						\
+					game.c											\
+					map.c											\
 				)
 
 UT_DIR		:=	../tests/mock
