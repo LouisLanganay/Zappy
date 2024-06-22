@@ -51,5 +51,6 @@ void update_map(
                 .resources[i]++;
         }
     TAILQ_FOREACH(gui, &server->guis, entries)
-        msz(server, gui->fd, "");
+        mct(server, gui->fd, "");
+    verbose(server, "Meteor shower\n");
 }
