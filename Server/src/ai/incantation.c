@@ -113,7 +113,7 @@ static bool check_incantations(
 }
 
 bool can_incantation(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {
