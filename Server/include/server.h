@@ -18,6 +18,14 @@
     #define FOOD_SATURATION 126
     #define EGG_LAY_TIME 600
 
+
+typedef enum {
+    ALIVE,
+    DEAD,
+    INCANTATE,
+    SKIPPED,
+} ai_state_t;
+
 typedef enum {
     CONNECTION_AI,
     CONNECTION_GUI,
@@ -93,8 +101,7 @@ typedef struct ai_s {
     inventory_t inventory;
 
     uint16_t life_span;
-    bool is_incantate;
-    bool is_dead;
+    ai_state_t state;
 
     TAILQ_HEAD(, ai_cmd_s) commands;
     TAILQ_HEAD(, incantation_s) incantations;

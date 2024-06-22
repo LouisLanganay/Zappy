@@ -55,7 +55,7 @@ void create_ai(
     if (!ai)
         return;
     *ai = (ai_t){.id = server->ai_id++, .fd = payload->fd,
-        .level = 1, .orientation = NORTH, .is_incantate = false,
+        .level = 1, .orientation = NORTH, .state = ALIVE,
         .team = team_get_by_name(server, payload->message),
         .life_span = 0, .inventory = { .food = 10 }};
     if (!ai->team) {
@@ -85,6 +85,17 @@ static void save_cmd_ai(
     TAILQ_INSERT_TAIL(&ai->commands, cmd, entries);
 }
 
+static uint8_t get_nb_commands(
+    const ai_t *ai)
+{
+    uint8_t nb = 0;
+    ai_cmd_t *cmd;
+
+    TAILQ_FOREACH(cmd, &ai->commands, entries)
+        nb++;
+    return nb;
+}
+
 static bool handle_cmd_ai(
     zappy_server_t *server,
     ai_t *ai,
@@ -95,6 +106,10 @@ static bool handle_cmd_ai(
 
     if (strncmp(message, command->cmd, len))
         return false;
+    if (get_nb_commands(ai) >= 10) {
+        ai->state = SKIPPED;
+        return false;
+    }
     if (command->time == 0) {
         command->func(server, ai, message + len + 1);
         return true;
@@ -113,6 +128,8 @@ void handle_event_ai(
 {
     ai_t *ai = ai_get_by_fd(server, payload->fd);
 
+    if (ai->state == DEAD || ai->state == SKIPPED)
+        return;
     for (uint8_t i = 0; ai_cmds[i].func; ++i)
         if (handle_cmd_ai(server, ai, &ai_cmds[i], payload->message))
             return;

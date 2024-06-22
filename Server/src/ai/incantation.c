@@ -19,7 +19,7 @@ static incantation_t *create_incantation(
     if (!elm)
         return NULL;
     elm->ai = ai;
-    ai->is_incantate = true;
+    ai->state = INCANTATE;
     return elm;
 }
 
@@ -60,7 +60,8 @@ static void clean_incantations(
     for (incantation_t *elm = TAILQ_FIRST(&ai->incantations); elm;
         elm = next) {
         next = TAILQ_NEXT(elm, entries);
-        elm->ai->is_incantate = false;
+        if (elm->ai->state == INCANTATE)
+            elm->ai->state = ALIVE;
         if (elm->ai->level == 8) {
             server->is_game_end = true;
             server->winner = elm->ai->team;
@@ -83,7 +84,7 @@ static bool create_incantations(
         ai_elm = TAILQ_NEXT(ai_elm, entries)) {
         if (ai_elm->fd == ai->fd || ai_elm->level != ai->level
             || ai_elm->pos.x != ai->pos.x || ai_elm->pos.y != ai->pos.y
-            || ai_elm->is_incantate || !ai_elm->inventory.food)
+            || ai_elm->state == INCANTATE || !ai_elm->inventory.food)
             continue;
         elm = create_incantation(ai_elm);
         if (!elm)

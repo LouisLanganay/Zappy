@@ -34,7 +34,8 @@ static void update_ai(
 
     for (ai_t *ai = TAILQ_FIRST(&server->ais); ai;
         ai = TAILQ_NEXT(ai, entries)) {
-        if (ai->is_incantate || ai->is_dead || TAILQ_EMPTY(&ai->commands))
+        if (ai->state == INCANTATE || ai->state == DEAD
+            || TAILQ_EMPTY(&ai->commands))
             continue;
         cmd = TAILQ_FIRST(&ai->commands);
         cmd->time--;

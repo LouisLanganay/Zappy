@@ -12,7 +12,7 @@ void death(
     ai_t *ai)
 {
     protocol_server_send(server->socket, ai->fd, "dead");
-    ai->is_dead = true;
+    ai->state = DEAD;
     pdi(server, ai);
     verbose(server, "AI %d died", ai->id);
 }
