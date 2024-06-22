@@ -61,9 +61,9 @@ BUILD_DIR 	= Build
 OBJ 		:= $(SRC:%.cpp=$(BUILD_DIR)/%.o)
 
 VPATH_DIRS  := $(sort $(dir $(wildcard $(addsuffix /, $(VPATH)))))
-CFLAGS      += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
-CFLAGS      +=-L/usr/local/lib -L/usr/lib -lraylib
-CFLAGS      += -iquote../../libs/protocol/include -g -DDEBUG_MODE
+CXXFLAGS    += $(foreach dir, $(VPATH_DIRS), -iquote$(dir))
+CXXFLAGS    +=-L/usr/local/lib -L/usr/lib -lraylib
+CXXFLAGS    += -iquote../../libs/protocol/include
 LDFLAGS	 	:= -L../libs/ -lmyprotocol
 
 DIE         = exit 1
@@ -78,18 +78,18 @@ all: $(NAME)
 
 $(BUILD_DIR)/%.o: %.cpp
 	@ mkdir -p $(@D)
-	@ $(CC) $(CFLAGS) -c $< -o $@
+	@ $(CC) $(CXXFLAGS) -c $< -o $@
 	@ $(ECHO) "${_CYAN}[OK]$(_END) -> $(CC)    $(_U_WHITE)$<$(_END)"
 
 $(NAME): $(OBJ)
 	@ mkdir -p $(BUILD_DIR)
-	@ $(CC) -o $(NAME) $(OBJ) $(CFLAGS) $(LDFLAGS)
+	@ $(CC) -o $(NAME) $(OBJ) $(CXXFLAGS) $(LDFLAGS)
 	@ $(ECHO) "${_CYAN}[OK]$(_END) -> $(CC)    \
-	$(_U_WHITE)$(NAME) $(CFLAGS) ${_END}"
+	$(_U_WHITE)$(NAME) $(CXXFLAGS) ${_END}"
 	@ $(ECHO) "$(_B_PURPLE)[STATS]$(_END) -> \
 	$(_U_WHITE)$(shell echo "$?" | wc -w) file(s) compiled${_END}."
 
-debug: CFLAGS += -g -DDEBUG_MODE
+debug: CXXFLAGS += -g -DDEBUG_MODE
 debug: clean all
 
 clean:
