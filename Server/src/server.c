@@ -7,9 +7,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
-#include "server/game.h"
+#include "server.h"
+
+#include <string.h>
 
 void server_create(
     zappy_server_t *server)
@@ -17,19 +18,35 @@ void server_create(
     *server = (zappy_server_t){
         .port = 4242, .width = 10, .height = 10, .freq = 100, .clients_nb = 5
     };
-    TAILQ_INIT(&server->eggs);
     TAILQ_INIT(&server->ais);
     TAILQ_INIT(&server->teams);
     TAILQ_INIT(&server->guis);
-    srand(time(NULL));
-    clock_gettime(CLOCK_REALTIME, &server->last_update);
 }
 
-static bool init_socket(
+static bool server_set_socket(
     zappy_server_t *server)
 {
     server->socket = protocol_server_create(server->port);
     return server->socket;
+}
+
+static bool server_set_map(
+    zappy_server_t *server)
+{
+    server->map = calloc(server->height, sizeof(inventory_t *));
+    if (!server->map)
+        return false;
+    for (uint16_t y = 0; y < server->height; ++y) {
+        server->map[y] = calloc(server->width, sizeof(inventory_t));
+        if (!server->map[y])
+            return false;
+        for (uint16_t x = 0; x < server->width; ++x) {
+            server->map[y][x] = (inventory_t){ .food = 0, .linemate = 0,
+                .deraumere = 0, .sibur = 0, .mendiane = 0, .phiras = 0,
+                .thystame = 0 };
+        }
+    }
+    return true;
 }
 
 static bool display_server(
@@ -60,15 +77,14 @@ static bool display_server(
 bool zappy_server(zappy_server_t *server)
 {
     if (!server || server->port < 1024
-        || server->width < 5 || server->height < 5
-        || server->clients_nb < 1 || server->freq < 1
-        || !init_socket(server))
+        || server->width < 5 || server->width > 100
+        || server->height < 5 || server->height > 100
+        || server->clients_nb < 1 || server->clients_nb > 200
+        || server->freq < 1 || server->freq > 10000
+        || !server_set_socket(server) || !server_set_map(server))
         return false;
     display_server(server);
-    if (!init_map(server))
-        return false;
     while (protocol_server_is_open()) {
-        update_game(server);
         protocol_server_listen(server->socket);
         if (!handle_payload(server))
             return false;
