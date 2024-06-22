@@ -27,6 +27,11 @@ namespace Zappy {
             int _selectedPlayer = -1;
 
             void _drawPlayersBroadcasts(Map *map, float &y);
+
+            Color _titleColor = { 17, 42, 70, 255 };
+            Color _textColor = { 29, 66, 108, 255 };
+
+            Color _backgroundColor = { 188, 221, 255, 255 };
     };
 }
 

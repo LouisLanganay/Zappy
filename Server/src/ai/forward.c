@@ -5,9 +5,8 @@
 ** forward
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 void forward(
     zappy_server_t *server,
@@ -29,4 +28,5 @@ void forward(
             break;
     }
     protocol_server_send(server->socket, ai->fd, "ok");
+    server_ppo(server, ai);
 }

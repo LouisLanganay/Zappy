@@ -93,6 +93,9 @@ void ppo(
     zappy_server_t *server,
     int interlocutor,
     const char *message);
+void server_ppo(
+    const zappy_server_t *server,
+    const ai_t *ai);
 /**
  * @brief Send the level of a ai when plv is received from a GUI
  *

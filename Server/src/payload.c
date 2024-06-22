@@ -49,7 +49,7 @@ static void handle_lost_connection(
 }
 
 static ai_t *init_ai(
-    zappy_server_t *server,
+    const zappy_server_t *server,
     const protocol_payload_t *payload)
 {
     ai_t *ai = calloc(1, sizeof(ai_t));
@@ -57,9 +57,12 @@ static ai_t *init_ai(
 
     if (!ai)
         return NULL;
-    TAILQ_INIT(&ai->incantations);
+    *ai = (ai_t){
+        .fd = payload->fd, .level = 1, .orientation = NORTH,
+        .is_incantate = false, .life_span = 0, .inventory = { .food = 10 }
+    };
     TAILQ_INIT(&ai->commands);
-    *ai = (ai_t){.fd = payload->fd, .level = 1, .orientation = NORTH};
+    TAILQ_INIT(&ai->incantations);
     TAILQ_FOREACH(team, &server->teams, entries)
         if (!strcmp(team->name, payload->message))
             ai->team = team;
@@ -68,6 +71,7 @@ static ai_t *init_ai(
         printf("\033[31m[ERROR]\033[0m Team not found\n");
         return NULL;
     }
+    pnw(server, ai);
     return ai;
 }
 
@@ -79,12 +83,17 @@ static void add_ai(
 
     if (!ai)
         return;
-    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     verbose(server, "New AI connected\n");
     protocol_server_send(server->socket, payload->fd,
-        "%i", server->clients_nb);
+        "%i", ai->team->slots);
+    if (ai->team->slots == 0) {
+        protocol_server_send(server->socket, payload->fd, "ko");
+        free(ai);
+        return;
+    }
+    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     protocol_server_send(server->socket, payload->fd,
-        " %i %i", server->width, server->height);
+        "%i %i", server->width, server->height);
 }
 
 static void add_graphic(
@@ -98,25 +107,35 @@ static void add_graphic(
     gui->fd = interlocutor;
     TAILQ_INSERT_TAIL(&server->guis, gui, entries);
     verbose(server, "New GUI connected\n");
-    msz(server, interlocutor, NULL);
-    sgt(server, interlocutor, NULL);
-    mct(server, interlocutor, NULL);
-    tna(server, interlocutor, NULL);
+    msz(server, interlocutor, "");
+    sgt(server, interlocutor, "");
+    mct(server, interlocutor, "");
+    tna(server, interlocutor, "");
 }
 
 static void handle_ai_event(
     zappy_server_t *server,
     const protocol_payload_t *payload)
 {
-    uint8_t cmd_lenght;
+    uint8_t len;
+    ai_cmd_t *cmd;
     ai_t *ai = ai_get_by_fd(server, payload->fd);
 
     for (uint8_t i = 0; ai_cmds[i].func; ++i) {
-        cmd_lenght = strlen(ai_cmds[i].cmd);
-        if (!strncmp(payload->message, ai_cmds[i].cmd, cmd_lenght)) {
-            ai_cmds[i].func(server, ai, payload->message + cmd_lenght + 1);
+        len = strlen(ai_cmds[i].cmd);
+        if (strncmp(payload->message, ai_cmds[i].cmd, len))
+            continue;
+        if (ai_cmds[i].time == 0) {
+            ai_cmds[i].func(server, ai, payload->message + len + 1);
             return;
         }
+        cmd = calloc(1, sizeof(ai_cmd_t));
+        if (!cmd)
+            return;
+        *cmd = (ai_cmd_t){ .func = ai_cmds[i].func, .time = ai_cmds[i].time };
+        memcpy(cmd->cmd, payload->message + len, strlen(payload->message + len));
+        TAILQ_INSERT_TAIL(&ai->commands, cmd, entries);
+        return;
     }
     protocol_server_send(server->socket, payload->fd, "ko");
 }
@@ -125,13 +144,12 @@ static void handle_gui_event(
     zappy_server_t *server,
     const protocol_payload_t *payload)
 {
-    uint8_t cmd_lenght;
+    uint8_t len;
 
     for (uint8_t i = 0; gui_cmds[i].func; ++i) {
-        cmd_lenght = strlen(gui_cmds[i].cmd);
-        if (!strncmp(payload->message, gui_cmds[i].cmd, cmd_lenght)) {
-            gui_cmds[i].func(server, payload->fd,
-                payload->message + cmd_lenght + 1);
+        len = strlen(gui_cmds[i].cmd);
+        if (!strncmp(payload->message, gui_cmds[i].cmd, len)) {
+            gui_cmds[i].func(server, payload->fd, payload->message + len + 1);
             return;
         }
     }

@@ -5,8 +5,6 @@
 ** broadcast_text
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
 #include "server/gui.h"
 

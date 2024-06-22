@@ -9,11 +9,14 @@
     #define SERVER_H
 
     #include <stdbool.h>
+    #include <time.h>
 
     #include "protocol/server.h"
 
     #define UNUSED __attribute__((unused))
     #define TEAM_NAME_SIZE 64
+    #define FOOD_SATURATION 126
+    #define EGG_LAY_TIME 600
 
 typedef enum {
     CONNECTION_AI,
@@ -60,12 +63,20 @@ static const char RESSOURCES_NAMES[][10] = {
 typedef struct team_s {
     uint16_t id;
     char name[TEAM_NAME_SIZE];
+    uint16_t slots;
 
     TAILQ_ENTRY(team_s) entries;
 } team_t;
 
+typedef struct zappy_server_s zappy_server_t;
+typedef struct ai_s ai_t;
 typedef struct ai_cmd_s {
-    char *cmd;
+    char cmd[DATA_SIZE];
+    void (*func)(
+        zappy_server_t *server,
+        ai_t *ai,
+        const char *message);
+    uint16_t time;
 
     TAILQ_ENTRY(ai_cmd_s) entries;
 } ai_cmd_t;
@@ -81,15 +92,19 @@ typedef struct ai_s {
     uint16_t level;
     inventory_t inventory;
 
+    uint16_t life_span;
     bool is_incantate;
+    bool is_dead;
 
-    TAILQ_ENTRY(ai_s) entries;
     TAILQ_HEAD(, ai_cmd_s) commands;
     TAILQ_HEAD(, incantation_s) incantations;
+
+    TAILQ_ENTRY(ai_s) entries;
 } ai_t;
 
 typedef struct incantation_s {
     ai_t *ai;
+
     TAILQ_ENTRY(incantation_s) entries;
 } incantation_t;
 
@@ -99,7 +114,18 @@ typedef struct gui_s {
     TAILQ_ENTRY(gui_s) entries;
 } gui_t;
 
-typedef struct {
+typedef struct egg_s {
+    uint16_t id;
+    team_t *team;
+    uint16_t lay_time;
+    vector2_t pos;
+
+    TAILQ_ENTRY(egg_s) entries;
+} egg_t;
+
+typedef struct zappy_server_s {
+    protocol_server_t *socket;
+
     uint16_t port;
     uint16_t width;
     uint16_t height;
@@ -107,10 +133,15 @@ typedef struct {
     uint16_t freq;
     bool verbose;
 
-    protocol_server_t *socket;
+    inventory_t base_ressources;
+    inventory_t ressources;
+
+    struct timespec last_update;
+    uint8_t meteor_time;
 
     TAILQ_HEAD(, ai_s) ais;
     TAILQ_HEAD(teamhead, team_s) teams;
+    TAILQ_HEAD(, egg_s) eggs;
     inventory_t **map;
     TAILQ_HEAD(, gui_s) guis;
 } zappy_server_t;
@@ -151,8 +182,5 @@ team_t *team_get_by_name(
 team_t *team_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
-uint16_t team_get_empty_slots(
-    const zappy_server_t *server,
-    const team_t *team);
 
 #endif //SERVER_H

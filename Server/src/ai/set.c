@@ -16,14 +16,18 @@ void set(
     const char *message)
 {
     for (uint8_t i = 0; i < 7; i++) {
-        if (!strcmp(RESSOURCES_NAMES[i], message + 1)
-            || !ai->inventory.resources[i]) {
+        if (strcmp(RESSOURCES_NAMES[i], message + 1))
+            continue;
+        if (!ai->inventory.resources[i]) {
             protocol_server_send(server->socket, ai->fd, "ko");
             return;
-            }
+        }
+        server->ressources.resources[i] += 1;
         server->map[ai->pos.y][ai->pos.x].resources[i] += 1;
         ai->inventory.resources[i] -= 1;
         protocol_server_send(server->socket, ai->fd, "ok");
         pdr(server, ai, ai->inventory.resources[i]);
+        return;
     }
+    protocol_server_send(server->socket, ai->fd, "ko");
 }

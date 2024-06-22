@@ -67,6 +67,12 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					take.c											\
 				)
 
+DIR			+=	src/game
+SRC			+= 	$(addprefix $(lastword $(DIR))/,					\
+					game.c											\
+					map.c											\
+				)
+
 UT_DIR		:=	../tests/mock
 UT_SRC		:=	$(addprefix $(UT_DIR)/,								\
 					protocol.c										\
@@ -147,7 +153,7 @@ RM			:=	rm -rf
 
 CC			:=	gcc
 CFLAGS		:=	-iquote./include -iquote../libs/protocol/include	\
-				-Wall -Wextra
+				-Wall -Wextra -g
 LDFLAGS		:=	-L../libs -lmyprotocol
 
 all:				$(NAME)

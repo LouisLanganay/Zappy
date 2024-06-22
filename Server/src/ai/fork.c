@@ -5,8 +5,6 @@
 ** fork
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
 
 void exec_fork(

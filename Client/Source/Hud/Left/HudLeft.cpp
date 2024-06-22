@@ -17,6 +17,20 @@ void HudLeft::draw(Map *map)
 {
     float y = 30;
     AHud::draw(map);
+    DrawRectangle(
+        _hudPos.first,
+        _hudPos.second,
+        _hudWidth == 0 ? GetScreenWidth() : _hudWidth,
+        _hudHeight == 0 ? GetScreenHeight() : _hudHeight,
+        Fade(_backgroundColor, 0.5f)
+    );
+    DrawRectangleLines(
+        _hudPos.first,
+        _hudPos.second,
+        _hudWidth == 0 ? GetScreenWidth() : _hudWidth,
+        _hudHeight == 0 ? GetScreenHeight() : _hudHeight,
+        Fade(_backgroundColor, 1.0f)
+    );
 
     DrawFPS(_hudPos.first + _hudPadding, _hudPos.second + _hudPadding);
     _drawTeams(map, y);
@@ -29,7 +43,7 @@ void HudLeft::draw(Map *map)
 
 void HudLeft::_drawTeams(Map *map, float &y)
 {
-    drawSectionTitle("Teams:", y);
+    drawSectionTitle("Teams", y, _titleColor);
     if (map->getTeams().empty()) {
         drawTextWrapped(
             "No teams",
@@ -37,8 +51,9 @@ void HudLeft::_drawTeams(Map *map, float &y)
             y,
             _hudWidth - _hudPadding * 2,
             _textSize,
-            BLACK,
-            false
+            _textColor,
+            false,
+            _textFont
         );
     }
     for (auto &team : map->getTeams()) {
@@ -49,22 +64,24 @@ void HudLeft::_drawTeams(Map *map, float &y)
             _hudWidth - _hudPadding * 2,
             _textSize,
             team->getColor(),
-            false
+            false,
+            _textFont
         );
     }
 }
 
 void HudLeft::_drawServerInfos(Map *map, float &y)
 {
-    drawSectionTitle("Server infos:", y);
+    drawSectionTitle("Server infos", y, _titleColor);
     drawTextWrapped(
         "Time unit: " + std::to_string(map->getTimeUnit()),
         _hudPadding,
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
     drawTextWrapped(
         "Press 'I' to increase and 'U' to decrease",
@@ -72,8 +89,9 @@ void HudLeft::_drawServerInfos(Map *map, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
 
     drawTextWrapped(
@@ -82,8 +100,9 @@ void HudLeft::_drawServerInfos(Map *map, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
     std::string message = map->getServerMessage();
     drawTextWrapped(
@@ -92,14 +111,15 @@ void HudLeft::_drawServerInfos(Map *map, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
 }
 
 void HudLeft::_drawResources(Map *map, float &y)
 {
-    drawSectionTitle("Resources:", y);
+    drawSectionTitle("Resources", y, _titleColor);
     std::unordered_map<Resources::Type, int> resourcesTotal;
     for (auto &tiles : map->getTiles()) {
         for (auto &tile : tiles) {
@@ -115,8 +135,9 @@ void HudLeft::_drawResources(Map *map, float &y)
             y,
             _hudWidth - _hudPadding * 2,
             _textSize,
-            BLACK,
-            false
+            _textColor,
+            false,
+            _textFont
         );
     }
     if (resourcesTotal.empty()) {
@@ -126,14 +147,15 @@ void HudLeft::_drawResources(Map *map, float &y)
             y,
             _hudWidth - _hudPadding * 2,
             _textSize,
-            BLACK,
-            false
+            _textColor,
+            false,
+            _textFont
         );
     }
 }
 
 void HudLeft::_drawPlayers(Map *map, float &y) {
-    drawSectionTitle("Players:", y);
+    drawSectionTitle("Players", y, _titleColor);
     const auto &players = map->getPlayers();
     if (players.empty()) {
         drawTextWrapped(
@@ -142,8 +164,9 @@ void HudLeft::_drawPlayers(Map *map, float &y) {
             y,
             _hudWidth - _hudPadding * 2,
             _textSize,
-            BLACK,
-            false
+            _textColor,
+            false,
+            _textFont
         );
         return;
     }
@@ -178,7 +201,7 @@ void HudLeft::_drawPlayers(Map *map, float &y) {
             );
         }
         if (i == _playerIndex)
-            DrawText(">>", _hudPadding + _hudPos.first, y + 3 + _hudPos.second + _hudPadding, _textSize, RED);
+            DrawText(">>", _hudPadding + _hudPos.first, y + 3 + _hudPos.second + _hudPadding, _textSize, _titleColor);
         drawTextWrapped(
             "- " + std::to_string(player->getPlayerNumber()) + " - " + player->getTeam()->getName(),
             _hudPadding + 30,
@@ -186,7 +209,8 @@ void HudLeft::_drawPlayers(Map *map, float &y) {
             _hudWidth - _hudPadding * 2,
             _textSize,
             player->getTeam()->getColor(),
-            false
+            false,
+            _textFont
         );
     }
 }
@@ -201,7 +225,8 @@ void HudLeft::_drawPlayerInfos(Player *player, float &y)
         _hudWidth - _hudPadding * 2,
         _textSize,
         player->getTeam()->getColor(),
-        false
+        false,
+        _textFont
     );
     drawTextWrapped(
         "Level: " + std::to_string(player->getLevel()),
@@ -209,8 +234,9 @@ void HudLeft::_drawPlayerInfos(Player *player, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
     drawTextWrapped(
         "Position: " + std::to_string(player->getPosition().first) + "x" + std::to_string(player->getPosition().second),
@@ -218,8 +244,9 @@ void HudLeft::_drawPlayerInfos(Player *player, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
     drawTextWrapped(
         "Orientation: " + orientationToString(player->getOrientation()),
@@ -227,8 +254,9 @@ void HudLeft::_drawPlayerInfos(Player *player, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
     drawTextWrapped(
         "Inventory:",
@@ -236,8 +264,9 @@ void HudLeft::_drawPlayerInfos(Player *player, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _textSize,
-        BLACK,
-        false
+        _textColor,
+        false,
+        _textFont
     );
     for (const auto &item : player->getInventory()) {
         std::string resourceName = typeToString(item.first);
@@ -248,8 +277,9 @@ void HudLeft::_drawPlayerInfos(Player *player, float &y)
             y,
             _hudWidth - _hudPadding * 2,
             _textSize,
-            BLACK,
-            false
+            _textColor,
+            false,
+            _textFont
         );
     }
 }

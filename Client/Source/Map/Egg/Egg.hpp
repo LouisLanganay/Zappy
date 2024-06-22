@@ -36,6 +36,7 @@ namespace Zappy {
             int _eggNumber;
             int _playerNumber;
             std::pair<int, int> _position;
+            Vector2 _drawPosition;
             bool _hatched;
             std::unique_ptr<Team> _team;
 

@@ -169,7 +169,7 @@ std::string Player::getBroadcast()
 
 void Player::draw(Camera camera, float height)
 {
-    Vector3 position = {_x + _drawPosition.x, 0.2f + height, _y + _drawPosition.y};
+    Vector3 position = {_x + _drawPosition.x, height + 0.1f, _y + _drawPosition.y};
 
     DrawCube(position, 0.2f, 0.2f, 0.2f, _team->getColor());
 
@@ -191,6 +191,12 @@ void Player::draw(Camera camera, float height)
     spherePosition.y += 0.1f;
 
     DrawSphere(spherePosition, 0.07f, BLACK);
+
+    if (_incantationStarted) {
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+        DrawCubeWires(position, 0.2f, 0.2f, 0.2f, RED);
+    }
 
     if (!_isSelected)
         return;
@@ -231,10 +237,10 @@ bool Player::isSelected() const
 
 void Player::startIncantation()
 {
-
+    _incantationStarted = true;
 }
 
 void Player::endIncantation(int result)
 {
-
+    _incantationStarted = false;
 }

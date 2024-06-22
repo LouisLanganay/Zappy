@@ -6,6 +6,7 @@
 */
 
 #include "Model3D.hpp"
+#include "Exceptions.hpp"
 
 using namespace Zappy;
 
@@ -15,9 +16,24 @@ Model3D::Model3D()
 
 Model3D::Model3D(std::string model_path, std::string texture_path)
 {
+    if (!FileExists(model_path.c_str()))
+        throw ModelException("Model file not found: " + model_path);
+    if (!FileExists(texture_path.c_str()))
+        throw ModelException("Texture file not found: " + texture_path);
+
     _model = LoadModel(model_path.c_str());
     _texture = LoadTexture(texture_path.c_str());
     _model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = _texture;
+    _position = {0.0f, 0.0f, 0.0f};
+    _size = 5;
+}
+
+Model3D::Model3D(std::string model_path)
+{
+    if (!FileExists(model_path.c_str()))
+        throw ModelException("Model file not found: " + model_path);
+
+    _model = LoadModel(model_path.c_str());
     _position = {0.0f, 0.0f, 0.0f};
     _size = 5;
 }
@@ -30,6 +46,11 @@ Model3D::Model3D(
     float z
 )
 {
+    if (!FileExists(model_path.c_str()))
+        throw ModelException("Model file not found: " + model_path);
+    if (!FileExists(texture_path.c_str()))
+        throw ModelException("Texture file not found: " + texture_path);
+
     _model = LoadModel(model_path.c_str());
     _texture = LoadTexture(texture_path.c_str());
     _model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = _texture;
@@ -46,6 +67,11 @@ Model3D::Model3D(
     float size
 )
 {
+    if (!FileExists(model_path.c_str()))
+        throw ModelException("Model file not found: " + model_path);
+    if (!FileExists(texture_path.c_str()))
+        throw ModelException("Texture file not found: " + texture_path);
+
     _model = LoadModel(model_path.c_str());
     _texture = LoadTexture(texture_path.c_str());
     _model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = _texture;

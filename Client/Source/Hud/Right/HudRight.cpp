@@ -17,13 +17,27 @@ void HudRight::draw(Map *map)
 {
     float y = 0;
     AHud::draw(map);
+    DrawRectangle(
+        _hudPos.first,
+        _hudPos.second,
+        _hudWidth == 0 ? GetScreenWidth() : _hudWidth,
+        _hudHeight == 0 ? GetScreenHeight() : _hudHeight,
+        Fade(_backgroundColor, 0.5f)
+    );
+    DrawRectangleLines(
+        _hudPos.first,
+        _hudPos.second,
+        _hudWidth == 0 ? GetScreenWidth() : _hudWidth,
+        _hudHeight == 0 ? GetScreenHeight() : _hudHeight,
+        Fade(_backgroundColor, 1.0f)
+    );
 
     _drawPlayersBroadcasts(map, y);
 }
 
 void HudRight::_drawPlayersBroadcasts(Map *map, float &y)
 {
-    drawSectionTitle("Players broadcasts:", y);
+    drawSectionTitle("Players broadcasts", y, _titleColor);
     for (auto &player : map->getPlayers()) {
         std::string message;
         if (player->getBroadcast().empty())
@@ -36,7 +50,8 @@ void HudRight::_drawPlayersBroadcasts(Map *map, float &y)
             _hudWidth - _hudPadding * 2,
             _textSize,
             player->getTeam()->getColor(),
-            false
+            false,
+            _textFont
         );
     }
 }

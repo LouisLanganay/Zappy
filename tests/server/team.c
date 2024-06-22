@@ -61,7 +61,7 @@ Test(team_get_empty_slots, check_empty_slots) {
     TAILQ_INIT(&server.ais);
     TAILQ_INSERT_TAIL(&server.ais, &ai1, entries);
     TAILQ_INSERT_TAIL(&server.ais, &ai2, entries);
-    cr_assert_eq(team_get_empty_slots(&server, &team), 2);
+    cr_assert_eq(team.slots, 2);
 }
 
 Test(team_get_empty_slots, check_empty_slots_with_no_ais) {
@@ -69,19 +69,7 @@ Test(team_get_empty_slots, check_empty_slots_with_no_ais) {
     team_t team = {.id = 1, .name = "Team1"};
 
     TAILQ_INIT(&server.ais);
-    cr_assert_eq(team_get_empty_slots(&server, &team), 4);
-}
-
-Test(team_get_empty_slots, check_empty_slots_with_no_team) {
-    zappy_server_t server = {.clients_nb = 4};
-    team_t team = {.id = 1, .name = "Team1"};
-    ai_t ai1 = {.team = &team};
-    ai_t ai2 = {.team = &team};
-
-    TAILQ_INIT(&server.ais);
-    TAILQ_INSERT_TAIL(&server.ais, &ai1, entries);
-    TAILQ_INSERT_TAIL(&server.ais, &ai2, entries);
-    cr_assert_eq(team_get_empty_slots(&server, NULL), 0);
+    cr_assert_eq(team.slots, 4);
 }
 
 Test(team_get_empty_slots, check_empty_slots_with_no_clients) {
@@ -93,7 +81,7 @@ Test(team_get_empty_slots, check_empty_slots_with_no_clients) {
     TAILQ_INIT(&server.ais);
     TAILQ_INSERT_TAIL(&server.ais, &ai1, entries);
     TAILQ_INSERT_TAIL(&server.ais, &ai2, entries);
-    cr_assert_eq(team_get_empty_slots(&server, &team), 0);
+    cr_assert_eq(team.slots, 0);
 }
 
 Test(team_get_empty_slots, other_team) {
@@ -108,5 +96,5 @@ Test(team_get_empty_slots, other_team) {
     TAILQ_INSERT_TAIL(&server.ais, &ai1, entries);
     TAILQ_INSERT_TAIL(&server.ais, &ai2, entries);
     TAILQ_INSERT_TAIL(&server.ais, &ai3, entries);
-    cr_assert_eq(team_get_empty_slots(&server, &team1), 2);
+    cr_assert_eq(team1.slots, 2);
 }

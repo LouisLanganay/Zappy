@@ -5,8 +5,6 @@
 ** ai
 */
 
-#include <stddef.h>
-
 #include "server.h"
 
 void ai_send_to_all(

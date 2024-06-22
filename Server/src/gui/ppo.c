@@ -31,3 +31,15 @@ void ppo(
         "ppo %d %d %d %d",
         ai->id, ai->pos.x, ai->pos.y, ai->orientation);
 }
+
+void server_ppo(
+    const zappy_server_t *server,
+    const ai_t *ai)
+{
+    gui_t *gui;
+
+    TAILQ_FOREACH(gui, &server->guis, entries)
+        protocol_server_send(
+            server->socket, gui->fd, "pnw %d %d %d %d %d %s", ai->id,
+            ai->pos.x, ai->pos.y, ai->orientation, ai->level, ai->team->name);
+}

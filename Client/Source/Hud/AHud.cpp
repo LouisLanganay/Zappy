@@ -6,6 +6,9 @@
 */
 
 #include "AHud.hpp"
+#include "Debug.hpp"
+
+#include "Exceptions.hpp"
 
 using namespace Zappy;
 
@@ -14,6 +17,16 @@ AHud::AHud(std::pair<float, float> hudRes, std::pair<float, float> hudPos)
     _hudWidth = hudRes.first;
     _hudHeight = hudRes.second;
     _hudPos = hudPos;
+}
+
+void AHud::loadFonts()
+{
+    _titleFont = LoadFontEx("Client/Fonts/Mario-Kart-DS.ttf", _titleSize, NULL, 0);
+    _textFont = LoadFontEx("Client/Fonts/Minecraft.ttf", _textSize, NULL, 0);
+    if (_titleFont.texture.id == 0)
+        throw Zappy::GraphicException("Failed to load font \"Mario-Kart-DS.ttf\"");
+    if (_textFont.texture.id == 0)
+        throw Zappy::GraphicException("Failed to load font \"Minecraft.ttf\"");
 }
 
 void AHud::setHudWidth(float width)
@@ -44,20 +57,6 @@ void AHud::setHudPos(std::pair<float, float> pos)
 void AHud::draw(Map *map)
 {
     _sectionMargin = false;
-    DrawRectangle(
-        _hudPos.first,
-        _hudPos.second,
-        _hudWidth == 0 ? GetScreenWidth() : _hudWidth,
-        _hudHeight == 0 ? GetScreenHeight() : _hudHeight,
-        Fade(SKYBLUE, 0.2f)
-    );
-    DrawRectangleLines(
-        _hudPos.first,
-        _hudPos.second,
-        _hudWidth == 0 ? GetScreenWidth() : _hudWidth,
-        _hudHeight == 0 ? GetScreenHeight() : _hudHeight,
-        Fade(DARKBLUE, 0.6f)
-    );
 }
 
 void AHud::drawTextWrapped(
@@ -67,7 +66,8 @@ void AHud::drawTextWrapped(
     float maxWidth,
     float fontSize,
     const Color &color,
-    bool underline
+    bool underline,
+    Font font
 )
 {
     std::vector<std::string> lines;
@@ -75,7 +75,7 @@ void AHud::drawTextWrapped(
     std::istringstream iss(text);
 
     for (std::string word; iss >> word;) {
-        if (MeasureTextEx(GetFontDefault(), (line + word).c_str(), fontSize, 1).x > maxWidth) {
+        if (MeasureTextEx(font, (line + word).c_str(), fontSize, 1).x > maxWidth) {
             if (word.size() > maxWidth / fontSize) {
                 int parts = word.size() / (maxWidth / fontSize) + 1;
                 int partSize = word.size() / parts;
@@ -95,7 +95,7 @@ void AHud::drawTextWrapped(
     }
     lines.push_back(line);
     for (const auto &l : lines) {
-        DrawTextEx(GetFontDefault(), l.c_str(), {x + _hudPos.first + _hudPadding, y + _hudPos.second + _hudPadding}, fontSize, 1, color);
+        DrawTextEx(font, l.c_str(), {x + _hudPos.first + _hudPadding, y + _hudPos.second + _hudPadding}, fontSize, 1, color);
         y += fontSize;
     }
     if (lines.size() > 1)
@@ -104,13 +104,17 @@ void AHud::drawTextWrapped(
         DrawLine(
             x + _hudPos.first + _hudPadding,
             y + _hudPos.second + _hudPadding,
-            x + MeasureTextEx(GetFontDefault(), lines.back().c_str(), fontSize, 1).x + _hudPos.first + _hudPadding,
+            x + MeasureTextEx(font, lines.back().c_str(), fontSize, 1).x + _hudPos.first + _hudPadding,
             y + _hudPos.second + _hudPadding,
             color
         );
 }
 
-void AHud::drawSectionTitle(const std::string &title, float &y)
+void AHud::drawSectionTitle(
+    const std::string &title,
+    float &y,
+    const Color &color
+)
 {
     if (_sectionMargin)
         y += _titleSize;
@@ -121,8 +125,9 @@ void AHud::drawSectionTitle(const std::string &title, float &y)
         y,
         _hudWidth - _hudPadding * 2,
         _titleSize,
-        RED,
-        true
+        color,
+        true,
+        _titleFont
     );
     y += 10;
 }
