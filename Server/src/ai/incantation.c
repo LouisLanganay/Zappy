@@ -74,7 +74,6 @@ static bool create_incantations(
     zappy_server_t *server,
     ai_t *ai)
 {
-    uint16_t count = level_need[ai->level - 1].resources[0] - 1;
     incantation_t *elm = create_incantation(ai);
 
     if (!elm)
@@ -91,11 +90,10 @@ static bool create_incantations(
             return false;
         TAILQ_INSERT_TAIL(&ai->incantations, elm, entries);
     }
-    if (count > 0) {
-        clean_incantations(server, ai);
-        return false;
-    }
-    return notify(server, ai);
+    if (!level_need[ai->level - 1].resources[0] - 1)
+        return notify(server, ai);
+    clean_incantations(server, ai);
+    return false;
 }
 
 static bool check_incantations(

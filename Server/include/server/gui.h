@@ -342,6 +342,8 @@ static const struct {
     {"ppo", ppo},
     {"plv", plv},
     {"pin", pin},
+    {"sgt", sgt},
+    {"sst", sst},
     {NULL, NULL}
 };
 

@@ -8,6 +8,15 @@
 #include "server/ai_header.h"
 #include "server/gui.h"
 
+bool can_fork(
+    zappy_server_t *server,
+    ai_t *ai,
+    UNUSED const char *message)
+{
+    pfk(server, ai);
+    return true;
+}
+
 void exec_fork(
     zappy_server_t *server,
     ai_t *ai,

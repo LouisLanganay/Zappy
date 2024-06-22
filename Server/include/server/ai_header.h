@@ -118,6 +118,19 @@ void connect_nbr(
     const char *message);
 
 /**
+ * @brief Check if player can fork
+ *
+ * @param server The server_t struct
+ * @param ai The associated ai struct
+ * @param message The message of the command
+ *
+ */
+bool can_fork(
+    zappy_server_t *server,
+    ai_t *ai,
+    const char *message);
+
+/**
  * @brief Fork a player
  *
  * @param server The server_t struct
@@ -210,27 +223,32 @@ void incantation(
     ai_t *ai,
     const char *message);
 
-static const struct {
+typedef struct {
     const char *cmd;
     void (*func)(
         zappy_server_t *server,
         ai_t *ai,
         const char *message);
+    bool (*check)(
+        zappy_server_t *server,
+        ai_t *ai,
+        const char *message);
     uint16_t time;
-} ai_cmds[] = {
-    {"Forward", forward, 7},
-    {"Right", right, 7},
-    {"Left", left, 7},
-    {"Look", look, 7},
-    {"Inventory", inventory, 1},
-    {"Broadcast", broadcast_text, 7},
-    {"Connect_nbr", connect_nbr, 0},
-    {"Fork", exec_fork, 42},
-    {"Eject", eject, 7},
-    {"Take", take, 7},
-    {"Set", set, 7},
-    {"Incantation", incantation, 300},
-    {NULL, NULL, 0}
+} ai_command_t;
+static const ai_command_t ai_cmds[] = {
+    {"Forward", forward, NULL, 7},
+    {"Right", right, NULL, 7},
+    {"Left", left, NULL, 7},
+    {"Look", look, NULL, 7},
+    {"Inventory", inventory, NULL, 1},
+    {"Broadcast", broadcast_text, NULL, 7},
+    {"Connect_nbr", connect_nbr, NULL, 0},
+    {"Fork", exec_fork, can_fork, 42},
+    {"Eject", eject, NULL, 7},
+    {"Take", take, NULL, 7},
+    {"Set", set, NULL, 7},
+    {"Incantation", incantation, can_incantation, 300},
+    {NULL, NULL, NULL, 0}
 };
 
 static const union {

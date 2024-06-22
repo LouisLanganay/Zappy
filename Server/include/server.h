@@ -164,9 +164,12 @@ void verbose(
     ...);
 
 // ai
-void ai_send_to_all(
-    const zappy_server_t *server,
-    const char *message);
+void create_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload);
+void handle_event_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload);
 ai_t *ai_get_by_fd(
     const zappy_server_t *server,
     int fd);
@@ -177,6 +180,12 @@ uint16_t ai_get_nb_by_pos(
     const zappy_server_t *server,
     const vector2_t *pos);
 // gui
+void create_gui(
+    zappy_server_t *server,
+    const protocol_payload_t *payload);
+void handle_event_gui(
+    zappy_server_t *server,
+    const protocol_payload_t *payload);
 void gui_send_to_all(
     const zappy_server_t *server,
     const char *message,

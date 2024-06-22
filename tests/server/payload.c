@@ -144,12 +144,14 @@ Test(payload, handle_ai_connection_no_team)
     TAILQ_INSERT_TAIL(&server->socket->payloads, payload, entries);
 
     cr_redirect_stdout();
+    cr_redirect_stderr();
     handle_payload(server);
     fflush(stdout);
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
-        "To client 1: WELCOME\n"
-        "\033[31m[ERROR]\033[0m Team not found\n");
+        "To client 1: WELCOME\n");
+    cr_assert_stderr_eq_str(
+        "\033[31m[ERROR]\033[0m  Team not found\n");
 
     test_destroy_server(server);
 }
