@@ -193,7 +193,7 @@ void set(
  *
  */
 bool can_incantation(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
