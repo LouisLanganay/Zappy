@@ -60,7 +60,6 @@ static void clean_incantations(
         elm = next) {
         next = TAILQ_NEXT(elm, entries);
         elm->ai->is_incantate = false;
-        printf("Element %p\n", elm);
         TAILQ_REMOVE(&ai->incantations, elm, entries);
         free(elm);
     }
@@ -134,14 +133,14 @@ void incantation(
     if (!can_incantation(server, ai, "")) {
         TAILQ_FOREACH(elm, &ai->incantations, entries)
             protocol_server_send(server->socket, elm->ai->fd, "ko");
+        clean_incantations(ai);
         return;
     }
     for (uint8_t i = 1; i < 7; i++)
         server->map[ai->pos.x][ai->pos.y].resources[i] -=
             level_need[ai->level - 1].resources[i];
     TAILQ_FOREACH(elm, &ai->incantations, entries)
-        if (elm->ai->fd != ai->fd
-            && elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
+        if (elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
             && elm->ai->level == ai->level && ai->inventory.food > 0) {
             elm->ai->level++;
             protocol_server_send(server->socket, elm->ai->fd,
