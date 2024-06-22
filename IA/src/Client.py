@@ -380,7 +380,7 @@ class Client:
         self.command_queue = []
         self.has_all_resources = False
         self.test = 0
-
+        self.last_broadcast_time = time.time()
 
     def send(self, data):
         self.socket.send(data.encode() + b'\n')
@@ -406,7 +406,7 @@ class Client:
                 break
         
         count = 0
-        while buffer.startswith('message'): #FIXME add this additionnal condition if needed and count < 3:
+        while buffer.startswith('message'):
             self.handle_broadcast(buffer)
             buffer = self.socket.recv(512).decode().strip()
             count += 1
@@ -514,7 +514,7 @@ class Client:
 
     def share_inventory(self):
         string_inventory = self.ai.inventory_to_string()
-        if self.test == 0:
+        if self.test % 5:
             self.send_broadcast(f"Inventory:{self.id}:{string_inventory}")
         self.test += 1
 
@@ -533,6 +533,11 @@ class Client:
             self.send('Fork')
             data = self.receive()
         while True:
+            current_time = time.time()
+            if current_time - self.last_broadcast_time > 5:  # Broadcast inventory every 5 seconds
+                self.share_inventory()
+                self.last_broadcast_time = current_time
+            
             if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Broadcaster'): 
                 self.queue = self.ai.drop_resources()
                 self.ai.mode = 'Incantation'
@@ -555,7 +560,7 @@ class Client:
                 time.sleep(0.2)
                 continue
 
-            if self.ai.has_all_resources() and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 50:
+            if self.ai.has_all_resources_shared() and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 50:
                 self.ai.mode = 'Broadcaster'
                 self.ai.count_incanter += 1
                 self.ai.drop_resources()
@@ -565,8 +570,6 @@ class Client:
             if self.ai.mode == 'Normal':
                 self.queue = self.ai.algorithm()
                 self.send_queue()
-                if self.ai.inventory['food'] > 30:
-                    self.share_inventory()
 
 def main():
     args = sys.argv[1:]
@@ -579,4 +582,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
