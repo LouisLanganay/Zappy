@@ -1,7 +1,8 @@
 #include <criterion/criterion.h>
 #include <criterion/redirect.h>
+#include <unistd.h>
 
-#include "server.h"
+#include "server/game.h"
 
 static zappy_server_t *test_create_server(void)
 {
@@ -101,7 +102,7 @@ Test(payload, handle_lost_connection)
 Test(payload, handle_ai_connection)
 {
     zappy_server_t *server = test_create_server();
-    team_t team = {.name = "Team1"};
+    team_t team = {.name = "Team1", .slots = server->clients_nb};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     protocol_connection_t *new_connection = test_create_connection(1);
@@ -191,7 +192,9 @@ Test(payload, handle_gui_connection)
 Test(payload, handle_ai_command)
 {
     zappy_server_t *server = test_create_server();
-    team_t team = {.name = "Team1"};
+    clock_gettime(CLOCK_REALTIME, &server->last_update);
+    server->last_update.tv_sec -= 10;
+    team_t team = {.name = "Team1", .slots = server->clients_nb};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     protocol_connection_t *new_connection = test_create_connection(1);
@@ -204,6 +207,8 @@ Test(payload, handle_ai_command)
     TAILQ_INSERT_TAIL(&server->socket->payloads, command, entries);
 
     cr_redirect_stdout();
+    handle_payload(server);
+    update_game(server);
     handle_payload(server);
     fflush(stdout);
     cr_assert_stdout_eq_str(
@@ -221,7 +226,9 @@ Test(payload, handle_ai_command)
 Test(payload, handle_ai_command_unknown)
 {
     zappy_server_t *server = test_create_server();
-    team_t team = {.name = "Team1"};
+    clock_gettime(CLOCK_REALTIME, &server->last_update);
+    server->last_update.tv_sec -= 10;
+    team_t team = {.name = "Team1", .slots = server->clients_nb};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     protocol_connection_t *new_connection = test_create_connection(1);
@@ -234,6 +241,8 @@ Test(payload, handle_ai_command_unknown)
     TAILQ_INSERT_TAIL(&server->socket->payloads, command, entries);
 
     cr_redirect_stdout();
+    handle_payload(server);
+    update_game(server);
     handle_payload(server);
     fflush(stdout);
     cr_assert_stdout_eq_str(
@@ -323,7 +332,9 @@ Test(payload, handle_gui_command_unknown)
 Test(payload, handle_many_ai)
 {
     zappy_server_t *server = test_create_server();
-    team_t team = {.name = "Team1"};
+    clock_gettime(CLOCK_REALTIME, &server->last_update);
+    server->last_update.tv_sec -= 10;
+    team_t team = {.name = "Team1", .slots = server->clients_nb};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     for (int i = 1; i <= 5; ++i) {
@@ -338,6 +349,8 @@ Test(payload, handle_many_ai)
     }
 
     cr_redirect_stdout();
+    handle_payload(server);
+    update_game(server);
     handle_payload(server);
     fflush(stdout);
     cr_assert_stdout_eq_str(
@@ -355,26 +368,26 @@ Test(payload, handle_many_ai)
         "To client 1: 5\n"
         "To client 1: 3 3\n"
         "AI 1: Forward\n"
-        "To client 1: ok\n"
         "New AI connected\n"
-        "To client 2: 5\n"
+        "To client 2: 4\n"
         "To client 2: 3 3\n"
         "AI 2: Forward\n"
-        "To client 2: ok\n"
         "New AI connected\n"
-        "To client 3: 5\n"
+        "To client 3: 3\n"
         "To client 3: 3 3\n"
         "AI 3: Forward\n"
-        "To client 3: ok\n"
         "New AI connected\n"
-        "To client 4: 5\n"
+        "To client 4: 2\n"
         "To client 4: 3 3\n"
         "AI 4: Forward\n"
-        "To client 4: ok\n"
         "New AI connected\n"
-        "To client 5: 5\n"
+        "To client 5: 1\n"
         "To client 5: 3 3\n"
         "AI 5: Forward\n"
+        "To client 1: ok\n"
+        "To client 2: ok\n"
+        "To client 3: ok\n"
+        "To client 4: ok\n"
         "To client 5: ok\n");
 
     test_destroy_server(server);

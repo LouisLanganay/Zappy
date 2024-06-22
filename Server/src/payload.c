@@ -91,6 +91,7 @@ static void add_ai(
         free(ai);
         return;
     }
+    ai->team->slots--;
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     protocol_server_send(server->socket, payload->fd,
         "%i %i", server->width, server->height);
