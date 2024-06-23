@@ -259,7 +259,7 @@ class AI:
         for resource, amount in self.inventory.items():
             if resource == 'food':
                 continue
-            if amount < self.resources_to_get[resource]:
+            if amount < resources_to_get[resource]:
                 return False
         return True
 
@@ -270,7 +270,7 @@ class AI:
             self.take_resources('food')
             return True
 
-        goal_inventory = self.resources_to_get
+        goal_inventory = resources_to_get
         resources_to_collect = {k: v for k, v in goal_inventory.items() if v > self.inventory[k]}
         resources_to_collect['food'] = 50
 

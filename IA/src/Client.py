@@ -89,7 +89,7 @@ class Client:
         direction = int(temp[0])
         data = temp[1]
 
-        if data == 'Incantation':
+        if self.ai.mode == 'STOP':
             self.ai.count_incanter += 1
             if self.ai.count_incanter == 6:
                 self.ai.mode = 'Incantation'
@@ -111,9 +111,10 @@ class Client:
             self.ai.broadcaster_direction = -1
             self.ai.mode = 'STOP'
             self.ai.count_incanter += 1
-            self.send_broadcast('Incantation')
-
+            # self.send_broadcast('Incantation')
+            self.queue.clear()
             print("Group is over")
+            self.run()
             return
 
             # self.send_broadcast('Ready')
@@ -121,6 +122,7 @@ class Client:
             self.ai.count_incanter += 1
             self.send_broadcast('Incantation')
             return
+        # if self.ai.broadcaster_direction
 
         if self.ai.mode == 'Group':
             action = self.ai.action_to_broadcaster()
@@ -136,6 +138,19 @@ class Client:
                 if data.startswith('message'):
                     self.handle_broadcast(data)
                     break
+    def drop_resources_and_broadcast_group(self):
+        # clock = time.time()
+        # for resource, amount in self.ai.inventory.items():
+        #     if resource == 'food':
+        #         continue
+        #     for _ in range(amount):
+        #         self.queue.append(f"Set {resource}")
+        #         if time.time() - clock > 0.2:
+        #             self.queue.append('Broadcast Group')
+        self.queue = self.ai.drop_resources()
+        self.send_queue()
+        self.send_broadcast('Group')
+        time.sleep(0.2)     
 
     def close(self):
         self.selector.unregister(self.socket)
@@ -153,13 +168,14 @@ class Client:
             self.send('Fork')
             data = self.receive()
         while True:
-            print(self.ai.mode)
             if self.ai.mode == 'STOP':
+                print("STOP")
                 self.queue = self.ai.drop_resources()
                 self.send_queue()
+
                 continue
 
-            if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Broadcaster'): 
+            if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Group'): 
                 time.sleep(0.5)
                 self.ai.mode = 'Incantation'
                 self.send('Look')
@@ -175,17 +191,15 @@ class Client:
                 self.send_queue()
 
             if self.ai.mode == 'Broadcaster':
-                self.queue = self.ai.drop_resources()
-                self.send_queue()
                 self.send_broadcast('Group')
                 time.sleep(0.2)
+                self.queue = self.ai.drop_resources()
+                self.send_queue()
                 continue
 
-            if self.ai.has_all_resources() and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 50:
+            if self.ai.has_all_resources() and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 100:
                 self.ai.mode = 'Broadcaster'
                 self.ai.count_incanter += 1
-                self.ai.drop_resources()
-                self.send_queue()
                 continue
 
             if self.ai.mode == 'Normal':
