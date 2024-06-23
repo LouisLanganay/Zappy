@@ -205,6 +205,9 @@ team_t *team_get_by_name(
 team_t *team_get_by_id(
     const zappy_server_t *server,
     uint16_t id);
+uint16_t team_get_nb_ai(
+    const zappy_server_t *server,
+    const team_t *team);
 // egg
 uint16_t egg_spawn(
     zappy_server_t *server,

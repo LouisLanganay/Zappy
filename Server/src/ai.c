@@ -14,13 +14,16 @@
 
 static void spawn_ai(
     zappy_server_t *server,
-    ai_t *ai)
+    ai_t *ai,
+    const uint16_t nb_ai)
 {
-    egg_t *egg = egg_pop_by_team(server, ai->team);
+    egg_t *egg;
 
-    if (!egg) {
+    if (nb_ai < server->clients_nb) {
         ai->pos = (vector2_t){rand() % server->width, rand() % server->height};
     } else {
+        ai->team->slots--;
+        egg = egg_pop_by_team(server, ai->team);
         ebo(server, egg->id);
         ai->pos = egg->pos;
         free(egg);
@@ -32,14 +35,17 @@ static bool connect_ai(
     const protocol_payload_t *payload,
     ai_t *ai)
 {
-    server_send(server, payload->fd, "%i", ai->team->slots);
-    if (ai->team->slots == 0) {
+    const uint16_t nb = team_get_nb_ai(server, ai->team);
+    const uint16_t diff = nb < server->clients_nb - 1
+        ? server->clients_nb - nb - 1 : 0;
+
+    server_send(server, payload->fd, "%i", diff + ai->team->slots);
+    if (ai->team->slots == 0 && nb >= server->clients_nb) {
         server_send(server, payload->fd, "ko");
         free(ai);
         return false;
     }
-    ai->team->slots--;
-    spawn_ai(server, ai);
+    spawn_ai(server, ai, nb);
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
     server_send(server, payload->fd,
         "%i %i", server->width, server->height);
