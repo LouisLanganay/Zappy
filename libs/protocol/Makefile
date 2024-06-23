@@ -13,7 +13,7 @@ SRC			:=	$(addprefix $(lastword $(DIR))/,					\
 					create.c										\
 					close.c											\
 					listen.c										\
-					send_packet.c									\
+					send.c											\
 				)
 
 DIR			+=	src/server
@@ -21,7 +21,7 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					create.c										\
 					close.c											\
 					listen.c										\
-					send_packet.c									\
+					send.c											\
 				)
 
 UF_DIR		:=	tests
