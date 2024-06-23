@@ -47,7 +47,8 @@ static void eject_target(
 {
     switch (ai->orientation) {
         case NORTH:
-            target->pos.y = (target->pos.y - 1 + server->height) % server->height;
+            target->pos.y = (target->pos.y - 1 + server->height)
+                % server->height;
             break;
         case EAST:
             target->pos.x = (target->pos.x + 1) % server->width;
@@ -56,7 +57,8 @@ static void eject_target(
             target->pos.y = (target->pos.y + 1) % server->height;
             break;
         case WEST:
-            target->pos.x = (target->pos.x - 1 + server->width) % server->width;
+            target->pos.x = (target->pos.x - 1 + server->width)
+                % server->width;
             break;
     }
 }
