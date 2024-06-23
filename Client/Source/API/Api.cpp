@@ -32,7 +32,6 @@ Api::Api(
             throw std::runtime_error("Failed to connect to server");
         DEBUG_SUCCESS("Connected to server");
         _fetchDataThread = std::thread(&Api::fetchDataLoop, this);
-        sendCommand("GRAPHIC\n");
     } catch (const std::exception &e) {
         throw ApiException(e.what());
     }
@@ -103,51 +102,56 @@ void Api::fetchDataLoop()
 {
     while (_isRunning && protocol_client_is_connected(_client)) {
         fetchDataFromServer();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+}
+
+bool Api::isConnected() const
+{
+    return protocol_client_is_connected(_client);
 }
 
 void Api::requestMapSize()
 {
-    sendCommand("msz\n");
+    sendCommand("msz");
 }
 
 void Api::requestTileContent(int x, int y)
 {
-    sendCommand("bct " + std::to_string(x) + " " + std::to_string(y) + "\n");
+    sendCommand("bct " + std::to_string(x) + " " + std::to_string(y));
 }
 
 void Api::requestAllTilesContent()
 {
-    sendCommand("mct\n");
+    sendCommand("mct");
 }
 
 void Api::requestTeamsNames()
 {
-    sendCommand("tna\n");
+    sendCommand("tna");
 }
 
 void Api::requestPlayerPosition(int playerNumber)
 {
-    sendCommand("ppo " + std::to_string(playerNumber) + "\n");
+    sendCommand("ppo " + std::to_string(playerNumber));
 }
 
 void Api::requestPlayerLevel(int playerNumber)
 {
-    sendCommand("plv " + std::to_string(playerNumber) + "\n");
+    sendCommand("plv " + std::to_string(playerNumber));
 }
 
 void Api::requestPlayerInventory(int playerNumber)
 {
-    sendCommand("pin " + std::to_string(playerNumber) + "\n");
+    sendCommand("pin " + std::to_string(playerNumber));
 }
 
 void Api::requestTimeUnit()
 {
-    sendCommand("sgt\n");
+    sendCommand("sgt");
 }
 
 void Api::modifyTimeUnit(int t)
 {
-    sendCommand("sst " + std::to_string(t) + "\n");
+    sendCommand("sst " + std::to_string(t));
 }

@@ -53,6 +53,7 @@ dkms.conf
 
 # Build directory
 build/
+__pycache__/
 
 # IDE files/directories
 .idea/
@@ -76,4 +77,5 @@ vgcore.*
 
 
 Client/Server
+zappy_ref-2-0-2/
 font.ttf

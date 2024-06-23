@@ -31,7 +31,7 @@ static void server_stop(
     if (sig != SIGINT)
         return;
     if (write(1, "\r", 1) == -1)
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
     open_state(false, true);
 }
 
@@ -46,12 +46,12 @@ static protocol_server_t *create_socket(
     protocol_server_t *server = calloc(1, sizeof(protocol_server_t));
 
     if (!server) {
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return NULL;
     }
     server->network_data.sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (server->network_data.sockfd <= 0) {
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         free(server);
         return NULL;
     }
@@ -71,7 +71,7 @@ static bool server_setsockopt(
     if (setsockopt(server->network_data.sockfd, SOL_SOCKET, SO_REUSEADDR,
         &(int){1}, sizeof(int)) != -1)
         return true;
-    fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+    fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
     close(server->network_data.sockfd);
     free(server);
     return false;
@@ -84,7 +84,7 @@ static bool server_bind(
         (const struct sockaddr *)&server->network_data.server_addr,
         sizeof(struct sockaddr_in)) != -1)
         return true;
-    fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+    fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
     close(server->network_data.sockfd);
     free(server);
     return false;
@@ -94,7 +94,7 @@ static bool server_listen(protocol_server_t *server)
 {
     if (listen(server->network_data.sockfd, SOMAXCONN) != -1)
         return true;
-    fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+    fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
     close(server->network_data.sockfd);
     free(server);
     return false;

@@ -5,13 +5,23 @@
 ** fork
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
+#include "server/gui.h"
 
-void exec_fork(
-    UNUSED const zappy_server_t *server,
-    UNUSED ai_t *ai,
+bool can_fork(
+    zappy_server_t *server,
+    ai_t *ai,
     UNUSED const char *message)
 {
+    pfk(server, ai);
+    return true;
+}
+
+void exec_fork(
+    zappy_server_t *server,
+    ai_t *ai,
+    UNUSED const char *message)
+{
+    enw(server, ai, egg_spawn(server, ai));
+    server_send(server, ai->fd, "ok");
 }

@@ -15,7 +15,7 @@ int displayHelp(int return_value)
     std::cout << "\tport\t is the port number" << std::endl;
     std::cout << "\tmachine\t is the hostname of the server" << std::endl;
     std::cout << "" << std::endl;
-    std::cout << "EXAMPLE: ./zappy_gui -p 4242 -h 192.0.0.1" << std::endl;
+    std::cout << "EXAMPLE: ./zappy_gui -p 4242 -h 127.0.0.1" << std::endl;
     std::cout << "" << std::endl;
     std::cout << "KEYBINDINGS:" << std::endl;
     std::cout << "\tZ\tMove forward" << std::endl;

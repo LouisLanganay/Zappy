@@ -8,7 +8,7 @@
 #include "server/gui.h"
 
 void ebo(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const uint16_t egg_id)
 {
     gui_send_to_all(server, "ebo %d", egg_id);
