@@ -10,7 +10,7 @@
 
     #include <stdbool.h>
 
-    #include "global.h"
+    #include "data.h"
 
 typedef struct protocol_client_s {
     fd_set master_read_fds;
@@ -20,6 +20,7 @@ typedef struct protocol_client_s {
     int sockfd;
     protocol_network_data_t network_data;
     bool is_connected;
+    char buffer[DATA_SIZE];
     TAILQ_ENTRY(protocol_client_s) entries;
     TAILQ_HEAD(, protocol_payload_s) payloads;
 } protocol_client_t;
@@ -67,31 +68,17 @@ protocol_payload_t *protocol_client_listen(
     protocol_client_t *client);
 
 /**
- * @brief Send a packet to the server
- *
- * @param client The client to send the packet with
- * @param type The type of the packet
- * @param data The data to send
- * @param size The size of the data
- * @return true If the packet was sent
- * @return false If the packet was not sent
- */
-bool protocol_client_send_packet(
-    const protocol_client_t *client,
-    uint16_t type,
-    const void *data,
-    int size);
-
-/**
  * @brief Send a message to the server
  *
- * @param client The client to send the message with
- * @param message The message to send
+* @param client The client to send the message with
+ * @param format The format of the message to send
+ * @param ... The arguments to format the message with
  * @return true If the message was sent
  * @return false If the message was not sent
  */
-bool protocol_client_send_message(
+bool protocol_client_send(
     const protocol_client_t *client,
-    const char *message);
+    const char *format,
+    ...);
 
 #endif //PROTOCOL_CLIENT_H

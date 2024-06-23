@@ -5,7 +5,6 @@
 # Object files
 *.o
 *.ko
-*.obj
 *.elf
 
 # Linker output
@@ -69,3 +68,12 @@ server
 # Execptions
 !client/
 !server/
+
+zappy_ref-2-0-2/
+# Logs
+vgcore.*
+*.log
+
+
+Client/Server
+font.ttf
