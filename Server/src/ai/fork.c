@@ -23,4 +23,5 @@ void exec_fork(
     UNUSED const char *message)
 {
     enw(server, ai, egg_spawn(server, ai));
+    server_send(server, ai->fd, "ok");
 }
