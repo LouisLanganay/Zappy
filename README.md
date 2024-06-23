@@ -30,7 +30,8 @@ The following pages describe all the details and constraints.
 For more detailed information, you can consult the PDF documentation:
 
 - [Zappy.pdf](Documentation/Zappy.pdf)
-- [Zappy-Graphical.pdf](Documentation/Zappy-Graphical.pdf)
+  - [Zappy-Graphical.pdf](Documentation/Zappy-Graphical.pdf)
+  - [Zappy-Server.pdf](Documentation/Zappy-Server.pdf)
 
 ### Global Architecture
 
@@ -78,12 +79,6 @@ USAGE: ./zappy_gui -p port -h machine
 ∼/B-YEP-400> ./zappy_ai -help
 USAGE: ./zappy_ai -p port -n name -h machine
 ```
-
-## Contributions
-
-Project members:
-## Contributors
-
 ## Contributors
 
 <table>
@@ -95,7 +90,16 @@ Project members:
         <sub><b>LouisLanganay</b></sub>
       </a>
       <br/>
-      Contributions: 147
+      Contributions: 164
+    </td>
+    <td align="center">
+      <a href="https://github.com/ValentinPeron">
+        <img src="https://avatars.githubusercontent.com/u/71937391?v=4" width="100px;" alt="ValentinPeron"/>
+        <br/>
+        <sub><b>ValentinPeron</b></sub>
+      </a>
+      <br/>
+      Contributions: 53
     </td>
     <td align="center">
       <a href="https://github.com/Neo-Diamons">
@@ -105,15 +109,6 @@ Project members:
       </a>
       <br/>
       Contributions: 52
-    </td>
-    <td align="center">
-      <a href="https://github.com/ValentinPeron">
-        <img src="https://avatars.githubusercontent.com/u/71937391?v=4" width="100px;" alt="ValentinPeron"/>
-        <br/>
-        <sub><b>ValentinPeron</b></sub>
-      </a>
-      <br/>
-      Contributions: 43
     </td>
     <td align="center">
       <a href="https://github.com/mlargeot">
