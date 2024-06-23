@@ -32,7 +32,6 @@ Api::Api(
             throw std::runtime_error("Failed to connect to server");
         DEBUG_SUCCESS("Connected to server");
         _fetchDataThread = std::thread(&Api::fetchDataLoop, this);
-        sendCommand("GRAPHIC");
     } catch (const std::exception &e) {
         throw ApiException(e.what());
     }
