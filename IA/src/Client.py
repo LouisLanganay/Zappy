@@ -433,7 +433,7 @@ class Client:
 
         if self.ai.mode == 'Group':
             if self.ai.broadcaster_direction == 1 or self.ai.broadcaster_direction == 2 or self.ai.broadcaster_direction == 8:
-                self.send('Forward')                
+                self.send('Forward')
 
             if self.ai.broadcaster_direction == 3 or self.ai.broadcaster_direction == 4 or self.ai.broadcaster_direction == 5:
                 self.send('Left')
@@ -461,8 +461,16 @@ class Client:
 
     def connect(self):
         data = self.receive()  # Initial connection response (welcome message)
+        if (data != "WELCOME"):
+            return 84
+        print(data)
         self.send(self.name)
         data = self.receive()  # Additional server response (map size)
+        if (data == None):
+            return 84
+        print(data)
+        return 0
+
     def run(self):
         # self.send('Fork')
         # data = self.receive()
@@ -505,10 +513,12 @@ def main():
     parser = ParseArgs()
     host, port, name = parser.parse(args)
     client = Client(host, port, name)
-    client.connect()
+    if (client.connect() == 84):
+        return 84
     client.run()
     client.close()
 
 if __name__ == "__main__":
-    main()
+    if (main() == 84):
+        sys.exit(84)
 
