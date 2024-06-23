@@ -15,33 +15,28 @@ class ParseArgs:
         try:
             self.port = int(self.port)
         except ValueError:
-            self.print_invalid_argument()
-            sys.exit(84)
-        
+            #self.print_invalid_argument()
+            return 84
         if self.port == -1 or self.name == '':
             self.print_usage()
-            sys.exit(84)
-
-        self.check_host()
-        self.check_port()
-        self.check_name()
-
+            return 84
+        if (self.check_host() == 84 or self.check_port == 84 or self.check_name() == 84):
+            return 84
     def check_host(self):
         try:
             socket.gethostbyname(self.host)
         except socket.gaierror:
             print("Error: Invalid host")
-            sys.exit(84)
-
+            return 84
     def check_port(self):
         if self.port < 0 or self.port > 65535:
             print("Error: Port out of range")
-            sys.exit(84)
+            return 84
 
     def check_name(self):
         if len(self.name) > 32:
             print("Error: Name too long")
-            sys.exit(84)
+            return 84
 
     def parse(self, args):
         for i in range(0, len(args), 2):
@@ -54,21 +49,22 @@ class ParseArgs:
             elif args[i] == '-help':
                 self.print_usage()
                 sys.exit(0)
-            
             else:
-                self.print_invalid_argument()
-                sys.exit(84)
+                #self.print_invalid_argument()
+                return 84
 
-        self.check_type()
+        if (self.check_type() == 84):
+            return 84
+
         return self.host, self.port, self.name
 
     def print_usage(self):
         print("USAGE: ./zappy_ai -p port -n name -h machine")
-        sys.exit(84)
+        return 84
 
     def print_invalid_argument(self):
         print("Invalid argument")
-        sys.exit(84)
+        return 84
 
 class MainClient:
     def __init__(self, host, port, name):
@@ -80,12 +76,13 @@ class MainClient:
 
     def send(self, data):
         self.socket.send(data.encode())
+        return 0
 
     def receive(self):
         data = self.socket.recv(1024).decode().strip()
         if not data:
             print("Server closed the connection")
-            sys.exit(84)
+            return 84
         return data
 
     def connect_and_get_slots(self):
@@ -98,8 +95,13 @@ class MainClient:
     def close(self):
         self.socket.close()
 
+
+
 if __name__ == '__main__':
     args = ParseArgs()
+
+    if (args.parse(sys.argv[1:]) == 84):
+        sys.exit(84)
     host, port, name = args.parse(sys.argv[1:])
 
     mainClient = MainClient(host, port, name)
