@@ -95,6 +95,7 @@ namespace Zappy {
             float _movementSpeed; // Speed of movement per second
             float _timeAccumulator; // Time accumulator for interpolation
             bool _isLayingEgg = false;
+            bool _incantationStarted = false;
 
     };
 

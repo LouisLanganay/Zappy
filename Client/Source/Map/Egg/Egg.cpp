@@ -27,6 +27,8 @@ Egg::Egg(
     _frameTime(0.1f),
     _currentFrameTime(0.0f)
 {
+    _drawPosition.x = GetRandomValue(-30, 30) / 100.0f;
+    _drawPosition.y = GetRandomValue(-30, 30) / 100.0f;
 }
 
 int Egg::getEggNumber() const
@@ -59,7 +61,7 @@ void Egg::draw(Model3D model, float height)
     if (_hatched)
         return;
 
-    Vector3 position = {(float)_position.first, 0.5f + height, (float)_position.second};
+    Vector3 position = {(float)_position.first + _drawPosition.x, height + 0.2f, (float)_position.second + _drawPosition.y};
     float scale = 0.05f;
 
     if (_isHatching) {

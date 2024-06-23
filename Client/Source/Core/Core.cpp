@@ -7,7 +7,12 @@
 
 #include "Core.hpp"
 #include "Debug.hpp"
-#include "raylib.h"
+#include <raylib.h>
+#include <rlgl.h>
+#include <math.h>
+#include <random>
+#include <chrono>
+#include "raymath.h"
 #include <iostream>
 #include <sstream>
 #include <ctime>
@@ -53,6 +58,116 @@ void Core::stop()
 }
 
 
+void Core::_initClouds(int count)
+{
+    std::vector<Cloud> clouds;
+    float mapWidth = _map->getWidth();
+    float mapHeight = _map->getHeight();
+
+    for (int i = 0; i < count; i++) {
+        Cloud cloud = {
+            {(float)GetRandomValue(0, mapWidth), (float)GetRandomValue(4, 10), (float)GetRandomValue(0, mapHeight)},
+            {(float)GetRandomValue(1, 8), (float)GetRandomValue(1, 1), (float)GetRandomValue(1, 8)},
+            {(unsigned char)GetRandomValue(240, 255), (unsigned char)GetRandomValue(240, 255), (unsigned char)GetRandomValue(240, 255), (unsigned char)GetRandomValue(200, 255)},
+            {(float)GetRandomValue(-1, 1) / 10.0f, 0, (float)GetRandomValue(-1, 1) / 10.0f}
+        };
+        clouds.push_back(cloud);
+    }
+    _clouds = clouds;
+}
+
+void Core::_drawClouds(const std::vector<Cloud>& clouds)
+{
+    for (const Cloud& cloud : clouds) {
+        DrawCube(cloud.position, cloud.size.x, cloud.size.y, cloud.size.z, cloud.color);
+        DrawCubeWires(cloud.position, cloud.size.x, cloud.size.y, cloud.size.z, Fade(BLACK, 0.5f));
+    }
+}
+
+
+void Core::_moveClouds(std::vector<Cloud>& clouds, float timeUnit)
+{
+    float mapWidth = _map->getWidth();
+    float mapHeight = _map->getHeight();
+
+    for (Cloud& cloud : clouds) {
+        cloud.position.x += cloud.speed.x * timeUnit;
+        cloud.position.z += cloud.speed.z * timeUnit;
+
+        if (cloud.position.x < 0 || cloud.position.x > mapWidth) {
+            if (cloud.position.x < 0)
+                cloud.speed.x = GetRandomValue(0, 1) / 10.0f;
+            else
+                cloud.speed.x = -GetRandomValue(0, 1) / 10.0f;
+
+            if (cloud.position.x < 0)
+                cloud.position.x = 0;
+            else if (cloud.position.x > mapWidth)
+                cloud.position.x = mapWidth;
+        }
+
+        if (cloud.position.z < 0 || cloud.position.z > mapHeight) {
+            if (cloud.position.z < 0)
+                cloud.speed.z = GetRandomValue(0, 1) / 10.0f;
+            else
+                cloud.speed.z = -GetRandomValue(0, 1) / 10.0f;
+
+            if (cloud.position.z < 0)
+                cloud.position.z = 0;
+            else if (cloud.position.z > mapHeight)
+                cloud.position.z = mapHeight;
+        }
+    }
+}
+
+void Core::_setCloudsPosition()
+{
+    float mapWidth = _map->getWidth();
+    float mapHeight = _map->getHeight();
+
+    if (mapWidth <= 10 || mapHeight <= 10) {
+        _clouds.clear();
+        _initClouds(5);
+    }
+    if (mapWidth <= 5 || mapHeight <= 5) {
+        _clouds.clear();
+        _initClouds(2);
+    }
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> distribX(0.0f, mapWidth);
+    std::uniform_real_distribution<float> distribZ(0.0f, mapHeight);
+
+    auto calculateDistance = [](const Cloud& cloud1, const Cloud& cloud2) {
+        float dx = cloud1.position.x - cloud2.position.x;
+        float dz = cloud1.position.z - cloud2.position.z;
+        return std::sqrt(dx * dx + dz * dz);
+    };
+
+    for (Cloud& cloud : _clouds) {
+        cloud.position.x = distribX(gen);
+        cloud.position.z = distribZ(gen);
+
+        bool validPosition = false;
+        while (!validPosition) {
+            validPosition = true;
+            for (const Cloud& otherCloud : _clouds) {
+                if (&cloud != &otherCloud) {
+                    float distance = calculateDistance(cloud, otherCloud);
+                    if (distance < 5.0f) {
+                        cloud.position.x = distribX(gen);
+                        cloud.position.z = distribZ(gen);
+                        validPosition = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 void Core::run() {
     try {
         int screenWidth = GetScreenWidth();
@@ -65,12 +180,16 @@ void Core::run() {
         SetTargetFPS(60);
         DisableCursor();
 
+        _initClouds(10);
+
         _hudRight.setHudPos({
             GetScreenWidth() - _hudRight.getHudWidth() - 20,
             GetScreenHeight() - _hudRight.getHudHeight()
         });
 
         _map->loadModels();
+        _hudLeft.loadFonts();
+        _hudRight.loadFonts();
 
         while (!WindowShouldClose() && _running) {
             if (IsKeyPressed(KEY_I))
@@ -78,15 +197,14 @@ void Core::run() {
             if (IsKeyPressed(KEY_U))
                 adjustTimeUnit(-1);
 
-            for (auto &player : _map->getPlayers())
-                player->update(GetFrameTime());
-            for (auto &egg : _map->getEggs())
-                egg->update(GetFrameTime());
+            _map->update(GetFrameTime());
             _particleSystem->update(GetFrameTime());
             UpdateCamera(_map->getCameraPtr(), _map->getCameraMode());
             BeginDrawing();
-            ClearBackground(RAYWHITE);
+            ClearBackground(SKYBLUE);
             BeginMode3D(_map->getCamera());
+            _moveClouds(_clouds, GetFrameTime());
+            _drawClouds(_clouds);
             _map->draw(_map->getCamera());
             _particleSystem->draw();
             EndMode3D();
@@ -260,6 +378,7 @@ void Core::adjustTimeUnit(int value)
         timeUnit = 1;
     _map->setTimeUnit(timeUnit);
     _api->modifyTimeUnit(timeUnit);
+    _api->requestTimeUnit();
 }
 
 void Core::msz(std::string message)
@@ -267,6 +386,7 @@ void Core::msz(std::string message)
     int x, y;
     sscanf(message.c_str(), "msz %d %d", &x, &y);
     _map->setSize(x, y);
+    _setCloudsPosition();
 }
 
 void Core::bct(std::string message) {
@@ -455,14 +575,14 @@ void Core::pic(std::string message)
     _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
 
     tile->startIncantation(level, players);
-//
-    //for (int playerId : players) {
-    //    Player* player = _map->getPlayer(playerId);
-    //    if (player)
-    //        player->startIncantation();
-    //    else
-    //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
-    //}
+
+    for (int playerId : players) {
+        Player* player = _map->getPlayer(playerId);
+        if (player)
+            player->startIncantation();
+        else
+            DEBUG_ERROR("Player not found: " + std::to_string(playerId));
+    }
     DEBUG_INFO("Incantation started at (" + std::to_string(x) + ", " + std::to_string(y) + ") with level " + std::to_string(level) + " and players: " + std::to_string(players.size()));
 }
 
@@ -480,15 +600,15 @@ void Core::pie(std::string message)
     _particleSystem->emit(ParticleType::INCANTATION, x, 1, y, 15);
 
     tile->endIncantation(result);
-//
-    //const std::vector<int>& players = tile->getIncantationPlayers();
-    //for (int playerId : players) {
-    //    Player* player = _map->getPlayer(playerId);
-    //    if (player)
-    //        player->endIncantation(result);
-    //    else
-    //        DEBUG_ERROR("Player not found: " + std::to_string(playerId));
-    //}
+
+    const std::vector<int>& players = tile->getIncantationPlayers();
+    for (int playerId : players) {
+        Player* player = _map->getPlayer(playerId);
+        if (player)
+            player->endIncantation(result);
+        else
+            DEBUG_ERROR("Player not found: " + std::to_string(playerId));
+    }
     _api->requestTileContent(x, y);
     DEBUG_INFO("Incantation ended at (" + std::to_string(x) + ", " + std::to_string(y) + ") with result: " + std::to_string(result));
 }
