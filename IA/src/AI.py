@@ -339,7 +339,7 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-        if self.inventory['food'] < 15 or self.has_all_resources():
+        if self.inventory['food'] < 20 or self.has_all_resources():
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')

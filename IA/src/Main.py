@@ -91,6 +91,9 @@ class MainClient:
         self.send(self.name + '\n')
         welcome_msg = self.receive()
         available_slots_msg = self.receive()
+        if available_slots_msg == 'ko':
+            print("Server refused the connection")
+            sys.exit(84)
         available_slots = int(available_slots_msg.split('\n')[0].strip())
         return available_slots + 1
 
@@ -103,18 +106,32 @@ if __name__ == '__main__':
 
     mainClient = MainClient(host, port, name)
 
-    available_slots = mainClient.connect_and_get_slots()
+    try:
+        available_slots = mainClient.connect_and_get_slots()
 
-    print(f"Available Clients : {available_slots}")
+        mainClient.close()
+        print(f"Available Clients: {available_slots}")
 
-    mainClient.close()
+        if available_slots > 5:
+            available_slots = 5
 
-    for i in range(available_slots):
-        subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i), '-h', host])
+        subprocesses = []
 
-    time.sleep(6.5)
-    subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5), '-h', host])
+        i = 0
+        for i in range(available_slots):
+            cmd = ['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i), '-h', host]
+            subprocesses.append(subprocess.Popen(cmd))
 
-    while True:
-        pass
+        time.sleep(10)
+        cmd = ['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i + 1), '-h', host]
+        subprocesses.append(subprocess.Popen(cmd))
+
+        for proc in subprocesses:
+            proc.wait()
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    sys.exit(0)
+
 
