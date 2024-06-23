@@ -151,7 +151,7 @@ Test(payload, handle_ai_connection_no_team)
         "New connection from 1\n"
         "To client 1: WELCOME\n");
     cr_assert_stderr_eq_str(
-        "\033[31m[ERROR]\033[0m  Team not found\n");
+        "\033[31m[ERROR]\033[0m Team not found\n");
 
     test_destroy_server(server);
 }

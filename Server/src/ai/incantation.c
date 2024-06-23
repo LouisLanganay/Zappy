@@ -119,7 +119,7 @@ bool can_incantation(
     if (ai->level == 8)
         return false;
     for (uint8_t i = 1; i < 7; i++)
-        if (server->map[ai->pos.x][ai->pos.y].resources[i] <
+        if (server->map[ai->pos.y][ai->pos.x].resources[i] <
             level_need[ai->level - 1].resources[i])
             return false;
     return TAILQ_EMPTY(&ai->incantations)
@@ -141,7 +141,7 @@ void incantation(
         return;
     }
     for (uint8_t i = 1; i < 7; i++)
-        server->map[ai->pos.x][ai->pos.y].resources[i] -=
+        server->map[ai->pos.y][ai->pos.x].resources[i] -=
             level_need[ai->level - 1].resources[i];
     TAILQ_FOREACH(elm, &ai->incantations, entries)
         if (elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y

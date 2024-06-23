@@ -66,7 +66,7 @@ void create_ai(
         .life_span = 0, .inventory = { .food = 10 }};
     if (!ai->team) {
         free(ai);
-        fprintf(stderr, "\033[31m[ERROR]\033[0m  Team not found\n");
+        fprintf(stderr, "\033[31m[ERROR]\033[0m Team not found\n");
         return;
     }
     TAILQ_INIT(&ai->commands);

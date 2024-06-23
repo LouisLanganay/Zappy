@@ -10,6 +10,9 @@
 #include "server/ai_header.h"
 #include "server/game.h"
 
+#include <stdio.h>
+#include <string.h>
+
 static void update_ai_life_span(
     zappy_server_t *server)
 {
@@ -34,8 +37,9 @@ static void update_ai(
 
     for (ai_t *ai = TAILQ_FIRST(&server->ais); ai;
         ai = TAILQ_NEXT(ai, entries)) {
-        if (ai->state == INCANTATE || ai->state == DEAD
-            || TAILQ_EMPTY(&ai->commands))
+        if (ai->state == DEAD || TAILQ_EMPTY(&ai->commands)
+            || (ai->state == INCANTATE
+            && !strcmp(TAILQ_FIRST(&ai->commands)->cmd, "Incantation")))
             continue;
         cmd = TAILQ_FIRST(&ai->commands);
         cmd->time--;
