@@ -78,6 +78,25 @@ class AI:
             self.resources_to_get['linemate'] = resources_to_get['linemate']
         elif self.id == 5:
             self.resources_to_get['thystame'] = resources_to_get['thystame']
+        
+        self.has_all_resources_dict = {"linemate": False, "deraumere": False, "sibur": False, "mendiane": False, "phiras": False, "thystame": False}
+
+    def map_resource(self, id):
+        resources = {
+            0: 'sibur',
+            1: 'phiras',
+            2: 'deraumere',
+            3: 'mendiane',
+            4: 'linemate',
+            5: 'thystame'
+        }
+        return resources.get(id, 'Unknown resource')
+    
+    def has_all_resources_dict_func(self):
+        for resource, value in self.has_all_resources_dict.items():
+            if value == False:
+                return False
+        return True
 
     def parse_inventory(self, response):
         if self.detect_type_of_response(response) != 'inventory':
@@ -259,20 +278,16 @@ class AI:
         for resource, amount in self.inventory.items():
             if resource == 'food':
                 continue
-            if amount < resources_to_get[resource]:
+            if amount < self.resources_to_get[resource]:
                 return False
         return True
 
     def take_resources_to_get(self):
         state = False
 
-        if self.has_all_resources():
-            self.take_resources('food')
-            return True
-
-        goal_inventory = resources_to_get
+        goal_inventory = self.resources_to_get
+        goal_inventory['food'] = 50
         resources_to_collect = {k: v for k, v in goal_inventory.items() if v > self.inventory[k]}
-        resources_to_collect['food'] = 50
 
         for resource, amount_needed in resources_to_collect.items():
             amount_to_collect = amount_needed - self.inventory[resource]
@@ -327,7 +342,7 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-        if self.inventory['food'] < 15:
+        if self.inventory['food'] < 15 or self.has_all_resources():
             if not self.take_resources('food'):
                 self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
@@ -337,7 +352,7 @@ class AI:
         if self.level == 1:
             self.linemate_level1()
             return self.queue
-
+        
         if not self.take_resources_to_get():
             self.queue.append(random.choice(['Left', 'Right', 'Forward']))
             self.queue.append('Forward')
