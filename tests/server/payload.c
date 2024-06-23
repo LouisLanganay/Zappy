@@ -102,7 +102,7 @@ Test(payload, handle_lost_connection)
 Test(payload, handle_ai_connection)
 {
     zappy_server_t *server = test_create_server();
-    team_t team = {.name = "Team1", .slots = server->clients_nb};
+    team_t team = {.name = "Team1"};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     protocol_connection_t *new_connection = test_create_connection(1);
@@ -122,7 +122,7 @@ Test(payload, handle_ai_connection)
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
         "To client 1: WELCOME\n"
-        "To client 1: 5\n"
+        "To client 1: 4\n"
         "To client 1: 3 3\n"
         "New AI connected\n"
         "Lost connection from 1\n"
@@ -196,7 +196,7 @@ Test(payload, handle_ai_command)
     zappy_server_t *server = test_create_server();
     clock_gettime(CLOCK_REALTIME, &server->last_update);
     server->last_update.tv_sec -= 10;
-    team_t team = {.name = "Team1", .slots = server->clients_nb};
+    team_t team = {.name = "Team1"};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     protocol_connection_t *new_connection = test_create_connection(1);
@@ -216,7 +216,7 @@ Test(payload, handle_ai_command)
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
         "To client 1: WELCOME\n"
-        "To client 1: 5\n"
+        "To client 1: 4\n"
         "To client 1: 3 3\n"
         "New AI connected\n"
         "AI 1: Forward\n"
@@ -230,7 +230,7 @@ Test(payload, handle_ai_command_unknown)
     zappy_server_t *server = test_create_server();
     clock_gettime(CLOCK_REALTIME, &server->last_update);
     server->last_update.tv_sec -= 10;
-    team_t team = {.name = "Team1", .slots = server->clients_nb};
+    team_t team = {.name = "Team1"};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     protocol_connection_t *new_connection = test_create_connection(1);
@@ -250,7 +250,7 @@ Test(payload, handle_ai_command_unknown)
     cr_assert_stdout_eq_str(
         "New connection from 1\n"
         "To client 1: WELCOME\n"
-        "To client 1: 5\n"
+        "To client 1: 4\n"
         "To client 1: 3 3\n"
         "New AI connected\n"
         "AI 1: Unknown\n"
@@ -336,7 +336,7 @@ Test(payload, handle_many_ai)
     zappy_server_t *server = test_create_server();
     clock_gettime(CLOCK_REALTIME, &server->last_update);
     server->last_update.tv_sec -= 10;
-    team_t team = {.name = "Team1", .slots = server->clients_nb};
+    team_t team = {.name = "Team1"};
     TAILQ_INSERT_TAIL(&server->teams, &team, entries);
 
     for (int i = 1; i <= 5; ++i) {
@@ -366,23 +366,23 @@ Test(payload, handle_many_ai)
         "To client 4: WELCOME\n"
         "New connection from 5\n"
         "To client 5: WELCOME\n"
-        "To client 1: 5\n"
+        "To client 1: 4\n"
         "To client 1: 3 3\n"
         "New AI connected\n"
         "AI 1: Forward\n"
-        "To client 2: 4\n"
+        "To client 2: 3\n"
         "To client 2: 3 3\n"
         "New AI connected\n"
         "AI 2: Forward\n"
-        "To client 3: 3\n"
+        "To client 3: 2\n"
         "To client 3: 3 3\n"
         "New AI connected\n"
         "AI 3: Forward\n"
-        "To client 4: 2\n"
+        "To client 4: 1\n"
         "To client 4: 3 3\n"
         "New AI connected\n"
         "AI 4: Forward\n"
-        "To client 5: 1\n"
+        "To client 5: 0\n"
         "To client 5: 3 3\n"
         "New AI connected\n"
         "AI 5: Forward\n"
