@@ -112,7 +112,8 @@ if __name__ == '__main__':
     for i in range(available_slots):
         subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i)])
 
-    time.sleep(6.5)
+
+    time.sleep(7)
     subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5)])
 
     while True:

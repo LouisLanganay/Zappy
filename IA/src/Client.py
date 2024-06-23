@@ -3,8 +3,10 @@ import socket
 import sys
 import selectors
 import time
+import base64
 from ParseArgs import ParseArgs
 from AI import AI
+import subprocess
 
 class Client:
     def __init__(self, host, port, name, id):
@@ -20,7 +22,8 @@ class Client:
         self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
 
         self.ai = AI(self.id)
-        self.has_all_resources = False
+        self.broadcast_counter = 0
+        self.last_broadcast_counter = -1
 
     def send(self, data):
         self.socket.send(data.encode() + b'\n')
@@ -46,22 +49,12 @@ class Client:
                 break
         
         count = 0
-        while buffer.startswith('message'): #FIXME add this additionnal condition if needed and count < 3:
+        while buffer.startswith('message'):
             self.handle_broadcast(buffer)
             buffer = self.socket.recv(512).decode().strip()
             count += 1
         
         return buffer
-
-    def update_inventory(self):
-        self.send('Inventory')
-        data = self.receive()
-        self.ai.update_state(data)
-
-    def update_vision(self):
-        self.send('Look')
-        data = self.receive()
-        self.ai.update_state(data)
 
     def send_queue(self):
         for elt in self.queue:
@@ -72,19 +65,37 @@ class Client:
             self.ai.update_state(data)
         self.queue.clear()
 
+    def xor_chiffrement_utf8(self, texte):
+        cle = self.name
+        texte_bytes = texte.encode('utf-8')
+        cle_bytes = cle.encode('utf-8')
+        chiffre_bytes = bytearray()
+        
+        for i in range(len(texte_bytes)):
+            chiffre_bytes.append(texte_bytes[i] ^ cle_bytes[i % len(cle_bytes)])
+        
+        base64_encoded = base64.b64encode(chiffre_bytes).decode('utf-8')
+        return base64_encoded
+
+    def xor_dechiffrement_utf8(self, texte_base64):
+        cle = self.name
+        chiffre_bytes = base64.b64decode(texte_base64.encode('utf-8'))
+        cle_bytes = cle.encode('utf-8')
+        texte_bytes = bytearray()
+        
+        for i in range(len(chiffre_bytes)):
+            texte_bytes.append(chiffre_bytes[i] ^ cle_bytes[i % len(cle_bytes)])
+        
+        texte = texte_bytes.decode('utf-8')
+        return texte
+
     def send_broadcast(self, message):
+        if message == 'Group':
+            self.broadcast_counter += 1
+            message = f"{message}:{self.broadcast_counter}"
+        message = self.xor_chiffrement_utf8(message)
         self.send(f"Broadcast {message}")
         data = self.receive()
-
-    def revive_client(self):
-        self.socket.close()
-        self.ai = AI(self.id)
-        self.queue = []
-        self.has_all_resources = False
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((self.host, self.port))
-        self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
-        print(f"Client {self.id} reconnected to server.")
 
     def handle_broadcast(self, message):
         temp = message[8:]
@@ -92,6 +103,14 @@ class Client:
 
         direction = int(temp[0])
         data = temp[1]
+        data = self.xor_dechiffrement_utf8(data)
+        if data.startswith('Group'):
+            actual_counter = int(data.split(':')[1])
+            if actual_counter > self.last_broadcast_counter:
+                self.last_broadcast_counter = actual_counter
+                data = 'Group'
+            else:
+                return
 
         if self.ai.mode == 'STOP':
             self.ai.count_incanter += 1
@@ -100,7 +119,6 @@ class Client:
                 return
             
         if data.startswith('Ready'):
-            #data -> f'Ready:{self.id}'
             data = data.split(':')[1]
             id = int(data)
             self.ai.has_all_resources_dict[self.ai.map_resource(id)] = True
@@ -120,7 +138,6 @@ class Client:
             self.ai.broadcaster_direction = -1
             self.ai.mode = 'STOP'
             self.ai.count_incanter += 1
-            # self.send_broadcast('Incantation')
             self.queue.clear()
             print("Group is over")
             self.run()
@@ -135,7 +152,8 @@ class Client:
             while True:
                 data = self.receive()
                 if data.startswith('dead'):
-                    self.revive_client()
+                    self.close()
+                    sys.exit(84)
                 if data.startswith('message'):
                     self.handle_broadcast(data)
                     break
@@ -145,9 +163,9 @@ class Client:
         self.socket.close()
 
     def connect(self):
-        data = self.receive()  # Initial connection response (welcome message)
+        data = self.receive()
         self.send(self.name)
-        data = self.receive()  # Additional server response (map size)
+        data = self.receive()
         if data == 'ko':
             sys.exit(84)
 
