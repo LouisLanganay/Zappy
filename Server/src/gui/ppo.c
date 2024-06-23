@@ -27,7 +27,15 @@ void ppo(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send(server->socket, interlocutor,
+    server_send(server, interlocutor,
         "ppo %d %d %d %d",
+        ai->id, ai->pos.x, ai->pos.y, ai->orientation);
+}
+
+void server_ppo(
+    zappy_server_t *server,
+    const ai_t *ai)
+{
+    gui_send_to_all(server, "ppo %d %d %d %d\n",
         ai->id, ai->pos.x, ai->pos.y, ai->orientation);
 }

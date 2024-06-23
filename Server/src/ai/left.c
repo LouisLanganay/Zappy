@@ -5,12 +5,11 @@
 ** left
 */
 
-#include <stdio.h>
-
 #include "server/ai_header.h"
+#include "server/gui.h"
 
 void left(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     UNUSED const char *message)
 {
@@ -28,5 +27,6 @@ void left(
             ai->orientation = EAST;
             break;
     }
-    protocol_server_send(server->socket, ai->fd, "ok");
+    server_send(server, ai->fd, "ok");
+    server_ppo(server, ai);
 }

@@ -62,6 +62,9 @@ fclean: 	$(DEPS)			; $(MAKE_DEPS)
 		fi 																	\
 	done
 
+tests_run: 	$(LIBS)
+	@$(MAKE) -sC $(LIBS_DIR) tests_run
+	@$(MAKE) -sC $(SERVER_DIR) tests_run
 
 re: fclean all
 

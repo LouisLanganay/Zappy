@@ -185,10 +185,8 @@ void Tile::endIncantation(int result)
 
     if (result == 1)
         _incantationSuccess = true;
-    else {
-        if (_incantationSuccess)
-            _incantationSuccess = false;
-    }
+    else
+        _incantationSuccess = false;
     _incantationPlayers.clear();
 }
 

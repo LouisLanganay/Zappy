@@ -5,18 +5,141 @@
 ** ai
 */
 
-#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-#include "server.h"
+#include "server/ai_header.h"
+#include "server/gui.h"
 
-void ai_send_to_all(
-    const zappy_server_t *server,
+static void spawn_ai(
+    zappy_server_t *server,
+    ai_t *ai,
+    const uint16_t nb_ai)
+{
+    egg_t *egg;
+
+    if (nb_ai < server->clients_nb) {
+        ai->pos = (vector2_t){rand() % server->width, rand() % server->height};
+    } else {
+        ai->team->slots--;
+        egg = egg_pop_by_team(server, ai->team);
+        ebo(server, egg->id);
+        ai->pos = egg->pos;
+        free(egg);
+    }
+}
+
+static bool connect_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload,
+    ai_t *ai)
+{
+    const uint16_t nb = team_get_nb_ai(server, ai->team);
+    const uint16_t diff = nb < server->clients_nb - 1
+        ? server->clients_nb - nb - 1 : 0;
+
+    server_send(server, payload->fd, "%i", diff + ai->team->slots);
+    if (ai->team->slots == 0 && nb >= server->clients_nb) {
+        server_send(server, payload->fd, "ko");
+        free(ai);
+        return false;
+    }
+    spawn_ai(server, ai, nb);
+    TAILQ_INSERT_TAIL(&server->ais, ai, entries);
+    server_send(server, payload->fd,
+        "%i %i", server->width, server->height);
+    return true;
+}
+
+void create_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload)
+{
+    ai_t *ai = calloc(1, sizeof(ai_t));
+
+    if (!ai)
+        return;
+    *ai = (ai_t){.id = server->ai_id++, .fd = payload->fd,
+        .level = 1, .orientation = NORTH, .state = ALIVE,
+        .team = team_get_by_name(server, payload->message),
+        .life_span = 0, .inventory = { .food = 10 }};
+    if (!ai->team) {
+        free(ai);
+        fprintf(stderr, "\033[31m[ERROR]\033[0m Team not found\n");
+        return;
+    }
+    TAILQ_INIT(&ai->commands);
+    TAILQ_INIT(&ai->incantations);
+    if (!connect_ai(server, payload, ai))
+        return;
+    verbose(server, "New AI connected\n");
+    pnw(server, ai);
+}
+
+static void save_cmd_ai(
+    ai_t *ai,
+    const ai_command_t *command,
     const char *message)
 {
-    const ai_t *ai;
+    ai_cmd_t *cmd = calloc(1, sizeof(ai_cmd_t));
 
-    TAILQ_FOREACH(ai, &server->ais, entries)
-        protocol_server_send(server->socket, ai->fd, message);
+    if (!cmd)
+        return;
+    *cmd = (ai_cmd_t){ .func = command->func, .time = command->time };
+    memcpy(cmd->cmd, message, strlen(message));
+    TAILQ_INSERT_TAIL(&ai->commands, cmd, entries);
+}
+
+static uint8_t get_nb_commands(
+    const ai_t *ai)
+{
+    uint8_t nb = 0;
+    ai_cmd_t *cmd;
+
+    TAILQ_FOREACH(cmd, &ai->commands, entries)
+        nb++;
+    return nb;
+}
+
+static bool handle_cmd_ai(
+    zappy_server_t *server,
+    ai_t *ai,
+    const ai_command_t *command,
+    const char *message)
+{
+    const uint8_t len = strlen(command->cmd);
+
+    if (strncmp(message, command->cmd, len))
+        return false;
+    if (get_nb_commands(ai) >= 10) {
+        ai->is_skipped = true;
+        return false;
+    }
+    if (command->time == 0) {
+        command->func(server, ai, message + len + 1);
+        return true;
+    }
+    if (command->check && !command->check(server, ai, message + len + 1)) {
+        server_send(server, ai->fd, "ko");
+        return false;
+    }
+    save_cmd_ai(ai, command, message + len);
+    return true;
+}
+
+void handle_event_ai(
+    zappy_server_t *server,
+    const protocol_payload_t *payload)
+{
+    ai_t *ai = ai_get_by_fd(server, payload->fd);
+
+    if (ai->state == DEAD || ai->is_skipped)
+        return;
+    for (uint8_t i = 0; ai_cmds[i].func; ++i)
+        if (handle_cmd_ai(server, ai, &ai_cmds[i], payload->message))
+            return;
+    server_send(server, payload->fd, "ko");
 }
 
 ai_t *ai_get_by_id(

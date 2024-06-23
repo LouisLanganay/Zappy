@@ -25,7 +25,7 @@ static protocol_client_t *client_socket(
     protocol_client_t *client = calloc(1, sizeof(protocol_client_t));
 
     if (!client) {
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return NULL;
     }
     client->network_data = (protocol_network_data_t){
@@ -38,7 +38,7 @@ static protocol_client_t *client_socket(
     };
     if (client->network_data.sockfd > 0)
         return client;
-    fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+    fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
     free(client);
     return NULL;
 }
@@ -51,7 +51,7 @@ static bool client_connect(protocol_client_t *client)
         sizeof(struct sockaddr_in)
     ) >= 0)
         return true;
-    fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+    fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
     free(client);
     return false;
 }

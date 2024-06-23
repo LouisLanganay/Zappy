@@ -8,7 +8,8 @@
 #include "server.h"
 
 void suc(
-    const zappy_server_t *server)
+    zappy_server_t *server,
+    const int interlocutor)
 {
-    gui_send_to_all(server, "suc");
+    server_send(server, interlocutor, "suc");
 }
