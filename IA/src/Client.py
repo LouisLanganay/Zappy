@@ -179,7 +179,7 @@ class Client:
                 self.send_queue()
                 continue
 
-            if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Group' or self.ai.mode == 'STOP'):
+            if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'STOP'):
                 self.ai.mode = 'Incantation'
                 self.send('Look')
                 data = self.receive()

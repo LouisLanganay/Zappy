@@ -116,7 +116,10 @@ if __name__ == '__main__':
         subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i), '-h', host])
 
 
-    time.sleep(7)
+    time.sleep(10)
     subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5), '-h', host])
+
+    while True:
+        pass
 
 
