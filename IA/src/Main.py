@@ -91,6 +91,9 @@ class MainClient:
         self.send(self.name + '\n')
         welcome_msg = self.receive()
         available_slots_msg = self.receive()
+        if available_slots_msg == 'ko':
+            print("Server refused the connection")
+            sys.exit(84)
         available_slots = int(available_slots_msg.split('\n')[0].strip())
         return available_slots + 1
 
@@ -116,6 +119,4 @@ if __name__ == '__main__':
     time.sleep(7)
     subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5), '-h', host])
 
-    while True:
-        pass
 

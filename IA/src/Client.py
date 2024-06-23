@@ -49,7 +49,7 @@ class Client:
                 break
         
         count = 0
-        while buffer.startswith('message'):
+        while buffer.startswith('message') and count < 10:
             self.handle_broadcast(buffer)
             buffer = self.socket.recv(512).decode().strip()
             count += 1
