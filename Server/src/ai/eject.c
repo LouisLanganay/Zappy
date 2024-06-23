@@ -40,6 +40,27 @@ static uint8_t eject_direction(
         }[target->orientation - 1][ai->orientation - 1];
 }
 
+static void eject_target(
+    const zappy_server_t *server,
+    const ai_t *ai,
+    ai_t *target)
+{
+    switch (ai->orientation) {
+        case NORTH:
+            target->pos.y = (target->pos.y - 1 + server->height) % server->height;
+            break;
+        case EAST:
+            target->pos.x = (target->pos.x + 1) % server->width;
+            break;
+        case SOUTH:
+            target->pos.y = (target->pos.y + 1) % server->height;
+            break;
+        case WEST:
+            target->pos.x = (target->pos.x - 1 + server->width) % server->width;
+            break;
+    }
+}
+
 //        NORTH EAST  SOUTH WEST
 // NORTH  |  5  |  3  |  1  |  7
 // EAST   |  7  |  5  |  3  |  1
@@ -59,6 +80,7 @@ void eject(
             continue;
         server_send(server, target->fd,
             "eject: %i", eject_direction(ai, target));
+        eject_target(server, ai, target);
         ejected = true;
         pex(server, target);
         server_ppo(server, target);
