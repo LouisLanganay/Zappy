@@ -16,7 +16,7 @@ $(NAME):
 
 clean:
 	rm -rf src/__pycache__
-	
+
 fclean: clean
 
 re: fclean all

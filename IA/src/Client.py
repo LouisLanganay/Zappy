@@ -20,7 +20,6 @@ class Client:
         self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
 
         self.ai = AI(self.id)
-        self.has_all_resources = False
 
     def send(self, data):
         self.socket.send(data.encode() + b'\n')
@@ -52,16 +51,6 @@ class Client:
             count += 1
         
         return buffer
-
-    def update_inventory(self):
-        self.send('Inventory')
-        data = self.receive()
-        self.ai.update_state(data)
-
-    def update_vision(self):
-        self.send('Look')
-        data = self.receive()
-        self.ai.update_state(data)
 
     def send_queue(self):
         for elt in self.queue:
