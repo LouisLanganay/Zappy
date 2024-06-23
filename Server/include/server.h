@@ -151,6 +151,7 @@ typedef struct zappy_server_s {
 
     uint16_t ai_id;
     uint16_t egg_id;
+    bool send_as_failed;
 
     TAILQ_HEAD(, ai_s) ais;
     TAILQ_HEAD(teamhead, team_s) teams;
@@ -194,7 +195,7 @@ void handle_event_gui(
     zappy_server_t *server,
     const protocol_payload_t *payload);
 void gui_send_to_all(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const char *message,
     ...);
 // team
@@ -211,5 +212,11 @@ uint16_t egg_spawn(
 egg_t *egg_pop_by_team(
     zappy_server_t *server,
     const team_t *team);
+// send
+void server_send(
+    zappy_server_t *server,
+    int interlocutor,
+    const char *format,
+    ...);
 
 #endif //SERVER_H

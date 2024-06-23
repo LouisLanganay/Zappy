@@ -27,19 +27,18 @@ void ppo(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send(server->socket, interlocutor,
+    server_send(server, interlocutor,
         "ppo %d %d %d %d",
         ai->id, ai->pos.x, ai->pos.y, ai->orientation);
 }
 
 void server_ppo(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai)
 {
     gui_t *gui;
 
     TAILQ_FOREACH(gui, &server->guis, entries)
-        protocol_server_send(
-            server->socket, gui->fd, "ppo %d %d %d %d",
-            ai->id, ai->pos.x, ai->pos.y, ai->orientation);
+        server_send(server, gui->fd,
+            "ppo %d %d %d %d", ai->id, ai->pos.x, ai->pos.y, ai->orientation);
 }

@@ -8,8 +8,8 @@
 #include "server.h"
 
 void sbp(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const int interlocutor)
 {
-    protocol_server_send(server->socket, interlocutor, "sbp");
+    server_send(server, interlocutor, "sbp");
 }

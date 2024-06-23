@@ -24,7 +24,7 @@ static incantation_t *create_incantation(
 }
 
 static bool notify(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai)
 {
     uint16_t count = 0;
@@ -39,7 +39,7 @@ static bool notify(
     count = 0;
     for (const incantation_t *elm = TAILQ_FIRST(&ai->incantations); elm;
         elm = TAILQ_NEXT(elm, entries)) {
-        protocol_server_send(server->socket, elm->ai->fd,
+        server_send(server, elm->ai->fd,
             "Elevation underway");
         ais[count] = elm->ai;
         count++;
@@ -136,7 +136,7 @@ void incantation(
 
     if (!can_incantation(server, ai, "")) {
         TAILQ_FOREACH(elm, &ai->incantations, entries)
-            protocol_server_send(server->socket, elm->ai->fd, "ko");
+            server_send(server, elm->ai->fd, "ko");
         clean_incantations(server, ai);
         return;
     }
@@ -147,7 +147,7 @@ void incantation(
         if (elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
             && elm->ai->level == ai->level && ai->state != DEAD) {
             elm->ai->level++;
-            protocol_server_send(server->socket, elm->ai->fd,
+            server_send(server, elm->ai->fd,
                 "Current level: %d", elm->ai->level);
         }
     pie(server, ai);

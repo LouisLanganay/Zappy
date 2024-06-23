@@ -8,7 +8,7 @@
 #include "server/gui.h"
 
 void pgt(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     const uint8_t resource)
 {

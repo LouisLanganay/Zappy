@@ -18,6 +18,7 @@ SRC			:=	$(addprefix $(DIR)/,								\
 					gui.c											\
 					team.c											\
 					egg.c											\
+					send.c											\
 				)
 
 DIR			+=	src/gui

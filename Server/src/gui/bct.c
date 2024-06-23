@@ -25,7 +25,7 @@ void bct(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send(server->socket, interlocutor,
+    server_send(server, interlocutor,
         "bct %d %d %d %d %d %d %d %d %d",
         pos.x, pos.y, server->map[pos.y][pos.x].food,
         server->map[pos.y][pos.x].linemate,

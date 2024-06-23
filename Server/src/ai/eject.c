@@ -50,7 +50,7 @@ void eject(
     TAILQ_FOREACH(target, &server->ais, entries)
         if (target->fd != ai->fd
             && target->pos.x == ai->pos.x && target->pos.y == ai->pos.y) {
-            protocol_server_send(server->socket, ai->fd, "eject: %i",
+            server_send(server, ai->fd, "eject: %i",
                 (uint8_t[]){ 8, 6, 4, 2 }[(convert_orientation(WEST)
                     + convert_orientation(NORTH) - 1) % 4]);
             ejected = true;
@@ -58,7 +58,7 @@ void eject(
         }
     eject_egg(server, ai, &ejected);
     if (ejected)
-        protocol_server_send(server->socket, ai->fd, "ok");
+        server_send(server, ai->fd, "ok");
     else
-        protocol_server_send(server->socket, ai->fd, "ko");
+        server_send(server, ai->fd, "ko");
 }

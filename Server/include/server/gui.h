@@ -77,7 +77,7 @@ void tna(
  * @note Send pnw with the id, position, orientation, level and team of the ai
  */
 void pnw(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief Send the position of a ai when ppo is received from a GUI
@@ -94,7 +94,7 @@ void ppo(
     int interlocutor,
     const char *message);
 void server_ppo(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief Send the level of a ai when plv is received from a GUI
@@ -133,7 +133,7 @@ void pin(
  * @note Send pex with the id of the ai
  */
 void pex(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief Send the frequency of the server when sgt is received from a GUI
@@ -173,7 +173,7 @@ void sst(
  * @note Send for each GUI smg with the message
  */
 void smg(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const char *message);
 /**
  * @brief Send when a unknown command is received
@@ -184,7 +184,7 @@ void smg(
  * @note Send suc
  */
 void suc(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor);
 /**
  * @brief Send when a invalid command parameter is received
@@ -195,7 +195,7 @@ void suc(
  * @note Send sbp
  */
 void sbp(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     int interlocutor);
 /**
  * @brief Send when a player broadcast a message
@@ -207,7 +207,7 @@ void sbp(
  * @note Send pbc with the player number and the message
  */
 void pbc(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     const char *message);
 /**
@@ -220,7 +220,7 @@ void pbc(
  * and the players
 */
 void pic(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t **ais);
 /**
  * @brief End an incantation
@@ -231,7 +231,7 @@ void pic(
  * @note Send pie with the position of the tile, the result of the incantation
  */
 void pie(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief egg laying by the player
@@ -242,7 +242,7 @@ void pie(
  * @note Send pfk with the player number
 */
 void pfk(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief ressource dropping
@@ -254,7 +254,7 @@ void pfk(
  * @note Send pdr with the player number and the actual ressource
 */
 void pdr(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     uint8_t resource);
 /**
@@ -267,7 +267,7 @@ void pdr(
  * @note Send pgt with the player number and the actual ressource
 */
 void pgt(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     uint8_t resource);
 /**
@@ -279,7 +279,7 @@ void pgt(
  * @note Send pdi with the player number
 */
 void pdi(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai);
 /**
  * @brief An egg is laid by a player
@@ -291,7 +291,7 @@ void pdi(
  * @note Send enw with the egg number, player number and position of the egg
 */
 void enw(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     int egg_id);
 /**
@@ -303,7 +303,7 @@ void enw(
  * @note Send ebo with the egg number
 */
 void ebo(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     uint16_t egg_id);
 /**
  * @brief Death of an egg
@@ -314,7 +314,7 @@ void ebo(
  * @note Send edi with the egg number
 */
 void edi(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     uint16_t egg_id);
 /**
  * @brief End of the game
@@ -325,7 +325,7 @@ void edi(
  * @note Send seg with the winner team
 */
 void seg(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const team_t *team);
 
 static const struct {

@@ -27,6 +27,6 @@ void left(
             ai->orientation = EAST;
             break;
     }
-    protocol_server_send(server->socket, ai->fd, "ok");
+    server_send(server, ai->fd, "ok");
     server_ppo(server, ai);
 }

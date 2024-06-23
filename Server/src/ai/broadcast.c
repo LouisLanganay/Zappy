@@ -35,7 +35,7 @@ static int get_broadcast_direction(
 }
 
 static void notify_users(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai,
     const char *message)
 {
@@ -45,7 +45,7 @@ static void notify_users(
     TAILQ_FOREACH(target, &server->ais, entries)
         if (target->fd != ai->fd) {
             broadcast_direction = get_broadcast_direction(ai, target);
-            protocol_server_send(server->socket, target->fd, "message %i, %s",
+            server_send(server, target->fd, "message %i, %s",
                 broadcast_direction, message);
         }
 }
@@ -56,10 +56,10 @@ void broadcast_text(
     const char *message)
 {
     if (message[0] != ' ' || !message[1]) {
-        protocol_server_send(server->socket, ai->fd, "ko");
+        server_send(server, ai->fd, "ko");
         return;
     }
     notify_users(server, ai, message + 1);
-    protocol_server_send(server->socket, ai->fd, "ok");
+    server_send(server, ai->fd, "ok");
     pbc(server, ai, message + 1);
 }

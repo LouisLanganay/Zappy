@@ -19,15 +19,15 @@ void take(
         if (strcmp(RESSOURCES_NAMES[i], message + 1))
             continue;
         if (!server->map[ai->pos.y][ai->pos.x].resources[i]) {
-            protocol_server_send(server->socket, ai->fd, "ko");
+            server_send(server, ai->fd, "ko");
             return;
         }
         server->ressources.resources[i] -= 1;
         server->map[ai->pos.y][ai->pos.x].resources[i] -= 1;
         ai->inventory.resources[i] += 1;
-        protocol_server_send(server->socket, ai->fd, "ok");
+        server_send(server, ai->fd, "ok");
         pgt(server, ai, i);
         return;
     }
-    protocol_server_send(server->socket, ai->fd, "ko");
+    server_send(server, ai->fd, "ko");
 }

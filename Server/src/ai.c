@@ -32,16 +32,16 @@ static bool connect_ai(
     const protocol_payload_t *payload,
     ai_t *ai)
 {
-    protocol_server_send(server->socket, payload->fd, "%i", ai->team->slots);
+    server_send(server, payload->fd, "%i", ai->team->slots);
     if (ai->team->slots == 0) {
-        protocol_server_send(server->socket, payload->fd, "ko");
+        server_send(server, payload->fd, "ko");
         free(ai);
         return false;
     }
     ai->team->slots--;
     spawn_ai(server, ai);
     TAILQ_INSERT_TAIL(&server->ais, ai, entries);
-    protocol_server_send(server->socket, payload->fd,
+    server_send(server, payload->fd,
         "%i %i", server->width, server->height);
     return true;
 }
@@ -115,7 +115,7 @@ static bool handle_cmd_ai(
         return true;
     }
     if (command->check && !command->check(server, ai, message + len + 1)) {
-        protocol_server_send(server->socket, ai->fd, "ko");
+        server_send(server, ai->fd, "ko");
         return false;
     }
     save_cmd_ai(ai, command, message + len);
@@ -133,7 +133,7 @@ void handle_event_ai(
     for (uint8_t i = 0; ai_cmds[i].func; ++i)
         if (handle_cmd_ai(server, ai, &ai_cmds[i], payload->message))
             return;
-    protocol_server_send(server->socket, payload->fd, "ko");
+    server_send(server, payload->fd, "ko");
 }
 
 ai_t *ai_get_by_id(

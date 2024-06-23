@@ -8,7 +8,7 @@
 #include "server.h"
 
 void smg(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const char *message)
 {
     gui_send_to_all(server, "smg %s", message);

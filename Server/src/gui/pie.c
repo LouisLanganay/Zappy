@@ -8,7 +8,7 @@
 #include "server/gui.h"
 
 void pie(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     const ai_t *ai)
 {
     gui_send_to_all(server, "pie %d %d %d",

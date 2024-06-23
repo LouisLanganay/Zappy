@@ -30,7 +30,7 @@ static connection_t get_connection_by_fd(
 }
 
 static void handle_new_connection(
-    const zappy_server_t *server)
+    zappy_server_t *server)
 {
     protocol_connection_t *connection;
 
@@ -38,7 +38,7 @@ static void handle_new_connection(
         connection = TAILQ_FIRST(&server->socket->new_connections);
         TAILQ_REMOVE(&server->socket->new_connections, connection, entries);
         verbose(server, "New connection from %d\n", connection->fd);
-        protocol_server_send(server->socket, connection->fd,
+        server_send(server, connection->fd,
             "WELCOME");
         free(connection);
     }
@@ -68,6 +68,7 @@ static void handle_event(
     zappy_server_t *server,
     const protocol_payload_t *payload)
 {
+    server->send_as_failed = false;
     switch (get_connection_by_fd(server, payload->fd)) {
         case CONNECTION_AI:
             verbose(server, "AI %d: %s\n", payload->fd, payload->message);
