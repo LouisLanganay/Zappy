@@ -61,7 +61,8 @@ class Client:
             self.send(elt)
             data = self.receive()
             if data.startswith('dead'):
-                self.revive_client()
+                self.close()
+                sys.exit(84)
             self.ai.update_state(data)
         self.queue.clear()
 

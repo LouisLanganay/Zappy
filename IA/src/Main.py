@@ -106,20 +106,32 @@ if __name__ == '__main__':
 
     mainClient = MainClient(host, port, name)
 
-    available_slots = mainClient.connect_and_get_slots()
+    try:
+        available_slots = mainClient.connect_and_get_slots()
 
-    print(f"Available Clients : {available_slots}")
+        mainClient.close()
+        print(f"Available Clients: {available_slots}")
 
-    mainClient.close()
+        if available_slots > 5:
+            available_slots = 5
 
-    for i in range(available_slots):
-        subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i), '-h', host])
+        subprocesses = []
 
+        i = 0
+        for i in range(available_slots):
+            cmd = ['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i), '-h', host]
+            subprocesses.append(subprocess.Popen(cmd))
 
-    time.sleep(10)
-    subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5), '-h', host])
+        time.sleep(10)
+        cmd = ['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i + 1), '-h', host]
+        subprocesses.append(subprocess.Popen(cmd))
 
-    while True:
-        pass
+        for proc in subprocesses:
+            proc.wait()
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+    sys.exit(0)
 
 
