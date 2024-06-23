@@ -61,11 +61,10 @@ class AI:
         self.queue = []
         self.start = time.time()
         self.mode = 'Normal'
-        self.broadcaster_direction = -1 # default value (no broadcaster)
+        self.broadcaster_direction = -1
         self.count_incanter = 0
 
         self.resources_to_get = {"linemate": 0, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0}
-        # resource to get is going to be based on the id of the player (first will need to get the linemate, second the deraumere, etc.)
         if self.id == 0:
             self.resources_to_get['sibur'] = resources_to_get['sibur']
         elif self.id == 1:
@@ -186,11 +185,9 @@ class AI:
             for item in items:
                 key, value = item.split(" ")
                 inventory_dict[key] = int(value)
-
             return 'inventory'
         except:
             return 'look'
-        
     
     def detect_type_of_response(self, response):
         if response.startswith('ok'):
@@ -286,7 +283,7 @@ class AI:
         state = False
 
         goal_inventory = self.resources_to_get
-        goal_inventory['food'] = 50
+        # goal_inventory['food'] = 40
         resources_to_collect = {k: v for k, v in goal_inventory.items() if v > self.inventory[k]}
 
         for resource, amount_needed in resources_to_collect.items():

@@ -20,7 +20,6 @@ class Client:
         self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
 
         self.ai = AI(self.id)
-        self.command_queue = []
         self.has_all_resources = False
 
     def send(self, data):
@@ -69,8 +68,7 @@ class Client:
             self.send(elt)
             data = self.receive()
             if data.startswith('dead'):
-                print("Dead")
-                sys.exit(0)
+                self.revive_client()
             self.ai.update_state(data)
         self.queue.clear()
 
@@ -78,9 +76,15 @@ class Client:
         self.send(f"Broadcast {message}")
         data = self.receive()
 
-    def receive_no_data_check(self):
-        data = self.socket.recv(1024).decode().strip()
-        return data
+    def revive_client(self):
+        self.socket.close()
+        self.ai = AI(self.id)
+        self.queue = []
+        self.has_all_resources = False
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.host, self.port))
+        self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
+        print(f"Client {self.id} reconnected to server.")
 
     def handle_broadcast(self, message):
         temp = message[8:]
@@ -131,8 +135,7 @@ class Client:
             while True:
                 data = self.receive()
                 if data.startswith('dead'):
-                    #FIXME: handle death properly (lunch a new client)
-                    sys.exit(0)
+                    self.revive_client()
                 if data.startswith('message'):
                     self.handle_broadcast(data)
                     break
@@ -149,7 +152,7 @@ class Client:
             sys.exit(84)
 
     def run(self):
-        if self.id == 0:
+        if self.ai.id == 0:
             self.send('Fork')
             data = self.receive()
         while True:
@@ -159,7 +162,6 @@ class Client:
                 continue
 
             if self.ai.count_incanter == 6 and (self.ai.mode == 'Incantation' or self.ai.mode == 'Group' or self.ai.mode == 'STOP'):
-                # time.sleep(0.1)
                 self.ai.mode = 'Incantation'
                 self.send('Look')
                 data = self.receive()
@@ -174,6 +176,8 @@ class Client:
             if self.ai.mode == 'Normal':
                 self.queue = ['Look', 'Inventory']
                 self.send_queue()
+                self.queue = self.ai.algorithm()
+                self.send_queue()
 
             if self.ai.mode == 'Broadcaster':
                 self.queue = self.ai.drop_resources()
@@ -182,7 +186,7 @@ class Client:
                 time.sleep(0.1)
                 continue
 
-            if self.ai.has_all_resources() and self.ai.has_all_resources_dict[self.ai.map_resource(self.id)] == False and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 35:
+            if self.ai.has_all_resources() and self.ai.has_all_resources_dict[self.ai.map_resource(self.id)] == False and self.ai.mode == 'Normal' and self.ai.inventory['food'] > 30:
                 self.send_broadcast(f'Ready:{self.id}')
                 self.ai.has_all_resources_dict[self.ai.map_resource(self.id)] = True
                 continue
@@ -191,10 +195,6 @@ class Client:
                 self.ai.mode = 'Broadcaster'
                 self.ai.count_incanter += 1
                 continue
-
-            if self.ai.mode == 'Normal':
-                self.queue = self.ai.algorithm()
-                self.send_queue()
 
 def main():
     args = sys.argv[1:]
