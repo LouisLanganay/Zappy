@@ -134,6 +134,7 @@ UT_SRC		+=	$(addprefix $(lastword $(UT_DIR))/,					\
 					take.c											\
 					set.c											\
 					eject.c											\
+					fork.c											\
 				)
 
 DIR_BUILD	:=	build
