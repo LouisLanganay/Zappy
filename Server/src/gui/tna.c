@@ -16,6 +16,6 @@ void tna(
     const team_t *team;
 
     TAILQ_FOREACH(team, &server->teams, entries)
-        protocol_server_send(server->socket, interlocutor, "tna %s",
+        server_send(server, interlocutor, "tna %s",
             team->name);
 }

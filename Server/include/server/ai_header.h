@@ -23,7 +23,7 @@
  * @note Move the player one tile up
  */
 void forward(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -38,7 +38,7 @@ void forward(
  * @note Turn player 90° right
  */
 void right(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -53,7 +53,7 @@ void right(
  * @note Turn player 90° left
  */
 void left(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -68,7 +68,7 @@ void left(
  * @note Look tiles arround player
  */
 void look(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -83,7 +83,7 @@ void look(
  * @note Display player inventory
  */
 void inventory(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -98,7 +98,7 @@ void inventory(
  * @note Broadcast player text
  */
 void broadcast_text(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -113,7 +113,20 @@ void broadcast_text(
  * @note Display number of team with unused slot
  */
 void connect_nbr(
-    const zappy_server_t *server,
+    zappy_server_t *server,
+    ai_t *ai,
+    const char *message);
+
+/**
+ * @brief Check if player can fork
+ *
+ * @param server The server_t struct
+ * @param ai The associated ai struct
+ * @param message The message of the command
+ *
+ */
+bool can_fork(
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -128,7 +141,7 @@ void connect_nbr(
  * @note Fork the player
  */
 void exec_fork(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -143,7 +156,7 @@ void exec_fork(
  * @note Eject players from this tile
  */
 void eject(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -152,13 +165,11 @@ void eject(
  *
  * @param server The server_t struct
  * @param ai The associated ai struct
- * @param message The message of the command
  *
  */
 void death(
     const zappy_server_t *server,
-    ai_t *ai,
-    const char *message);
+    ai_t *ai);
 
 /**
  * @brief Take an object
@@ -169,7 +180,7 @@ void death(
  *
  */
 void take(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -182,7 +193,20 @@ void take(
  *
  */
 void set(
-    const zappy_server_t *server,
+    zappy_server_t *server,
+    ai_t *ai,
+    const char *message);
+
+/**
+ * @brief Check if incantation can be started
+ *
+ * @param server The server_t struct
+ * @param ai The associated ai struct
+ * @param message The message of the command
+ *
+ */
+bool can_incantation(
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
@@ -195,30 +219,57 @@ void set(
  *
  */
 void incantation(
-    const zappy_server_t *server,
+    zappy_server_t *server,
     ai_t *ai,
     const char *message);
 
-static const struct {
+typedef struct {
     const char *cmd;
     void (*func)(
-        const zappy_server_t *server,
+        zappy_server_t *server,
         ai_t *ai,
         const char *message);
-} ai_cmds[] = {
-    {"Forward", forward},
-    {"Right", right},
-    {"Left", left},
-    {"Look", look},
-    {"Inventory", inventory},
-    {"Broadcast", broadcast_text},
-    {"Connect_nbr", connect_nbr},
-    {"Fork", exec_fork},
-    {"Eject", eject},
-    {"Take", take},
-    {"Set", set},
-    {"Incantation", incantation},
-    {NULL, NULL}
+    bool (*check)(
+        zappy_server_t *server,
+        ai_t *ai,
+        const char *message);
+    uint16_t time;
+} ai_command_t;
+static const ai_command_t ai_cmds[] = {
+    {"Forward", forward, NULL, 7},
+    {"Right", right, NULL, 7},
+    {"Left", left, NULL, 7},
+    {"Look", look, NULL, 7},
+    {"Inventory", inventory, NULL, 1},
+    {"Broadcast", broadcast_text, NULL, 7},
+    {"Connect_nbr", connect_nbr, NULL, 0},
+    {"Fork", exec_fork, can_fork, 42},
+    {"Eject", eject, NULL, 7},
+    {"Take", take, NULL, 7},
+    {"Set", set, NULL, 7},
+    {"Incantation", incantation, can_incantation, 300},
+    {NULL, NULL, NULL, 0}
+};
+
+static const union {
+    uint16_t resources[7];
+    struct {
+        uint16_t players;
+        uint16_t linemate;
+        uint16_t deraumere;
+        uint16_t sibur;
+        uint16_t mendiane;
+        uint16_t phiras;
+        uint16_t thystame;
+    };
+} level_need[] = {
+    {{1, 1, 0, 0, 0, 0, 0}},
+    {{2, 1, 1, 1, 0, 0, 0}},
+    {{2, 2, 0, 1, 0, 2, 0}},
+    {{4, 1, 1, 2, 0, 1, 0}},
+    {{4, 1, 2, 1, 3, 0, 0}},
+    {{6, 1, 2, 3, 0, 1, 0}},
+    {{6, 2, 2, 2, 2, 2, 1}}
 };
 
 #endif //AI_H

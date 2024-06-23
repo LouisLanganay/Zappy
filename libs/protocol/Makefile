@@ -13,7 +13,7 @@ SRC			:=	$(addprefix $(lastword $(DIR))/,					\
 					create.c										\
 					close.c											\
 					listen.c										\
-					send_packet.c									\
+					send.c											\
 				)
 
 DIR			+=	src/server
@@ -21,11 +21,18 @@ SRC			+=	$(addprefix $(lastword $(DIR))/,					\
 					create.c										\
 					close.c											\
 					listen.c										\
-					send_packet.c									\
+					send.c											\
 				)
 
-TEST_DIR	:=	tests
-TEST_SRC	:=	$(addprefix $(TEST_DIR)/,							\
+UF_DIR		:=	tests
+UF_SRC		:=	$(addprefix $(UF_DIR)/,								\
+					client.c										\
+					server.c										\
+				)
+
+UT_DIR		:=	../../tests/protocol
+UT_SRC		:=	$(SRC)
+UT_SRC		+=	$(addprefix $(UT_DIR)/,								\
 					client.c										\
 					server.c										\
 				)
@@ -37,14 +44,19 @@ DIR_OBJ		:=	$(DIR_BUILD)/obj
 OBJ			:=	$(patsubst %$(EXT),$(DIR_OBJ)/%.o,$(SRC))
 DEP			:=	$(OBJ:.o=.d)
 
-TEST_OBJ	:=	$(patsubst %$(EXT),$(DIR_OBJ)/%.o,$(TEST_SRC))
-TEST_DEP	:=	$(TEST_OBJ:.o=.d)
+UF_OBJ		:=	$(patsubst %$(EXT),$(DIR_OBJ)/%.o,$(UF_SRC))
+UF_DEP		:=	$(UF_OBJ:.o=.d)
+
+UT_DIR_OBJ	:=	$(DIR_BUILD)/tests/unit
+UT_OBJ		:=	$(patsubst %$(EXT),$(UT_DIR_OBJ)/%.o,$(UT_SRC))
+UT_DEP		:=	$(UT_OBJ:.o=.d)
 
 DG_DIR_OBJ	:=	$(DIR_BUILD)/debug
 DG_OBJ		:=	$(patsubst %$(EXT),$(DG_DIR_OBJ)/%.o,$(SRC))
 DG_DEP		:=	$(DG_OBJ:.o=.d)
 
 DEBUG		:=	$(DIR_BIN)/debug
+UT_TEST		:=	$(DIR_BIN)/unit_test
 
 RM			:=	rm -rf
 
@@ -75,6 +87,7 @@ endef
 
 $(DIR_OBJ)/%.o:		%$(EXT); $(BUILD_OBJ)
 $(DG_DIR_OBJ)/%.o:	%$(EXT); $(BUILD_OBJ)
+$(UT_DIR_OBJ)/%.o:	%$(EXT); $(BUILD_OBJ)
 
 define COMPILE
 	$(CREATE_DIR)
@@ -93,21 +106,29 @@ endef
 -include $(DEP)
 $(NAME):			$(OBJ); 	$(COMPILE_LIB)
 
--include $(TEST_DEP)
-client:				$(firstword $(TEST_OBJ));	$(COMPILE)
-server:				$(lastword $(TEST_OBJ));	$(COMPILE)
-tests:				all
-tests: 				LDFLAGS += -L. -lmyprotocol
-tests:				client server
-
 -include $(DG_DEP)
 $(DEBUG):			CFLAGS += -g -DDEBUG
 $(DEBUG):			$(DG_OBJ); 	$(COMPILE_LIB)
 debug:				$(DEBUG)
 
+-include $(UF_DEP)
+client:				$(firstword $(UF_OBJ));	$(COMPILE)
+server:				$(lastword $(UF_OBJ));	$(COMPILE)
+tests_functional:				all
+tests_functional: 				LDFLAGS += -L. -lmyprotocol
+tests_functional:				client server
+
+-include $(UT_DEP)
+$(UT_TEST):			CFLAGS += --coverage
+$(UT_TEST):			LDFLAGS += -lcriterion --coverage
+$(UT_TEST):			$(UT_OBJ);	$(COMPILE)
+tests_unit:			$(UT_TEST)
+	@cp $(UT_TEST) $(UT_DIR_OBJ)
+	@$(UT_DIR_OBJ)/$(notdir $<)
+
 tests_run:			tests_functional tests_unit
 	gcovr $(UT_DIR_OBJ) --exclude tests/
-	gcovr $(UT_DIR_OBJ) --exclude tests/ --branches
+	gcovr $(UT_DIR_OBJ) --exclude tests/ --txt-metric branch
 
 clean:
 	@[ -d $(DIR_BUILD) ]											\
