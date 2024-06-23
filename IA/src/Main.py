@@ -110,10 +110,10 @@ if __name__ == '__main__':
     mainClient.close()
 
     for i in range(available_slots):
-        subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i)])
+        subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(i), '-h', host])
 
     time.sleep(6.5)
-    subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5)])
+    subprocess.Popen(['./IA/src/Client.py', '-p', str(port), '-n', name, '-id', str(5), '-h', host])
 
     while True:
         pass
