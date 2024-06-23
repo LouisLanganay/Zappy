@@ -17,6 +17,7 @@ void create_gui(
     const protocol_payload_t *payload)
 {
     gui_t *gui = calloc(1, sizeof(gui_t));
+    ai_t *ai;
 
     if (!gui)
         return;
@@ -27,6 +28,9 @@ void create_gui(
     sgt(server, payload->fd, "");
     mct(server, payload->fd, "");
     tna(server, payload->fd, "");
+    TAILQ_FOREACH(ai, &server->ais, entries)
+        if (ai->state != DEAD)
+            pnw(server, ai);
 }
 
 void handle_event_gui(
