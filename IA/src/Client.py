@@ -150,6 +150,7 @@ class Client:
         data = self.receive()  # Additional server response (map size)
         if data == 'ko':
             sys.exit(84)
+        return 0
 
     def run(self):
         if self.ai.id == 0:

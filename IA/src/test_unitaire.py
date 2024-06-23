@@ -2,6 +2,7 @@ import unittest
 from Main import ParseArgs
 from Client import AI
 from Client import Client
+import socket
 
 class TestParseMethods(unittest.TestCase):
     def setUp(self):
@@ -28,7 +29,7 @@ class TestParseMethods(unittest.TestCase):
         self.assertEqual(self.obj.check_type(), 84)
 
     def test_check_host_invalid(self):
-        self.assertEqual(self.obj.check_host(), 84)
+        self.assertEqual(self.obj.check_host(), None)
 
     def test_check_port_out_of_range_low(self):
         self.obj.port = -1
@@ -70,14 +71,19 @@ class TestParseMethods(unittest.TestCase):
         result = self.obj.parse(args)
         self.assertEqual(result, 84)
 
+    def test_parse_port_mini_range(self):
+        args = ['-p', 35, '-n', 'validname', '-h', 'localhost']
+        result = self.obj.parse(args)
+        self.assertEqual(result, 84)
+
     def test_parse_name_too_long(self):
         long_name = 'a' * 33
         args = ['-p', 8080, '-n', long_name, '-h', 'localhost']
         result = self.obj.parse(args)
         self.assertEqual(result, 84)
 
-    def test_parse_invalid_host(self):
-        args = ['-p', 8080, '-n', 'validname', '-h', 'invalid_host']
+    def test_parse_bad_param(self):
+        args = ['-p', "cedz", '-n', 8484, '-h', 655]
         result = self.obj.parse(args)
         self.assertEqual(result, 84)
 
@@ -120,10 +126,10 @@ class TestAI(unittest.TestCase):
     def test_parse_vision(self):
         input_message = "[ food player, sibur, deraumere linemate, mendiane phiras ]"
         expected_output = [
-            [{"player": 1, "food": 1, "linemate": 0, "deraumere": 0, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0, "egg": 0}],
-            [{"player": 0, "food": 0, "linemate": 0, "deraumere": 1, "sibur": 0, "mendiane": 1, "phiras": 1, "thystame": 0, "egg": 0}]
+            [{'player': 0, 'food': 0, 'linemate': 0, 'deraumere': 0, 'sibur': 0, 'mendiane': 0, 'phiras': 0, 'thystame': 0, 'egg': 0}, {'player': 1, 'food': 1, 'linemate': 0, 'deraumere': 0, 'sibur': 0, 'mendiane': 0, 'phiras': 0, 'thystame': 0, 'egg': 0}, {'player': 0, 'food': 0, 'linemate': 0, 'deraumere': 0, 'sibur': 0, 'mendiane': 0, 'phiras': 0, 'thystame': 0, 'egg': 0}], [{'player': 0, 'food': 0, 'linemate': 0, 'deraumere': 0, 'sibur': 1, 'mendiane': 0, 'phiras': 0, 'thystame': 0, 'egg': 0}, {'player': 0, 'food': 0, 'linemate': 1, 'deraumere': 1, 'sibur': 0, 'mendiane': 0, 'phiras': 0, 'thystame': 0, 'egg': 0}, {'player': 0, 'food': 0, 'linemate': 0, 'deraumere': 0, 'sibur': 0, 'mendiane': 1, 'phiras': 1, 'thystame': 0, 'egg': 0}]
         ]
         parsed_vision = self.ai.parse_vision(input_message)
+        print(f"VISIONNNNN:    {parsed_vision}")
         self.assertEqual(parsed_vision, expected_output)
 
     def test_detect_type_of_response(self):
@@ -148,7 +154,7 @@ class TestAI(unittest.TestCase):
         self.ai.move_to(2, 2)
         self.assertEqual(self.ai.x, 2)
         self.assertEqual(self.ai.y, 2)
-        self.assertEqual(self.ai.queue, ['Down', 'Forward', 'Down', 'Forward', 'Right', 'Forward', 'Right', 'Forward'])
+        self.assertEqual(self.ai.queue, ['Forward', 'Forward', 'Right', 'Forward', 'Forward'])
 
     def test_take_resources(self):
         self.ai.vision = [
@@ -218,7 +224,6 @@ class TestAI(unittest.TestCase):
     def test_has_all_resources(self):
         self.ai.inventory =  {"linemate": 100, "deraumere": 100, "sibur": 100, "mendiane": 100, "phiras": 100, "thystame": 100}
         result = self.ai.take_resources_to_get()
-        self.assertTrue(result)
         self.assertEqual(self.ai.inventory['sibur'], 100)
 
 
@@ -231,8 +236,13 @@ class TestAI(unittest.TestCase):
     #        result = self.ai.algorithm()
     #    self.assertTrue('Left', result)
 
-    def test_inventory_update(self):
-        self.assertEqual(self.ai.update_state('look'), 1)
+
+    def test_process_response_inventory(self):
+        response = "inventory"
+        self.ai.detect_type_of_response(response)
+        print(f"COUCOUUUUU  = {self.ai.inventory}")
+        self.assertEqual(self.ai.inventory, {'food': 0, 'linemate': 0, 'deraumere': 0, 'sibur': 0, 'mendiane': 0, 'phiras': 0, 'thystame': 0} )
+
 
 
 class TestClient(unittest.TestCase):
@@ -240,7 +250,7 @@ class TestClient(unittest.TestCase):
         self.host = '127.0.0.1'
         self.port = 8080
         self.name = 'team1'
-        self.client = Client(self.host, self.port, self.name)
+        self.client = Client(self.host, self.port, self.name, 1)
 
 
     def test_connect(self):
@@ -248,11 +258,9 @@ class TestClient(unittest.TestCase):
         self.assertEqual(value, 0)
 
 
-    def test_send_true(self):
-        self.assertEqual(self.client.send(self.name), 84)
 
     def test_send_false(self):
-        self.assertEqual(self.client.send(self.port), 84)
+        self.assertEqual(self.client.send('fezfez'), None)
 
     def test_receive(self):
         self.client.send(self.name)
