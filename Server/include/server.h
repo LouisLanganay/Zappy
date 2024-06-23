@@ -23,7 +23,6 @@ typedef enum {
     ALIVE,
     DEAD,
     INCANTATE,
-    SKIPPED,
 } ai_state_t;
 
 typedef enum {
@@ -102,6 +101,7 @@ typedef struct ai_s {
 
     uint16_t life_span;
     ai_state_t state;
+    bool is_skipped;
 
     TAILQ_HEAD(, ai_cmd_s) commands;
     TAILQ_HEAD(, incantation_s) incantations;

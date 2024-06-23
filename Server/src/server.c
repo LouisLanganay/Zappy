@@ -70,7 +70,7 @@ bool zappy_server(zappy_server_t *server)
     display_server(server);
     if (!init_map(server))
         return false;
-    while (protocol_server_is_open()) {
+    while (protocol_server_is_open() && !server->is_game_end) {
         update_game(server);
         protocol_server_listen(server->socket);
         if (!handle_payload(server))

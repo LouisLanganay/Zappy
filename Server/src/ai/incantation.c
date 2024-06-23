@@ -64,7 +64,7 @@ static void clean_incantations(
             elm->ai->state = ALIVE;
         if (elm->ai->level == 8) {
             server->is_game_end = true;
-            server->winner = elm->ai->team;
+            seg(server, elm->ai->team);
         }
         TAILQ_REMOVE(&ai->incantations, elm, entries);
         free(elm);
@@ -84,7 +84,7 @@ static bool create_incantations(
         ai_elm = TAILQ_NEXT(ai_elm, entries)) {
         if (ai_elm->fd == ai->fd || ai_elm->level != ai->level
             || ai_elm->pos.x != ai->pos.x || ai_elm->pos.y != ai->pos.y
-            || ai_elm->state == INCANTATE || !ai_elm->inventory.food)
+            || ai_elm->state == INCANTATE || ai_elm->state == DEAD)
             continue;
         elm = create_incantation(ai_elm);
         if (!elm)
@@ -106,7 +106,7 @@ static bool check_incantations(
     TAILQ_FOREACH(elm, &ai->incantations, entries)
         if (elm->ai->fd != ai->fd
             && elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
-            && elm->ai->level == ai->level && ai->inventory.food > 0)
+            && elm->ai->level == ai->level && elm->ai->state == INCANTATE)
             count++;
     return count >= level_need[ai->level - 1].resources[0];
 }
@@ -145,7 +145,7 @@ void incantation(
             level_need[ai->level - 1].resources[i];
     TAILQ_FOREACH(elm, &ai->incantations, entries)
         if (elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
-            && elm->ai->level == ai->level && ai->inventory.food > 0) {
+            && elm->ai->level == ai->level && ai->state != DEAD) {
             elm->ai->level++;
             protocol_server_send(server->socket, elm->ai->fd,
                 "Current level: %d", elm->ai->level);

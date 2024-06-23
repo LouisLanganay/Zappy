@@ -107,7 +107,7 @@ static bool handle_cmd_ai(
     if (strncmp(message, command->cmd, len))
         return false;
     if (get_nb_commands(ai) >= 10) {
-        ai->state = SKIPPED;
+        ai->is_skipped = true;
         return false;
     }
     if (command->time == 0) {
@@ -128,7 +128,7 @@ void handle_event_ai(
 {
     ai_t *ai = ai_get_by_fd(server, payload->fd);
 
-    if (ai->state == DEAD || ai->state == SKIPPED)
+    if (ai->state == DEAD || ai->is_skipped)
         return;
     for (uint8_t i = 0; ai_cmds[i].func; ++i)
         if (handle_cmd_ai(server, ai, &ai_cmds[i], payload->message))
