@@ -27,7 +27,7 @@ void pin(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send(server->socket, interlocutor,
+    server_send(server, interlocutor,
         "pin %d %d %d %d %d %d %d %d %d %d",
         ai->id, ai->pos.x, ai->pos.y, ai->inventory.food,
         ai->inventory.linemate, ai->inventory.deraumere,

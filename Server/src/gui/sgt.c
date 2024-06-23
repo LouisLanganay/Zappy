@@ -13,6 +13,6 @@ void sgt(
     const int interlocutor,
     UNUSED const char *message)
 {
-    protocol_server_send(server->socket, interlocutor,
+    server_send(server, interlocutor,
         "sgt %d", server->freq);
 }

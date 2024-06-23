@@ -17,7 +17,8 @@ void sst(
 {
     uint16_t freq;
 
-    if (sscanf(message, " %hd", &freq) != 1) {
+    if (sscanf(message, " %hd", &freq) != 1
+        || freq < 1 || freq > 10000) {
         sbp(server, interlocutor);
         return;
     }

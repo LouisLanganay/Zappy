@@ -53,6 +53,7 @@ dkms.conf
 
 # Build directory
 build/
+__pycache__/
 
 # IDE files/directories
 .idea/

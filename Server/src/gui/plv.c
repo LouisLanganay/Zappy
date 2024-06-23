@@ -27,6 +27,14 @@ void plv(
         sbp(server, interlocutor);
         return;
     }
-    protocol_server_send(server->socket, interlocutor, "plv %d %d",
+    server_send(server, interlocutor, "plv %d %d",
+        ai->id, ai->level);
+}
+
+void server_plv(
+    zappy_server_t *server,
+    const ai_t *ai)
+{
+    gui_send_to_all(server, "plv %d %d\n",
         ai->id, ai->level);
 }

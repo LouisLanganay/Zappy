@@ -29,7 +29,7 @@ static uint16_t parse_message(
     buffer[size] = '\0';
     payload = calloc(1, sizeof(protocol_payload_t));
     if (!payload) {
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return 0;
     }
     payload->fd = fd;
@@ -65,7 +65,7 @@ static bool receive_messages(
         DATA_SIZE - strlen_buffer);
 
     if (read_size < 0) {
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return false;
     }
     if (read_size == 0) {
@@ -101,7 +101,7 @@ protocol_payload_t *protocol_client_listen(
     memcpy(&client->writefds, &client->master_write_fds, sizeof(fd_set));
     if (select(FD_SETSIZE, &client->readfds, &client->writefds, NULL,
         NULL) == -1) {
-        fprintf(stderr, "\033[31m[Error]\033[0m %s\n", strerror(errno));
+        fprintf(stderr, "\033[31m[ERROR]\033[0m %s\n", strerror(errno));
         return NULL;
     }
     for (int fd = 0; fd <= FD_SETSIZE; fd++) {

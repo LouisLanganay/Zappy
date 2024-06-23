@@ -1,13 +1,29 @@
-#!/usr/bin/env python3
-import socket
-import sys
-import selectors
-import random
+
 import time
-from ParseArgs import ParseArgs
+import random
+
+"""
+Rarity based on quantity of resources needed:
+
+#### Sorted by Ratio ####
+| Resource  | Ratio   | ID |
+|-----------|---------|----|
+| Sibur     | 0.01    | 0  |
+| Phiras    | 0.0133  | 1  |
+| Deraumere | 0.01875 | 2  |
+| Mendiane  | 0.02    | 3  |
+| Linemate  | 0.0375  | 4  |
+| Thystame  | 0.05    | 5  |
+##########################
+
+Sorted by ratio:
+1. Sibur
+2. Phiras
+
+"""
 
 levels = [
-    {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
+    # {"linemate": 1, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0},
     {"linemate": 1, "deraumere": 1, "sibur": 1, "mendiane": 0, "phiras": 0, "thystame": 0},
     {"linemate": 2, "deraumere": 0, "sibur": 1, "mendiane": 0, "phiras": 2, "thystame": 0},
     {"linemate": 1, "deraumere": 1, "sibur": 2, "mendiane": 0, "phiras": 1, "thystame": 0},
@@ -33,8 +49,9 @@ inventory = {
 }
 
 class AI:
-    def __init__(self):
+    def __init__(self, id=0):
         self.level = 1
+        self.id = id
         self.inventory = inventory
         self.vision = []
         self.direction = 'Down'
@@ -42,8 +59,47 @@ class AI:
         self.x = 0
         self.y = 0
         self.queue = []
+        self.start = time.time()
+        self.mode = 'Normal'
+        self.broadcaster_direction = -1
+        self.count_incanter = 0
+
+        self.resources_to_get = {"linemate": 0, "deraumere": 0, "sibur": 0, "mendiane": 0, "phiras": 0, "thystame": 0}
+        if self.id == 0:
+            self.resources_to_get['sibur'] = resources_to_get['sibur']
+        elif self.id == 1:
+            self.resources_to_get['phiras'] = resources_to_get['phiras']
+        elif self.id == 2:
+            self.resources_to_get['deraumere'] = resources_to_get['deraumere']
+        elif self.id == 3:
+            self.resources_to_get['mendiane'] = resources_to_get['mendiane']
+        elif self.id == 4:
+            self.resources_to_get['linemate'] = resources_to_get['linemate']
+        elif self.id == 5:
+            self.resources_to_get['thystame'] = resources_to_get['thystame']
+        
+        self.has_all_resources_dict = {"linemate": False, "deraumere": False, "sibur": False, "mendiane": False, "phiras": False, "thystame": False}
+
+    def map_resource(self, id):
+        resources = {
+            0: 'sibur',
+            1: 'phiras',
+            2: 'deraumere',
+            3: 'mendiane',
+            4: 'linemate',
+            5: 'thystame'
+        }
+        return resources.get(id, 'Unknown resource')
+    
+    def has_all_resources_dict_func(self):
+        for resource, value in self.has_all_resources_dict.items():
+            if value == False:
+                return False
+        return True
 
     def parse_inventory(self, response):
+        if self.detect_type_of_response(response) != 'inventory':
+            return None
         inventory = {}
         response = response.strip('[]')
         list_of_items = response.split(', ')
@@ -120,16 +176,35 @@ class AI:
         final_list = self._convert_elements_to_dicts(padded_list)
         return final_list
     
+    def get_type_inventory_look(self, response):
+        try:
+            inventory_string = response.strip("[] ")
+            items = inventory_string.split(", ")
+            inventory_dict = {}
+
+            for item in items:
+                key, value = item.split(" ")
+                inventory_dict[key] = int(value)
+            return 'inventory'
+        except:
+            return 'look'
+    
     def detect_type_of_response(self, response):
         if response.startswith('ok'):
             return 'ok'
         if response.startswith('ko'):
             return 'ko'
         if response.startswith('['):
-            if len(response.strip('[]').split(', ')) == 7: # there is 7 key in an inventory
-                return 'inventory'
-            else:
-                return 'look'
+            return self.get_type_inventory_look(response)
+        if response.startswith('message'):
+            return 'broadcast'
+        if response.startswith('dead'):
+            return 'dead'
+        if response.startswith('Elevation underway'):
+            return 'elevation'
+        if response.startswith('Current level:'):
+            return 'level up'
+        
         return 'unknown'
     
     def update_state(self, response):
@@ -138,6 +213,9 @@ class AI:
             self.inventory = self.parse_inventory(response)
         if type_of_response == 'look':
             self.vision = self.parse_vision(response)
+        if type_of_response == 'level up':
+            self.level = int(response.split()[-1])
+            print(f"Level up! New level: {self.level}")
     
     def set_direction(self, goal_direction):
         if self.direction == goal_direction:
@@ -194,38 +272,65 @@ class AI:
         return state
     
     def has_all_resources(self):
-        for resource, amount_needed in resources_to_get.items():
-            if self.inventory[resource] < amount_needed:
+        for resource, amount in self.inventory.items():
+            if resource == 'food':
+                continue
+            if amount < self.resources_to_get[resource]:
                 return False
         return True
 
     def take_resources_to_get(self):
         state = False
 
-        if self.has_all_resources():
-            return True
-        
-        resources_to_get['food'] = float('inf')
-        for resource, amount_needed in resources_to_get.items():
-            if self.inventory[resource] < amount_needed:
-                amount_to_collect = amount_needed - self.inventory[resource]
-                for i, row in enumerate(self.vision):
-                    for j, cell in enumerate(row):
-                        if cell[resource] > 0:
-                            self.move_to(j, i)
-                            for _ in range(min(amount_to_collect, cell[resource])):
-                                self.queue.append(f'Take {resource}')
-                                amount_to_collect -= 1
-                            if amount_to_collect == 0:
-                                state = True
-                                break
-                    if amount_to_collect == 0:
-                        break
-        
+        goal_inventory = self.resources_to_get
+        # goal_inventory['food'] = 40
+        resources_to_collect = {k: v for k, v in goal_inventory.items() if v > self.inventory[k]}
+
+        for resource, amount_needed in resources_to_collect.items():
+            amount_to_collect = amount_needed - self.inventory[resource]
+            if amount_to_collect <= 0:
+                continue
+
+            for i, row in enumerate(self.vision):
+                for j, cell in enumerate(row):
+                    if cell.get(resource, 0) > 0:
+                        self.move_to(j, i)
+                        for _ in range(min(amount_to_collect, cell[resource])):
+                            self.queue.append(f'Take {resource}')
+                            amount_to_collect -= 1
+                        if amount_to_collect <= 0:
+                            state = True
+                            break
+                if amount_to_collect <= 0:
+                    break
         return state
+
 
     def reset_direction(self):
         self.direction = 'Down'
+
+    def linemate_level1(self):
+        state = False
+        for i, row in enumerate(self.vision):
+            for j, cell in enumerate(row):
+                try:
+                    if cell['linemate'] > 0:
+                        self.move_to(j, i)
+                        self.queue.append('Incantation')
+                        state = True
+                        return state
+                except:
+                    print(f"linemate doesn't exist")
+        return state
+
+    def drop_resources(self):
+        for resource, amount in self.inventory.items():
+            if resource == 'food':
+                continue
+            for _ in range(amount):
+                self.queue.append(f'Set {resource}')
+        self.inventory = inventory
+        return self.queue
 
     def algorithm(self):
         # Set initial position and direction of the player in the vision grid
@@ -234,133 +339,31 @@ class AI:
         self.reset_direction()
 
         # Prioritize taking food first
-        if self.inventory['food'] < 15:
+        if self.inventory['food'] < 15 or self.has_all_resources():
             if not self.take_resources('food'):
+                self.queue.append(random.choice(['Left', 'Right', 'Forward']))
                 self.queue.append('Forward')
                 self.queue.append('Forward')
-                self.queue.append('Forward')
+            return self.queue
         
-        else:
-            if not self.take_resources_to_get():
-                self.queue.append('Forward')
-                self.queue.append('Forward')
-                self.queue.append('Forward')
-
+        if self.level == 1:
+            self.linemate_level1()
+            return self.queue
+        
+        if not self.take_resources_to_get():
+            self.queue.append(random.choice(['Left', 'Right', 'Forward']))
+            self.queue.append('Forward')
+            self.queue.append('Forward')
         return self.queue
+        
+    def action_to_broadcaster(self):
+        if self.broadcaster_direction == 1 or self.broadcaster_direction == 2 or self.broadcaster_direction == 8:
+            return 'Forward'            
 
+        if self.broadcaster_direction == 3 or self.broadcaster_direction == 4 or self.broadcaster_direction == 5:
+            return 'Left'
 
-class Client:
-    def __init__(self, host, port, name):
-        self.host = host
-        self.port = int(port)
-        self.name = name
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((self.host, self.port))
-        self.queue = []
-
-        self.selector = selectors.DefaultSelector()
-        self.selector.register(self.socket, selectors.EVENT_READ, self.receive)
-
-        self.ai = AI()
-        self.command_queue = []
-        self.has_all_resources = False
-
-    def send(self, data):
-        self.socket.send(data.encode() + b'\n')
-
-    def receive(self):
-        data = self.socket.recv(1024).decode().strip()
-        if (data.startswith('message')):
-            print(data)
-        if not data:
-            print("Server closed the connection")
-            sys.exit(0)
-        return data
-
-    def update_inventory(self):
-        self.send('Inventory')
-        data = self.receive()
-        self.ai.update_state(data)
-
-    def update_vision(self):
-        self.send('Look')
-        data = self.receive()
-        self.ai.update_state(data)
-
-    def send_movement_queue(self):
-        for elt in self.queue:
-            self.send(elt)
-            print(f"Sent: {elt}")
-            data = self.receive()
-            if data.startswith('dead'):
-                print("Dead")
-                sys.exit(0)
-            self.ai.update_state(data)
-        self.queue.clear()
-
-    def send_broadcast(self, message):
-        self.send(f"Broadcast {message}")
-        data = self.receive()
-        # Optionally handle response to broadcast if needed
-
-    def handle_broadcast(self, message):
-        # Logic to handle incoming broadcast messages
-        if message.startswith('Broadcast'):
-            _, content = message.split(' ', 1)
-            # Example: Handle broadcast content here
-            print(f"Received broadcast: {content}")
-            # Add logic to respond or update internal state based on the broadcast
-
-    def close(self):
-        self.selector.unregister(self.socket)
-        self.socket.close()
-
-    def connect(self):
-        self.send(self.name)
-    
-    def run(self):
-        self.connect()
-        self.receive()  # Initial connection response
-        self.receive()  # Additional server response (if any)
-        while True:
-            self.update_inventory()
-            self.update_vision()
-            self.queue = ['Forward', 'Right']
-            # self.queue = self.ai.algorithm()
-            self.send_movement_queue()
-            print("Queue sended")
-            if (self.ai.inventory['food'] > 15):
-                self.send('Broadcast come')
-                data = self.receive()
-
-            # Check for broadcasts
-            events = self.selector.select(timeout=0)
-            for key, mask in events:
-                callback = key.data
-                data = callback()
-                if data.startswith('message'):
-                    print(data)
-                    self.handle_broadcast(data)
-                else:
-                    self.ai.update_state(data)
-
-
-def main():
-    args = sys.argv[1:]
-    parser = ParseArgs()
-    host, port, name = parser.parse(args)
-    client = Client(host, port, name)
-    client.run()
-
-if __name__ == "__main__":
-    main()
-
-def main():
-    args = sys.argv[1:]
-    parser = ParseArgs()
-    host, port, name = parser.parse(args)
-    client = Client(host, port, name)
-    client.run()
-
-if __name__ == "__main__":
-    main()
+        if self.broadcaster_direction == 6 or self.broadcaster_direction == 7:
+            return 'Right'
+        
+        return None
