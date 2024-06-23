@@ -45,7 +45,7 @@ class ParseArgs:
     def parse(self, args):
         for i in range(0, len(args), 2):
             if args[i] == '-p':
-                if (isinstance(args[i + 1], int) != True or 3 > len(str(args[i + 1])) < 5 ):
+                if (3 >= len(str(args[i + 1]))  or len(str(args[i + 1]))  >= 5 ):
                     return 84
                 self.port = args[i + 1]
             elif args[i] == '-n':
