@@ -167,3 +167,9 @@ std::string AHud::orientationToString(Orientation orientation)
     }
     return "";
 }
+
+void AHud::setRatioSize(float ratio)
+{
+    _titleSize = 40.0f * ratio;
+    _textSize = 35.0f * ratio;
+}

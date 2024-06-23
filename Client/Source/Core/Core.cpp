@@ -182,6 +182,10 @@ void Core::run() {
         _hudRight.setHudWidth(hudRightWidth);
         _hudRight.setHudHeight(hudRightHeight);
 
+        float screenRatio = static_cast<float>(screenWidth) / 3840.0f;
+        _hudRight.setRatioSize(screenRatio);
+        _hudLeft.setRatioSize(screenRatio);
+
         _hudRight.setHudPos({
             GetScreenWidth() - _hudRight.getHudWidth() - 20,
             GetScreenHeight() - _hudRight.getHudHeight()

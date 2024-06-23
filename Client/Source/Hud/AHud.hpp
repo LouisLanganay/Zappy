@@ -31,6 +31,7 @@ namespace Zappy {
             void setHudPos(std::pair<float, float> pos) override;
 
             void loadFonts();
+            void setRatioSize(float ratio);
 
         protected:
             AHud(
@@ -58,8 +59,8 @@ namespace Zappy {
             virtual std::string typeToString(Resources::Type type);
             virtual std::string orientationToString(Orientation orientation);
 
-            const float _titleSize = 40;
-            const float _textSize = 35;
+            float _titleSize = 40;
+            float _textSize = 35;
             const float _hudPadding = 20;
             float _hudWidth;
             float _hudHeight;
