@@ -338,17 +338,20 @@ class Client:
         self.has_all_resources = False
 
     def send(self, data):
-        self.socket.send(data.encode() + b'\n')
+        try:
+            self.socket.send(data.encode() + b'\n')
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            return 84
+        return 0
 
     def receive(self):
         buffer = ""
         while True:
             data = self.socket.recv(4096).decode().strip()
-            
             if not data:
                 print("Server closed the connection")
-                sys.exit(0)
-            
+                sys.exit(84)
             buffer += data
             while '\n' in buffer:
                 message, buffer = buffer.split('\n', 1)
@@ -356,31 +359,33 @@ class Client:
                     self.handle_broadcast(message)
                 else:
                     self.ai.update_state(message)
-            
             if '\n' not in buffer:
                 break
-        
+
         count = 0
         while buffer.startswith('message'): #FIXME add this additionnal condition if needed and count < 3:
             self.handle_broadcast(buffer)
             buffer = self.socket.recv(2048).decode().strip()
             count += 1
-        
+
         return buffer
 
     def update_inventory(self):
-        self.send('Inventory')
+        if (self.send('Inventory') == 84):
+            return 84
         data = self.receive()
         self.ai.update_state(data)
 
     def update_vision(self):
-        self.send('Look')
+        if (self.send('Look') == 84):
+            return 84
         data = self.receive()
         self.ai.update_state(data)
 
     def send_queue(self):
         for elt in self.queue:
-            self.send(elt)
+            if (self.send(elt) == 84):
+                return 84
             data = self.receive()
             if data.startswith('dead'):
                 print("Dead")
@@ -389,7 +394,8 @@ class Client:
         self.queue.clear()
 
     def send_broadcast(self, message):
-        self.send(f"Broadcast {message}")
+        if (self.send(f"Broadcast {message}") == 84):
+            return 84
         data = self.receive()
 
     def receive_no_data_check(self):
@@ -408,8 +414,7 @@ class Client:
             if self.ai.count_incanter == 6:
                 self.ai.mode = 'Incantation'
                 self.run()
-                return
-        
+
         if data == 'Group' and self.ai.mode == 'Broadcaster':
             self.ai.mode = 'Normal'
             self.ai.broadcaster_direction = direction
@@ -417,10 +422,10 @@ class Client:
         if data == 'Group' and self.ai.mode == 'Normal':
             self.ai.mode = 'Group'
             self.ai.count_incanter = 1
-        
+
         if data == 'Group' and self.ai.mode == 'Group':
             self.ai.broadcaster_direction = direction
-        
+
         if self.ai.broadcaster_direction == 0 and self.ai.mode == 'Group':
             self.ai.broadcaster_direction = -1
             print("Group is over")
@@ -433,13 +438,16 @@ class Client:
 
         if self.ai.mode == 'Group':
             if self.ai.broadcaster_direction == 1 or self.ai.broadcaster_direction == 2 or self.ai.broadcaster_direction == 8:
-                self.send('Forward')
+                if (self.send('Forward') == 84):
+                    return 84
 
             if self.ai.broadcaster_direction == 3 or self.ai.broadcaster_direction == 4 or self.ai.broadcaster_direction == 5:
-                self.send('Left')
+                if (self.send('Left') == 84):
+                    return 84
 
             if self.ai.broadcaster_direction == 6 or self.ai.broadcaster_direction == 7:
-                self.send('Right')
+                if (self.send('Right') == 84):
+                    return 84
 
             data = self.receive()
 
@@ -464,7 +472,8 @@ class Client:
         if (data != "WELCOME"):
             return 84
         print(data)
-        self.send(self.name)
+        if (self.send(self.name) == 84):
+            return 84
         data = self.receive()  # Additional server response (map size)
         if (data == None):
             return 84
