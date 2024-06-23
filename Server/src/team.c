@@ -32,3 +32,16 @@ team_t *team_get_by_id(
             return team;
     return NULL;
 }
+
+uint16_t team_get_nb_ai(
+    const zappy_server_t *server,
+    const team_t *team)
+{
+    ai_t *ai;
+    uint16_t nb = 0;
+
+    TAILQ_FOREACH(ai, &server->ais, entries)
+        if (ai->team == team)
+            ++nb;
+    return nb;
+}

@@ -59,6 +59,8 @@ Test(eject, check_basic_eject)
     eject(&server, &ai1, "");
     cr_assert_stdout_eq_str("To client 2: eject: 5\n"
                             "To client 1: ok\n");
+    cr_assert_eq(5, ai2.pos.x);
+    cr_assert_eq(6, ai2.pos.y);
 }
 
 Test(eject, check_basic_eject_2)
@@ -75,6 +77,8 @@ Test(eject, check_basic_eject_2)
     eject(&server, &ai1, "");
     cr_assert_stdout_eq_str("To client 2: eject: 7\n"
                             "To client 1: ok\n");
+    cr_assert_eq(5, ai2.pos.x);
+    cr_assert_eq(4, ai2.pos.y);
 }
 
 Test(eject, check_basic_eject_3)
@@ -91,6 +95,8 @@ Test(eject, check_basic_eject_3)
     eject(&server, &ai1, "");
     cr_assert_stdout_eq_str("To client 2: eject: 3\n"
                             "To client 1: ok\n");
+    cr_assert_eq(4, ai2.pos.x);
+    cr_assert_eq(5, ai2.pos.y);
 }
 
 Test(eject, check_eject_alone)
