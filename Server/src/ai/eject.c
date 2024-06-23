@@ -28,6 +28,18 @@ static void eject_egg(
     }
 }
 
+static uint8_t eject_direction(
+    const ai_t *ai,
+    const ai_t *target)
+{
+    return (uint8_t[4][4]){
+            { 5, 3, 1, 7 },
+            { 7, 5, 3, 1 },
+            { 1, 7, 5, 3 },
+            { 3, 1, 7, 5 }
+        }[target->orientation - 1][ai->orientation - 1];
+}
+
 //        NORTH EAST  SOUTH WEST
 // NORTH  |  5  |  3  |  1  |  7
 // EAST   |  7  |  5  |  3  |  1
@@ -45,15 +57,11 @@ void eject(
         if (target->fd == ai->fd
             || target->pos.x != ai->pos.x || target->pos.y != ai->pos.y)
             continue;
-        server_send(server, target->fd, "eject: %i",
-            (uint8_t[4][4]){
-                { 5, 3, 1, 7 },
-                { 7, 5, 3, 1 },
-                { 1, 7, 5, 3 },
-                { 3, 1, 7, 5 }
-            }[target->orientation - 1][ai->orientation - 1]);
+        server_send(server, target->fd,
+            "eject: %i", eject_direction(ai, target));
         ejected = true;
         pex(server, target);
+        server_ppo(server, target);
     }
     eject_egg(server, ai, &ejected);
     if (ejected)

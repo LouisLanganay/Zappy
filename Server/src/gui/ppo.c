@@ -36,9 +36,6 @@ void server_ppo(
     zappy_server_t *server,
     const ai_t *ai)
 {
-    gui_t *gui;
-
-    TAILQ_FOREACH(gui, &server->guis, entries)
-        server_send(server, gui->fd,
-            "ppo %d %d %d %d", ai->id, ai->pos.x, ai->pos.y, ai->orientation);
+    gui_send_to_all(server, "ppo %d %d %d %d\n",
+        ai->id, ai->pos.x, ai->pos.y, ai->orientation);
 }

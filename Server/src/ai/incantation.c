@@ -146,9 +146,9 @@ void incantation(
     TAILQ_FOREACH(elm, &ai->incantations, entries)
         if (elm->ai->pos.x == ai->pos.x && elm->ai->pos.y == ai->pos.y
             && elm->ai->level == ai->level && ai->state != DEAD) {
-            elm->ai->level++;
             server_send(server, elm->ai->fd,
-                "Current level: %d", elm->ai->level);
+                "Current level: %d", ++elm->ai->level);
+            server_plv(server, elm->ai);
         }
     pie(server, ai);
     clean_incantations(server, ai);

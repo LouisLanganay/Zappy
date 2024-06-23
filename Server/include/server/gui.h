@@ -110,6 +110,9 @@ void plv(
     zappy_server_t *server,
     int interlocutor,
     const char *message);
+void server_plv(
+    zappy_server_t *server,
+    const ai_t *ai);
 /**
  * @brief Send the inventory of a ai when pin is received from a GUI
  *
